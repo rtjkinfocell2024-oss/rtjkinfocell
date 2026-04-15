@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { Plus, Search, Filter, MoreVertical, Eye, Edit, Trash2 } from 'lucide-react';
 import { cn, formatCurrency, formatDate } from '@/src/lib/utils';
-import { ServiceOrder, OSStatus } from '@/src/types';
+import { ServiceOrder, OSStatus, Customer } from '@/src/types';
 import { OSModal } from './OSModal';
 
 interface ServiceOrdersProps {
   serviceOrders: ServiceOrder[];
   onSaveOS: (os: ServiceOrder) => void;
+  customers: Customer[];
 }
 
-export function ServiceOrders({ serviceOrders, onSaveOS }: ServiceOrdersProps) {
+export function ServiceOrders({ serviceOrders, onSaveOS, customers }: ServiceOrdersProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'create' | 'edit' | 'view'>('create');
@@ -163,6 +164,7 @@ export function ServiceOrders({ serviceOrders, onSaveOS }: ServiceOrdersProps) {
         onSave={onSaveOS}
         os={selectedOS}
         mode={modalMode}
+        customers={customers}
       />
     </div>
   );

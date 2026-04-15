@@ -12,11 +12,11 @@ import { cn } from './lib/utils';
 import { ServiceOrder, Product, Customer, Transaction } from './types';
 
 const initialOS: ServiceOrder[] = [
-  { id: '8922', customerId: '1', customerName: 'Ricardo Mendes', device: 'iPhone 13 Pro', problem: 'Troca de Tela', status: 'Aguardando Peça', totalValue: 1200, createdAt: '2024-04-10T10:00:00Z', updatedAt: '2024-04-12T14:30:00Z' },
-  { id: '8921', customerId: '2', customerName: 'Ana Clara Silva', device: 'Samsung S22', problem: 'Troca de Bateria', status: 'Pronto', totalValue: 450, createdAt: '2024-04-11T09:15:00Z', updatedAt: '2024-04-13T11:00:00Z' },
-  { id: '8920', customerId: '3', customerName: 'Julio Cesar', device: 'Macbook Air M1', problem: 'Limpeza Preventiva', status: 'Em Manutenção', totalValue: 350, createdAt: '2024-04-12T15:45:00Z', updatedAt: '2024-04-12T15:45:00Z' },
-  { id: '8919', customerId: '4', customerName: 'Beatriz Souza', device: 'Motorola G60', problem: 'Conector de Carga', status: 'Orçamento', totalValue: 180, createdAt: '2024-04-13T08:30:00Z', updatedAt: '2024-04-13T08:30:00Z' },
-  { id: '8918', customerId: '5', customerName: 'Marcos Paulo', device: 'Xiaomi Redmi Note 11', problem: 'Troca de Vidro Traseiro', status: 'Pronto', totalValue: 520, createdAt: '2024-04-13T14:20:00Z', updatedAt: '2024-04-14T10:00:00Z' },
+  { id: '8922', customerId: '1', customerName: 'Ricardo Mendes', device: 'iPhone 13 Pro', problem: 'Troca de Tela', status: 'Aguardando Peça', priority: 'Normal', totalValue: 1200, entryDate: '2024-04-10', createdAt: '2024-04-10T10:00:00Z', updatedAt: '2024-04-12T14:30:00Z' },
+  { id: '8921', customerId: '2', customerName: 'Ana Clara Silva', device: 'Samsung S22', problem: 'Troca de Bateria', status: 'Pronto', priority: 'Baixa', totalValue: 450, entryDate: '2024-04-11', createdAt: '2024-04-11T09:15:00Z', updatedAt: '2024-04-13T11:00:00Z' },
+  { id: '8920', customerId: '3', customerName: 'Julio Cesar', device: 'Macbook Air M1', problem: 'Limpeza Preventiva', status: 'Em Manutenção', priority: 'Normal', totalValue: 350, entryDate: '2024-04-12', createdAt: '2024-04-12T15:45:00Z', updatedAt: '2024-04-12T15:45:00Z' },
+  { id: '8919', customerId: '4', customerName: 'Beatriz Souza', device: 'Motorola G60', problem: 'Conector de Carga', status: 'Orçamento', priority: 'Alta', totalValue: 180, entryDate: '2024-04-13', createdAt: '2024-04-13T08:30:00Z', updatedAt: '2024-04-13T08:30:00Z' },
+  { id: '8918', customerId: '5', customerName: 'Marcos Paulo', device: 'Xiaomi Redmi Note 11', problem: 'Troca de Vidro Traseiro', status: 'Pronto', priority: 'Normal', totalValue: 520, entryDate: '2024-04-13', createdAt: '2024-04-13T14:20:00Z', updatedAt: '2024-04-14T10:00:00Z' },
 ];
 
 const initialProducts: Product[] = [
@@ -104,7 +104,7 @@ export default function App() {
       case 'dashboard':
         return <Dashboard serviceOrders={serviceOrders} setActiveTab={setActiveTab} />;
       case 'os':
-        return <ServiceOrders serviceOrders={serviceOrders} onSaveOS={handleSaveOS} />;
+        return <ServiceOrders serviceOrders={serviceOrders} onSaveOS={handleSaveOS} customers={customers} />;
       case 'venda-rapida':
         return <QuickSale products={products} onSaveTransaction={handleSaveTransaction} />;
       case 'estoque':

@@ -33,7 +33,8 @@ export interface Customer {
   notes?: string;
 }
 
-export type OSStatus = 'Orçamento' | 'Aguardando Peça' | 'Em Manutenção' | 'Pronto' | 'Entregue' | 'Cancelado';
+export type OSStatus = 'Pendente' | 'Orçamento' | 'Aguardando Peça' | 'Em Manutenção' | 'Pronto' | 'Entregue' | 'Cancelado';
+export type OSPriority = 'Baixa' | 'Normal' | 'Alta' | 'Urgente';
 
 export interface ServiceOrder {
   id: string;
@@ -44,7 +45,11 @@ export interface ServiceOrder {
   problem: string;
   solution?: string;
   status: OSStatus;
+  priority: OSPriority;
   totalValue: number;
+  entryDate: string;
+  deliveryForecast?: string;
+  technicalNotes?: string;
   createdAt: string;
   updatedAt: string;
 }
