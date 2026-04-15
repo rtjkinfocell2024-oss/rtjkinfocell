@@ -109,7 +109,8 @@ export function Inventory({ products, onSaveProduct, onDeleteProduct }: Inventor
               <option>Todas Categorias</option>
               <option>Acessórios</option>
               <option>Peças</option>
-              <option>Aparelhos</option>
+              <option>Celular</option>
+              <option>Outros</option>
             </select>
           </div>
         </div>

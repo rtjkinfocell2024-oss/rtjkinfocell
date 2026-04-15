@@ -6,11 +6,16 @@
 export interface Product {
   id: string;
   name: string;
-  category: 'Acessórios' | 'Peças' | 'Aparelhos' | 'Outros';
+  category: 'Acessórios' | 'Peças' | 'Celular' | 'Outros';
+  brand?: string;
+  model?: string;
+  description?: string;
   price: number;
   cost: number;
   stock: number;
   minStock: number;
+  supplier?: string;
+  barcode?: string;
 }
 
 export interface Service {
