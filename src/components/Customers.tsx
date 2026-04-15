@@ -2,17 +2,43 @@ import { useState } from 'react';
 import { Plus, Search, UserPlus, Phone, Mail, Edit, Trash2, History } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import { Customer } from '@/src/types';
+import { CustomerModal } from './CustomerModal';
 
-const mockCustomers: Customer[] = [
-  { id: '1', name: 'Ricardo Mendes', phone: '(11) 98888-7777', email: 'ricardo@email.com', cpf: '123.456.789-00' },
-  { id: '2', name: 'Ana Clara Silva', phone: '(11) 97777-6666', email: 'ana@email.com' },
-  { id: '3', name: 'Julio Cesar', phone: '(11) 96666-5555', email: 'julio@email.com' },
-  { id: '4', name: 'Beatriz Souza', phone: '(11) 95555-4444' },
-  { id: '5', name: 'Marcos Paulo', phone: '(11) 94444-3333', email: 'marcos@email.com' },
-];
+interface CustomersProps {
+  customers: Customer[];
+  onSaveCustomer: (customer: Customer) => void;
+  onDeleteCustomer: (id: string) => void;
+}
 
-export function Customers() {
+export function Customers({ customers, onSaveCustomer, onDeleteCustomer }: CustomersProps) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [modalMode, setModalMode] = useState<'create' | 'edit' | 'view'>('create');
+
+  const filteredCustomers = customers.filter(c => 
+    c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    c.phone.includes(searchTerm) || 
+    (c.cpf && c.cpf.includes(searchTerm))
+  );
+
+  const handleCreate = () => {
+    setSelectedCustomer(null);
+    setModalMode('create');
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setModalMode('edit');
+    setIsModalOpen(true);
+  };
+
+  const handleView = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setModalMode('view');
+    setIsModalOpen(true);
+  };
 
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-500">
@@ -22,7 +48,7 @@ export function Customers() {
           <p className="text-sm text-text-muted">Gerencie sua base de contatos e histórico.</p>
         </div>
         
-        <button className="btn-primary flex items-center gap-2">
+        <button onClick={handleCreate} className="btn-primary flex items-center gap-2">
           <UserPlus size={18} />
           Novo Cliente
         </button>
@@ -54,8 +80,8 @@ export function Customers() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {mockCustomers.map((customer) => (
-                <tr key={customer.id} className="hover:bg-slate-50 transition-colors">
+              {filteredCustomers.map((customer) => (
+                <tr key={customer.id} className="hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => handleView(customer)}>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-text-muted font-bold text-xs uppercase">
@@ -82,15 +108,27 @@ export function Customers() {
                   <td className="px-5 py-4 text-center">
                     <span className="font-bold text-primary">1</span>
                   </td>
-                  <td className="px-5 py-4">
+                  <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center justify-center gap-2">
-                      <button className="p-1.5 text-text-muted hover:text-primary hover:bg-primary/5 rounded-md transition-colors" title="Histórico">
+                      <button 
+                        onClick={() => alert('Histórico do cliente em breve!')}
+                        className="p-1.5 text-text-muted hover:text-primary hover:bg-primary/5 rounded-md transition-colors" 
+                        title="Histórico"
+                      >
                         <History size={16} />
                       </button>
-                      <button className="p-1.5 text-text-muted hover:text-primary hover:bg-primary/5 rounded-md transition-colors" title="Editar">
+                      <button 
+                        onClick={() => handleEdit(customer)}
+                        className="p-1.5 text-text-muted hover:text-primary hover:bg-primary/5 rounded-md transition-colors" 
+                        title="Editar"
+                      >
                         <Edit size={16} />
                       </button>
-                      <button className="p-1.5 text-text-muted hover:text-danger hover:bg-danger/5 rounded-md transition-colors" title="Excluir">
+                      <button 
+                        onClick={() => onDeleteCustomer(customer.id)}
+                        className="p-1.5 text-text-muted hover:text-danger hover:bg-danger/5 rounded-md transition-colors" 
+                        title="Excluir"
+                      >
                         <Trash2 size={16} />
                       </button>
                     </div>
@@ -101,6 +139,14 @@ export function Customers() {
           </table>
         </div>
       </div>
+
+      <CustomerModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={onSaveCustomer}
+        customer={selectedCustomer}
+        mode={modalMode}
+      />
     </div>
   );
 }

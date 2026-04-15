@@ -10,16 +10,62 @@ import {
 } from 'lucide-react';
 import { cn, formatCurrency, formatDate } from '@/src/lib/utils';
 import { Transaction } from '@/src/types';
+import { TransactionModal } from './TransactionModal';
 
-const mockTransactions: Transaction[] = [
-  { id: '1', type: 'Entrada', category: 'Venda', description: 'Venda de Película e Cabo', value: 165.00, date: '2024-04-14T10:00:00Z' },
-  { id: '2', type: 'Saída', category: 'Fornecedor', description: 'Compra de Telas iPhone', value: 1200.00, date: '2024-04-14T11:30:00Z' },
-  { id: '3', type: 'Entrada', category: 'Serviço', description: 'OS #8921 - Troca de Bateria', value: 450.00, date: '2024-04-14T14:00:00Z' },
-  { id: '4', type: 'Saída', category: 'Aluguel', description: 'Aluguel da Loja - Abril', value: 2500.00, date: '2024-04-10T09:00:00Z' },
-  { id: '5', type: 'Entrada', category: 'Venda', description: 'Venda de Fone Bluetooth', value: 250.00, date: '2024-04-13T16:45:00Z' },
-];
+interface FinancialProps {
+  transactions: Transaction[];
+  onSaveTransaction: (tx: Transaction) => void;
+}
 
-export function Financial() {
+export function Financial({ transactions, onSaveTransaction }: FinancialProps) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
+  const [modalMode, setModalMode] = useState<'create' | 'edit' | 'view'>('create');
+
+  const filteredTransactions = transactions.filter(tx => 
+    tx.description.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    tx.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleCreate = () => {
+    setSelectedTx(null);
+    setModalMode('create');
+    setIsModalOpen(true);
+  };
+
+  const handleView = (tx: Transaction) => {
+    setSelectedTx(tx);
+    setModalMode('view');
+    setIsModalOpen(true);
+  };
+
+  const totalIn = transactions.filter(t => t.type === 'Entrada').reduce((acc, t) => acc + t.value, 0);
+  const totalOut = transactions.filter(t => t.type === 'Saída').reduce((acc, t) => acc + t.value, 0);
+  const balance = totalIn - totalOut;
+
+  const handleExport = () => {
+    const headers = ['Data', 'Descrição', 'Categoria', 'Valor', 'Tipo'];
+    const rows = transactions.map(tx => [
+      formatDate(tx.date),
+      tx.description,
+      tx.category,
+      tx.value.toString(),
+      tx.type
+    ]);
+    
+    const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `financeiro_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-500">
       <header className="flex justify-between items-center">
@@ -29,11 +75,11 @@ export function Financial() {
         </div>
         
         <div className="flex gap-3">
-          <button className="btn-secondary flex items-center gap-2">
+          <button onClick={handleExport} className="btn-secondary flex items-center gap-2">
             <Download size={18} />
             Exportar
           </button>
-          <button className="btn-primary flex items-center gap-2">
+          <button onClick={handleCreate} className="btn-primary flex items-center gap-2">
             <DollarSign size={18} />
             Nova Transação
           </button>
@@ -48,7 +94,7 @@ export function Financial() {
             </div>
             <p className="label mb-0">Total Entradas (Mês)</p>
           </div>
-          <h3 className="text-2xl font-bold text-success">{formatCurrency(12450.00)}</h3>
+          <h3 className="text-2xl font-bold text-success">{formatCurrency(totalIn)}</h3>
         </div>
         <div className="card p-5">
           <div className="flex items-center gap-3 mb-4">
@@ -57,7 +103,7 @@ export function Financial() {
             </div>
             <p className="label mb-0">Total Saídas (Mês)</p>
           </div>
-          <h3 className="text-2xl font-bold text-danger">{formatCurrency(4820.00)}</h3>
+          <h3 className="text-2xl font-bold text-danger">{formatCurrency(totalOut)}</h3>
         </div>
         <div className="card p-5 bg-primary/5 border-primary/20">
           <div className="flex items-center gap-3 mb-4">
@@ -66,7 +112,7 @@ export function Financial() {
             </div>
             <p className="label mb-0">Saldo em Caixa</p>
           </div>
-          <h3 className="text-2xl font-bold text-primary">{formatCurrency(7630.00)}</h3>
+          <h3 className="text-2xl font-bold text-primary">{formatCurrency(balance)}</h3>
         </div>
       </div>
 
@@ -86,6 +132,8 @@ export function Financial() {
               type="text" 
               placeholder="Buscar transação..." 
               className="input pl-10"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           
@@ -109,8 +157,8 @@ export function Financial() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {mockTransactions.map((tx) => (
-                <tr key={tx.id} className="hover:bg-slate-50 transition-colors">
+              {filteredTransactions.map((tx) => (
+                <tr key={tx.id} className="hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => handleView(tx)}>
                   <td className="px-5 py-4 text-text-muted">{formatDate(tx.date)}</td>
                   <td className="px-5 py-4 font-medium">{tx.description}</td>
                   <td className="px-5 py-4 text-text-muted">{tx.category}</td>
@@ -134,6 +182,14 @@ export function Financial() {
           </table>
         </div>
       </div>
+
+      <TransactionModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={onSaveTransaction}
+        transaction={selectedTx}
+        mode={modalMode}
+      />
     </div>
   );
 }

@@ -2,18 +2,46 @@ import { useState } from 'react';
 import { Plus, Search, Filter, Package, AlertTriangle, Edit, Trash2 } from 'lucide-react';
 import { cn, formatCurrency } from '@/src/lib/utils';
 import { Product } from '@/src/types';
+import { ProductModal } from './ProductModal';
 
-const mockProducts: Product[] = [
-  { id: '1', name: 'Película de Vidro 3D', category: 'Acessórios', price: 45, cost: 5, stock: 50, minStock: 10 },
-  { id: '2', name: 'Cabo Lightning Original', category: 'Acessórios', price: 120, cost: 40, stock: 15, minStock: 5 },
-  { id: '3', name: 'Fone Bluetooth Pro', category: 'Acessórios', price: 250, cost: 100, stock: 2, minStock: 3 },
-  { id: '4', name: 'Carregador Turbo 20W', category: 'Acessórios', price: 150, cost: 60, stock: 20, minStock: 5 },
-  { id: '5', name: 'Tela iPhone 13 Pro', category: 'Peças', price: 850, cost: 450, stock: 3, minStock: 2 },
-  { id: '6', name: 'Bateria Samsung S22', category: 'Peças', price: 180, cost: 60, stock: 1, minStock: 2 },
-];
+interface InventoryProps {
+  products: Product[];
+  onSaveProduct: (product: Product) => void;
+  onDeleteProduct: (id: string) => void;
+}
 
-export function Inventory() {
+export function Inventory({ products, onSaveProduct, onDeleteProduct }: InventoryProps) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [modalMode, setModalMode] = useState<'create' | 'edit' | 'view'>('create');
+
+  const filteredProducts = products.filter(p => 
+    p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    p.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleCreate = () => {
+    setSelectedProduct(null);
+    setModalMode('create');
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (product: Product) => {
+    setSelectedProduct(product);
+    setModalMode('edit');
+    setIsModalOpen(true);
+  };
+
+  const handleView = (product: Product) => {
+    setSelectedProduct(product);
+    setModalMode('view');
+    setIsModalOpen(true);
+  };
+
+  const totalStock = products.reduce((acc, p) => acc + p.stock, 0);
+  const totalCost = products.reduce((acc, p) => acc + (p.cost * p.stock), 0);
+  const alertItems = products.filter(p => p.stock <= p.minStock).length;
 
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-500">
@@ -24,11 +52,14 @@ export function Inventory() {
         </div>
         
         <div className="flex gap-3">
-          <button className="btn-secondary flex items-center gap-2">
+          <button 
+            onClick={() => alert('Gerenciamento de categorias em breve!')}
+            className="btn-secondary flex items-center gap-2"
+          >
             <Package size={18} />
             Categorias
           </button>
-          <button className="btn-primary flex items-center gap-2">
+          <button onClick={handleCreate} className="btn-primary flex items-center gap-2">
             <Plus size={18} />
             Novo Produto
           </button>
@@ -38,17 +69,20 @@ export function Inventory() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <div className="card p-5">
           <p className="label">Total em Estoque</p>
-          <h3 className="text-2xl font-bold">91 itens</h3>
+          <h3 className="text-2xl font-bold">{totalStock} itens</h3>
         </div>
         <div className="card p-5">
           <p className="label">Valor em Estoque (Custo)</p>
-          <h3 className="text-2xl font-bold">{formatCurrency(2450.00)}</h3>
+          <h3 className="text-2xl font-bold">{formatCurrency(totalCost)}</h3>
         </div>
-        <div className="card p-5 border-warning/50 bg-warning/5">
-          <p className="label text-warning">Itens em Alerta</p>
+        <div className={cn(
+          "card p-5 border-warning/50 bg-warning/5",
+          alertItems > 0 ? "border-warning/50 bg-warning/5" : "border-border bg-white"
+        )}>
+          <p className={cn("label", alertItems > 0 && "text-warning")}>Itens em Alerta</p>
           <div className="flex items-center gap-2">
-            <AlertTriangle size={20} className="text-warning" />
-            <h3 className="text-2xl font-bold text-warning">2 itens</h3>
+            <AlertTriangle size={20} className={cn(alertItems > 0 ? "text-warning" : "text-text-muted")} />
+            <h3 className={cn("text-2xl font-bold", alertItems > 0 && "text-warning")}>{alertItems} itens</h3>
           </div>
         </div>
       </div>
@@ -93,8 +127,8 @@ export function Inventory() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {mockProducts.map((product) => (
-                <tr key={product.id} className="hover:bg-slate-50 transition-colors">
+              {filteredProducts.map((product) => (
+                <tr key={product.id} className="hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => handleView(product)}>
                   <td className="px-5 py-4 font-medium">{product.name}</td>
                   <td className="px-5 py-4 text-text-muted">{product.category}</td>
                   <td className="px-5 py-4 text-right">{formatCurrency(product.cost)}</td>
@@ -108,12 +142,18 @@ export function Inventory() {
                     </span>
                     <span className="text-[10px] text-text-muted ml-1">/ {product.minStock}</span>
                   </td>
-                  <td className="px-5 py-4">
+                  <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center justify-center gap-2">
-                      <button className="p-1.5 text-text-muted hover:text-primary hover:bg-primary/5 rounded-md transition-colors">
+                      <button 
+                        onClick={() => handleEdit(product)}
+                        className="p-1.5 text-text-muted hover:text-primary hover:bg-primary/5 rounded-md transition-colors"
+                      >
                         <Edit size={16} />
                       </button>
-                      <button className="p-1.5 text-text-muted hover:text-danger hover:bg-danger/5 rounded-md transition-colors">
+                      <button 
+                        onClick={() => onDeleteProduct(product.id)}
+                        className="p-1.5 text-text-muted hover:text-danger hover:bg-danger/5 rounded-md transition-colors"
+                      >
                         <Trash2 size={16} />
                       </button>
                     </div>
@@ -124,6 +164,14 @@ export function Inventory() {
           </table>
         </div>
       </div>
+
+      <ProductModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={onSaveProduct}
+        product={selectedProduct}
+        mode={modalMode}
+      />
     </div>
   );
 }

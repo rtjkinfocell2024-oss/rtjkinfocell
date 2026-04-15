@@ -1,18 +1,17 @@
 import { useState } from 'react';
-import { ShoppingCart, Plus, Trash2, CreditCard, DollarSign, Smartphone, Zap } from 'lucide-react';
+import { ShoppingCart, Plus, Trash2, CreditCard, DollarSign, Smartphone, Zap, CheckCircle2 } from 'lucide-react';
 import { cn, formatCurrency } from '@/src/lib/utils';
-import { Product, SaleItem } from '@/src/types';
+import { Product, SaleItem, Transaction } from '@/src/types';
 
-const mockProducts: Product[] = [
-  { id: '1', name: 'Película de Vidro 3D', category: 'Acessórios', price: 45, cost: 5, stock: 50, minStock: 10 },
-  { id: '2', name: 'Cabo Lightning Original', category: 'Acessórios', price: 120, cost: 40, stock: 15, minStock: 5 },
-  { id: '3', name: 'Fone Bluetooth Pro', category: 'Acessórios', price: 250, cost: 100, stock: 8, minStock: 3 },
-  { id: '4', name: 'Carregador Turbo 20W', category: 'Acessórios', price: 150, cost: 60, stock: 20, minStock: 5 },
-];
+interface QuickSaleProps {
+  products: Product[];
+  onSaveTransaction: (tx: Transaction) => void;
+}
 
-export function QuickSale() {
+export function QuickSale({ products, onSaveTransaction }: QuickSaleProps) {
   const [cart, setCart] = useState<SaleItem[]>([]);
   const [paymentMethod, setPaymentMethod] = useState('PIX');
+  const [isSuccess, setIsSuccess] = useState(false);
   
   const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   const machineFee = paymentMethod === 'Crédito' ? subtotal * 0.035 : paymentMethod === 'Débito' ? subtotal * 0.015 : 0;
@@ -31,9 +30,35 @@ export function QuickSale() {
     setCart(cart.filter(item => item.id !== id));
   };
 
+  const handleFinishSale = () => {
+    if (cart.length === 0) return;
+
+    const newTransaction: Transaction = {
+      id: Math.floor(Math.random() * 10000).toString(),
+      type: 'Entrada',
+      category: 'Venda',
+      description: `Venda PDV: ${cart.map(i => i.name).join(', ')}`,
+      value: total,
+      date: new Date().toISOString(),
+    };
+
+    onSaveTransaction(newTransaction);
+    setIsSuccess(true);
+    setCart([]);
+    
+    setTimeout(() => setIsSuccess(false), 3000);
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in duration-500">
       <div className="lg:col-span-2 flex flex-col gap-6">
+        {isSuccess && (
+          <div className="bg-success/10 border border-success/20 p-4 rounded-xl flex items-center gap-3 text-success animate-in slide-in-from-top duration-300">
+            <CheckCircle2 size={20} />
+            <p className="text-sm font-bold">Venda finalizada com sucesso! O valor foi lançado no financeiro.</p>
+          </div>
+        )}
+
         <div className="card">
           <div className="card-header">
             <h3 className="card-title flex items-center gap-2">
@@ -43,7 +68,7 @@ export function QuickSale() {
           </div>
           <div className="card-content">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {mockProducts.map(product => (
+              {products.filter(p => p.category !== 'Peças').map(product => (
                 <button 
                   key={product.id}
                   onClick={() => addToCart(product)}
@@ -155,6 +180,7 @@ export function QuickSale() {
 
               <button 
                 disabled={cart.length === 0}
+                onClick={handleFinishSale}
                 className="btn-primary w-full py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Finalizar Venda

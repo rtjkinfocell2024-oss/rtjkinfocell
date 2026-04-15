@@ -9,7 +9,7 @@ import { Financial } from './components/Financial';
 import { Reports } from './components/Reports';
 import { Settings } from './components/Settings';
 import { cn } from './lib/utils';
-import { ServiceOrder } from './types';
+import { ServiceOrder, Product, Customer, Transaction } from './types';
 
 const initialOS: ServiceOrder[] = [
   { id: '8922', customerId: '1', customerName: 'Ricardo Mendes', device: 'iPhone 13 Pro', problem: 'Troca de Tela', status: 'Aguardando Peça', totalValue: 1200, createdAt: '2024-04-10T10:00:00Z', updatedAt: '2024-04-12T14:30:00Z' },
@@ -19,9 +19,37 @@ const initialOS: ServiceOrder[] = [
   { id: '8918', customerId: '5', customerName: 'Marcos Paulo', device: 'Xiaomi Redmi Note 11', problem: 'Troca de Vidro Traseiro', status: 'Pronto', totalValue: 520, createdAt: '2024-04-13T14:20:00Z', updatedAt: '2024-04-14T10:00:00Z' },
 ];
 
+const initialProducts: Product[] = [
+  { id: '1', name: 'Película de Vidro 3D', category: 'Acessórios', price: 45, cost: 5, stock: 50, minStock: 10 },
+  { id: '2', name: 'Cabo Lightning Original', category: 'Acessórios', price: 120, cost: 40, stock: 15, minStock: 5 },
+  { id: '3', name: 'Fone Bluetooth Pro', category: 'Acessórios', price: 250, cost: 100, stock: 2, minStock: 3 },
+  { id: '4', name: 'Carregador Turbo 20W', category: 'Acessórios', price: 150, cost: 60, stock: 20, minStock: 5 },
+  { id: '5', name: 'Tela iPhone 13 Pro', category: 'Peças', price: 850, cost: 450, stock: 3, minStock: 2 },
+  { id: '6', name: 'Bateria Samsung S22', category: 'Peças', price: 180, cost: 60, stock: 1, minStock: 2 },
+];
+
+const initialCustomers: Customer[] = [
+  { id: '1', name: 'Ricardo Mendes', phone: '(11) 98888-7777', email: 'ricardo@email.com', cpf: '123.456.789-00' },
+  { id: '2', name: 'Ana Clara Silva', phone: '(11) 97777-6666', email: 'ana@email.com' },
+  { id: '3', name: 'Julio Cesar', phone: '(11) 96666-5555', email: 'julio@email.com' },
+  { id: '4', name: 'Beatriz Souza', phone: '(11) 95555-4444' },
+  { id: '5', name: 'Marcos Paulo', phone: '(11) 94444-3333', email: 'marcos@email.com' },
+];
+
+const initialTransactions: Transaction[] = [
+  { id: '1', type: 'Entrada', category: 'Venda', description: 'Venda de Película e Cabo', value: 165.00, date: '2024-04-14T10:00:00Z' },
+  { id: '2', type: 'Saída', category: 'Fornecedor', description: 'Compra de Telas iPhone', value: 1200.00, date: '2024-04-14T11:30:00Z' },
+  { id: '3', type: 'Entrada', category: 'Serviço', description: 'OS #8921 - Troca de Bateria', value: 450.00, date: '2024-04-14T14:00:00Z' },
+  { id: '4', type: 'Saída', category: 'Aluguel', description: 'Aluguel da Loja - Abril', value: 2500.00, date: '2024-04-10T09:00:00Z' },
+  { id: '5', type: 'Entrada', category: 'Venda', description: 'Venda de Fone Bluetooth', value: 250.00, date: '2024-04-13T16:45:00Z' },
+];
+
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [serviceOrders, setServiceOrders] = useState<ServiceOrder[]>(initialOS);
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
+  const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
 
   const handleSaveOS = (os: ServiceOrder) => {
     setServiceOrders(prev => {
@@ -33,20 +61,58 @@ export default function App() {
     });
   };
 
+  const handleSaveProduct = (product: Product) => {
+    setProducts(prev => {
+      const exists = prev.find(item => item.id === product.id);
+      if (exists) {
+        return prev.map(item => item.id === product.id ? product : item);
+      }
+      return [product, ...prev];
+    });
+  };
+
+  const handleDeleteProduct = (id: string) => {
+    setProducts(prev => prev.filter(item => item.id !== id));
+  };
+
+  const handleSaveCustomer = (customer: Customer) => {
+    setCustomers(prev => {
+      const exists = prev.find(item => item.id === customer.id);
+      if (exists) {
+        return prev.map(item => item.id === customer.id ? customer : item);
+      }
+      return [customer, ...prev];
+    });
+  };
+
+  const handleDeleteCustomer = (id: string) => {
+    setCustomers(prev => prev.filter(item => item.id !== id));
+  };
+
+  const handleSaveTransaction = (tx: Transaction) => {
+    setTransactions(prev => {
+      const exists = prev.find(item => item.id === tx.id);
+      if (exists) {
+        return prev.map(item => item.id === tx.id ? tx : item);
+      }
+      return [tx, ...prev];
+    });
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard serviceOrders={serviceOrders} />;
+        return <Dashboard serviceOrders={serviceOrders} setActiveTab={setActiveTab} />;
       case 'os':
         return <ServiceOrders serviceOrders={serviceOrders} onSaveOS={handleSaveOS} />;
       case 'venda-rapida':
-        return <QuickSale />;
+        return <QuickSale products={products} onSaveTransaction={handleSaveTransaction} />;
       case 'estoque':
-        return <Inventory />;
+        return <Inventory products={products} onSaveProduct={handleSaveProduct} onDeleteProduct={handleDeleteProduct} />;
       case 'clientes':
-        return <Customers />;
+        return <Customers customers={customers} onSaveCustomer={handleSaveCustomer} onDeleteCustomer={handleDeleteCustomer} />;
       case 'financeiro':
-        return <Financial />;
+        return <Financial transactions={transactions} onSaveTransaction={handleSaveTransaction} />;
       case 'relatorios':
         return <Reports />;
       case 'configuracoes':

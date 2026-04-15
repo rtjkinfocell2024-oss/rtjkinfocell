@@ -44,7 +44,7 @@ export function Reports() {
           <p className="text-sm text-text-muted">Análise detalhada de vendas, serviços e desempenho.</p>
         </div>
         
-        <button className="btn-secondary flex items-center gap-2">
+        <button onClick={() => window.print()} className="btn-secondary flex items-center gap-2">
           <Download size={18} />
           Gerar PDF
         </button>

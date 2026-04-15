@@ -9,12 +9,14 @@ import {
   Save,
   CreditCard,
   Percent,
-  Info
+  Info,
+  CheckCircle2
 } from 'lucide-react';
 import { cn, formatCurrency } from '@/src/lib/utils';
 
 export function Settings() {
   const [activeSection, setActiveSection] = useState('loja');
+  const [isSaved, setIsSaved] = useState(false);
   const [fees, setFees] = useState({
     pix: 0,
     debit: 1.5,
@@ -33,15 +35,26 @@ export function Settings() {
     { id: 'impressao', label: 'Impressão / Recibos', icon: Printer },
   ];
 
+  const handleSave = () => {
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 3000);
+  };
+
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-500">
+      {isSaved && (
+        <div className="bg-success/10 border border-success/20 p-4 rounded-xl flex items-center gap-3 text-success animate-in slide-in-from-top duration-300">
+          <CheckCircle2 size={20} />
+          <p className="text-sm font-bold">Configurações salvas com sucesso!</p>
+        </div>
+      )}
       <header className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Configurações</h2>
           <p className="text-sm text-text-muted">Personalize o sistema para sua loja.</p>
         </div>
         
-        <button className="btn-primary flex items-center gap-2">
+        <button onClick={handleSave} className="btn-primary flex items-center gap-2">
           <Save size={18} />
           Salvar Tudo
         </button>

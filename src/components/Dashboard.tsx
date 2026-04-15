@@ -21,6 +21,7 @@ import { ServiceOrder } from '@/src/types';
 
 interface DashboardProps {
   serviceOrders: ServiceOrder[];
+  setActiveTab: (tab: string) => void;
 }
 
 const data = [
@@ -33,7 +34,7 @@ const data = [
   { name: 'Dom', vendas: 4300, os: 1200 },
 ];
 
-export function Dashboard({ serviceOrders }: DashboardProps) {
+export function Dashboard({ serviceOrders, setActiveTab }: DashboardProps) {
   const stats = [
     { label: 'Vendas Hoje', value: 2450.00, icon: TrendingUp, trend: '+12%', trendUp: true },
     { label: 'OS em Aberto', value: serviceOrders.filter(os => os.status !== 'Entregue' && os.status !== 'Cancelado').length, icon: Wrench, trend: '-2', trendUp: false },
@@ -141,7 +142,10 @@ export function Dashboard({ serviceOrders }: DashboardProps) {
             ))}
             
             <div className="mt-4 pt-4 border-t border-border">
-              <button className="w-full btn-secondary flex items-center justify-center gap-2">
+              <button 
+                onClick={() => setActiveTab('os')}
+                className="w-full btn-secondary flex items-center justify-center gap-2"
+              >
                 Ver todas as OS
                 <ArrowUpRight size={14} />
               </button>
@@ -153,7 +157,12 @@ export function Dashboard({ serviceOrders }: DashboardProps) {
       <div className="card">
         <div className="card-header">
           <h3 className="card-title">Ordens de Serviço Recentes</h3>
-          <button className="text-xs font-bold text-primary hover:underline">Ver todas</button>
+          <button 
+            onClick={() => setActiveTab('os')}
+            className="text-xs font-bold text-primary hover:underline"
+          >
+            Ver todas
+          </button>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
