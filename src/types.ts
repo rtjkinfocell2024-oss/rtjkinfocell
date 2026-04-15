@@ -16,6 +16,11 @@ export interface Product {
   minStock: number;
   supplier?: string;
   barcode?: string;
+  imei1?: string;
+  imei2?: string;
+  sn?: string;
+  color?: string;
+  condition?: 'Novo' | 'Semi-Novo';
 }
 
 export interface Service {

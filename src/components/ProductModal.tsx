@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent } from 'react';
-import { X, Save, Package, Tag, DollarSign, BarChart, Info, Truck, Barcode, Layers } from 'lucide-react';
+import { X, Save, Package, Tag, DollarSign, BarChart, Info, Truck, Barcode, Layers, Smartphone, Hash, Palette } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import { Product } from '@/src/types';
 
@@ -24,6 +24,11 @@ export function ProductModal({ isOpen, onClose, onSave, product, mode }: Product
     minStock: 5,
     supplier: '',
     barcode: '',
+    imei1: '',
+    imei2: '',
+    sn: '',
+    color: '',
+    condition: 'Novo',
   });
 
   useEffect(() => {
@@ -42,6 +47,11 @@ export function ProductModal({ isOpen, onClose, onSave, product, mode }: Product
         minStock: 5,
         supplier: '',
         barcode: '',
+        imei1: '',
+        imei2: '',
+        sn: '',
+        color: '',
+        condition: 'Novo',
       });
     }
   }, [product, isOpen]);
@@ -67,6 +77,11 @@ export function ProductModal({ isOpen, onClose, onSave, product, mode }: Product
       minStock: formData.minStock || 0,
       supplier: formData.supplier || '',
       barcode: formData.barcode || '',
+      imei1: formData.imei1 || '',
+      imei2: formData.imei2 || '',
+      sn: formData.sn || '',
+      color: formData.color || '',
+      condition: formData.condition as Product['condition'] || 'Novo',
     };
 
     onSave(newProduct);
@@ -273,6 +288,106 @@ export function ProductModal({ isOpen, onClose, onSave, product, mode }: Product
                 </select>
               </div>
             </div>
+
+            {/* Campos Específicos para Celular */}
+            {formData.category === 'Celular' && (
+              <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-border mt-2">
+                <h4 className="text-sm font-bold md:col-span-2 flex items-center gap-2 text-primary">
+                  <Smartphone size={16} />
+                  Informações do Aparelho
+                </h4>
+                
+                <div className="flex flex-col gap-1.5">
+                  <label className="label">IMEI 1</label>
+                  <div className="relative">
+                    <Hash className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+                    <input 
+                      type="text" 
+                      className="input pl-10" 
+                      placeholder="IMEI 1"
+                      disabled={isView}
+                      value={formData.imei1}
+                      onChange={(e) => setFormData({ ...formData, imei1: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="label">IMEI 2</label>
+                  <div className="relative">
+                    <Hash className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+                    <input 
+                      type="text" 
+                      className="input pl-10" 
+                      placeholder="IMEI 2"
+                      disabled={isView}
+                      value={formData.imei2}
+                      onChange={(e) => setFormData({ ...formData, imei2: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="label">Número de Série (SN)</label>
+                  <div className="relative">
+                    <Barcode className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+                    <input 
+                      type="text" 
+                      className="input pl-10" 
+                      placeholder="Serial Number"
+                      disabled={isView}
+                      value={formData.sn}
+                      onChange={(e) => setFormData({ ...formData, sn: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="label">Cor</label>
+                  <div className="relative">
+                    <Palette className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+                    <input 
+                      type="text" 
+                      className="input pl-10" 
+                      placeholder="Ex: Space Gray, Silver"
+                      disabled={isView}
+                      value={formData.color}
+                      onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5 md:col-span-2">
+                  <label className="label">Condição</label>
+                  <div className="flex gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input 
+                        type="radio" 
+                        name="condition" 
+                        value="Novo"
+                        disabled={isView}
+                        checked={formData.condition === 'Novo'}
+                        onChange={(e) => setFormData({ ...formData, condition: e.target.value as 'Novo' | 'Semi-Novo' })}
+                        className="w-4 h-4 text-primary focus:ring-primary"
+                      />
+                      <span className="text-sm">Novo</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input 
+                        type="radio" 
+                        name="condition" 
+                        value="Semi-Novo"
+                        disabled={isView}
+                        checked={formData.condition === 'Semi-Novo'}
+                        onChange={(e) => setFormData({ ...formData, condition: e.target.value as 'Novo' | 'Semi-Novo' })}
+                        className="w-4 h-4 text-primary focus:ring-primary"
+                      />
+                      <span className="text-sm">Semi-Novo</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </form>
 
