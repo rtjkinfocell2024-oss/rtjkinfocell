@@ -90,11 +90,11 @@ export function Settings() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex flex-col gap-1.5">
                       <label className="label">Nome Fantasia</label>
-                      <input type="text" className="input" defaultValue="SmartAssist Celulares" />
+                      <input type="text" className="input" defaultValue="RTJK INFOCELL" />
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <label className="label">Razão Social</label>
-                      <input type="text" className="input" defaultValue="SmartAssist LTDA" />
+                      <input type="text" className="input" defaultValue="RTJK INFOCELL LTDA" />
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <label className="label">CNPJ</label>

@@ -31,7 +31,7 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
   return (
     <aside className="w-[240px] bg-white border-r border-border flex flex-col py-6 h-screen sticky top-0">
       <div className="px-6 mb-8">
-        <h1 className="text-xl font-extrabold text-primary tracking-tight">SmartAssist.</h1>
+        <h1 className="text-xl font-extrabold text-primary tracking-tight uppercase">RTJK INFOCELL</h1>
       </div>
       
       <nav className="flex-1">
@@ -63,10 +63,10 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
       <div className="px-6 mt-auto pt-6 border-t border-border">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
-            RT
+            RI
           </div>
           <div className="flex-1 overflow-hidden">
-            <p className="text-xs font-bold truncate">Ricardo Tech</p>
+            <p className="text-xs font-bold truncate">RTJK INFOCELL</p>
             <p className="text-[10px] text-text-muted truncate">Administrador</p>
           </div>
         </div>
