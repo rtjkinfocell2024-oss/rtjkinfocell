@@ -16,6 +16,11 @@ export function CustomerModal({ isOpen, onClose, onSave, customer, mode }: Custo
     phone: '',
     email: '',
     cpf: '',
+    address: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    notes: '',
   });
 
   useEffect(() => {
@@ -27,6 +32,11 @@ export function CustomerModal({ isOpen, onClose, onSave, customer, mode }: Custo
         phone: '',
         email: '',
         cpf: '',
+        address: '',
+        city: '',
+        state: '',
+        zipCode: '',
+        notes: '',
       });
     }
   }, [customer, isOpen]);
@@ -43,8 +53,13 @@ export function CustomerModal({ isOpen, onClose, onSave, customer, mode }: Custo
       id: customer?.id || Math.floor(Math.random() * 10000).toString(),
       name: formData.name || '',
       phone: formData.phone || '',
-      email: formData.email || '',
       cpf: formData.cpf || '',
+      email: formData.email || '',
+      address: formData.address || '',
+      city: formData.city || '',
+      state: formData.state || '',
+      zipCode: formData.zipCode || '',
+      notes: formData.notes || '',
     };
 
     onSave(newCustomer);
@@ -53,7 +68,7 @@ export function CustomerModal({ isOpen, onClose, onSave, customer, mode }: Custo
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300">
+      <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300">
         <header className="px-6 py-4 border-b border-border flex justify-between items-center bg-slate-50">
           <div>
             <h3 className="text-lg font-bold">
@@ -67,25 +82,41 @@ export function CustomerModal({ isOpen, onClose, onSave, customer, mode }: Custo
         </header>
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
-          <div className="flex flex-col gap-1.5">
-            <label className="label">Nome Completo</label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
-              <input 
-                type="text" 
-                className="input pl-10" 
-                placeholder="Ex: João Silva"
-                required
-                disabled={isView}
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="flex flex-col gap-1.5 md:col-span-2">
+              <label className="label">Nome Completo *</label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+                <input 
+                  type="text" 
+                  className="input pl-10" 
+                  placeholder="Ex: João Silva"
+                  required
+                  disabled={isView}
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="label">Telefone</label>
+              <label className="label">CPF *</label>
+              <div className="relative">
+                <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+                <input 
+                  type="text" 
+                  className="input pl-10" 
+                  placeholder="000.000.000-00"
+                  required
+                  disabled={isView}
+                  value={formData.cpf}
+                  onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="label">Telefone *</label>
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
                 <input 
@@ -99,46 +130,81 @@ export function CustomerModal({ isOpen, onClose, onSave, customer, mode }: Custo
                 />
               </div>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="label">CPF</label>
+
+            <div className="flex flex-col gap-1.5 md:col-span-2">
+              <label className="label">E-mail</label>
               <div className="relative">
-                <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
                 <input 
-                  type="text" 
+                  type="email" 
                   className="input pl-10" 
-                  placeholder="000.000.000-00"
+                  placeholder="cliente@email.com"
                   disabled={isView}
-                  value={formData.cpf}
-                  onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
               </div>
             </div>
-          </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="label">E-mail</label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
-              <input 
-                type="email" 
-                className="input pl-10" 
-                placeholder="cliente@email.com"
-                disabled={isView}
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              />
+            <div className="flex flex-col gap-1.5 md:col-span-2">
+              <label className="label">Endereço</label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+                <input 
+                  type="text" 
+                  className="input pl-10" 
+                  placeholder="Rua, Número, Bairro"
+                  disabled={isView}
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="label">Endereço (Opcional)</label>
-            <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+            <div className="flex flex-col gap-1.5">
+              <label className="label">Cidade</label>
               <input 
                 type="text" 
-                className="input pl-10" 
-                placeholder="Rua, Número, Bairro, Cidade"
+                className="input" 
+                placeholder="Cidade"
                 disabled={isView}
+                value={formData.city}
+                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="label">Estado</label>
+              <input 
+                type="text" 
+                className="input" 
+                placeholder="UF"
+                disabled={isView}
+                value={formData.state}
+                onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="label">CEP</label>
+              <input 
+                type="text" 
+                className="input" 
+                placeholder="00000-000"
+                disabled={isView}
+                value={formData.zipCode}
+                onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5 md:col-span-2">
+              <label className="label">Observações</label>
+              <textarea 
+                className="input min-h-[100px] py-2" 
+                placeholder="Informações adicionais sobre o cliente..."
+                disabled={isView}
+                value={formData.notes}
+                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               />
             </div>
           </div>

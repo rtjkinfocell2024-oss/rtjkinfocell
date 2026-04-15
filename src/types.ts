@@ -24,9 +24,13 @@ export interface Customer {
   id: string;
   name: string;
   phone: string;
+  cpf: string;
   email?: string;
   address?: string;
-  cpf?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  notes?: string;
 }
 
 export type OSStatus = 'Orçamento' | 'Aguardando Peça' | 'Em Manutenção' | 'Pronto' | 'Entregue' | 'Cancelado';

@@ -30,10 +30,10 @@ const initialProducts: Product[] = [
 
 const initialCustomers: Customer[] = [
   { id: '1', name: 'Ricardo Mendes', phone: '(11) 98888-7777', email: 'ricardo@email.com', cpf: '123.456.789-00' },
-  { id: '2', name: 'Ana Clara Silva', phone: '(11) 97777-6666', email: 'ana@email.com' },
-  { id: '3', name: 'Julio Cesar', phone: '(11) 96666-5555', email: 'julio@email.com' },
-  { id: '4', name: 'Beatriz Souza', phone: '(11) 95555-4444' },
-  { id: '5', name: 'Marcos Paulo', phone: '(11) 94444-3333', email: 'marcos@email.com' },
+  { id: '2', name: 'Ana Clara Silva', phone: '(11) 97777-6666', email: 'ana@email.com', cpf: '234.567.890-11' },
+  { id: '3', name: 'Julio Cesar', phone: '(11) 96666-5555', email: 'julio@email.com', cpf: '345.678.901-22' },
+  { id: '4', name: 'Beatriz Souza', phone: '(11) 95555-4444', cpf: '456.789.012-33' },
+  { id: '5', name: 'Marcos Paulo', phone: '(11) 94444-3333', email: 'marcos@email.com', cpf: '567.890.123-44' },
 ];
 
 const initialTransactions: Transaction[] = [
