@@ -130,7 +130,7 @@ export default function App() {
       case 'dashboard':
         return <Dashboard serviceOrders={serviceOrders} setActiveTab={setActiveTab} />;
       case 'os':
-        return <ServiceOrders serviceOrders={serviceOrders} onSaveOS={handleSaveOS} customers={customers} />;
+        return <ServiceOrders serviceOrders={serviceOrders} onSaveOS={handleSaveOS} customers={customers} machines={machines} onSaveTransaction={handleSaveTransaction} />;
       case 'venda-rapida':
         return <QuickSale products={products} customers={customers} machines={machines} onSaveTransaction={handleSaveTransaction} />;
       case 'estoque':
