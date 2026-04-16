@@ -45,6 +45,10 @@
     height: auto !important;
     overflow: visible !important;
   }
+
+  .print-only {
+    display: block !important;
+  }
 }
 
 @layer components {

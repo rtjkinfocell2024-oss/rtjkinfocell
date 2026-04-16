@@ -5,6 +5,7 @@ import { MobileFullMenu } from './components/MobileFullMenu';
 import { Dashboard } from './components/Dashboard';
 import { ServiceOrders } from './components/ServiceOrders';
 import { QuickSale } from './components/Sales';
+import { CompleteSale } from './components/CompleteSale';
 import { Inventory } from './components/Inventory';
 import { Customers } from './components/Customers';
 import { Financial } from './components/Financial';
@@ -133,6 +134,8 @@ export default function App() {
         return <ServiceOrders serviceOrders={serviceOrders} onSaveOS={handleSaveOS} customers={customers} machines={machines} onSaveTransaction={handleSaveTransaction} />;
       case 'venda-rapida':
         return <QuickSale products={products} customers={customers} machines={machines} onSaveTransaction={handleSaveTransaction} onSaveCustomer={handleSaveCustomer} />;
+      case 'venda-completa':
+        return <CompleteSale products={products} customers={customers} machines={machines} onSaveTransaction={handleSaveTransaction} onSaveCustomer={handleSaveCustomer} />;
       case 'estoque':
         return <Inventory products={products} onSaveProduct={handleSaveProduct} onDeleteProduct={handleDeleteProduct} />;
       case 'clientes':
@@ -160,6 +163,7 @@ export default function App() {
       case 'dashboard': return 'Dashboard Geral';
       case 'os': return 'Ordens de Serviço';
       case 'venda-rapida': return 'Venda Rápida';
+      case 'venda-completa': return 'Venda Completa (Aparelhos)';
       case 'estoque': return 'Estoque / Produtos';
       case 'clientes': return 'Clientes';
       case 'financeiro': return 'Financeiro';

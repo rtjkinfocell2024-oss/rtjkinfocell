@@ -7,7 +7,8 @@ import {
   DollarSign, 
   BarChart3, 
   CreditCard, 
-  Settings 
+  Settings,
+  FileCheck
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 
@@ -20,6 +21,7 @@ const menuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'os', label: 'Ordem de Serviço', icon: Wrench },
   { id: 'venda-rapida', label: 'Venda Rápida', icon: Zap },
+  { id: 'venda-completa', label: 'Venda Completa', icon: FileCheck },
   { id: 'estoque', label: 'Estoque / Produtos', icon: Package },
   { id: 'clientes', label: 'Clientes', icon: Users },
   { id: 'financeiro', label: 'Financeiro', icon: DollarSign },

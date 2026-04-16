@@ -7,7 +7,8 @@ import {
   DollarSign, 
   BarChart3, 
   Settings,
-  X
+  X,
+  FileCheck
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import { motion } from 'motion/react';
@@ -22,6 +23,7 @@ export function MobileFullMenu({ onSelect, onClose }: MobileFullMenuProps) {
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'text-blue-500', bg: 'bg-blue-50' },
     { id: 'os', label: 'Ordem de Serviço', icon: Wrench, color: 'text-orange-500', bg: 'bg-orange-50' },
     { id: 'venda-rapida', label: 'Venda Rápida', icon: Zap, color: 'text-yellow-500', bg: 'bg-yellow-50' },
+    { id: 'venda-completa', label: 'Venda Completa', icon: FileCheck, color: 'text-primary', bg: 'bg-primary/10' },
     { id: 'estoque', label: 'Estoque / Produtos', icon: Package, color: 'text-purple-500', bg: 'bg-purple-50' },
     { id: 'clientes', label: 'Clientes', icon: Users, color: 'text-green-500', bg: 'bg-green-50' },
     { id: 'financeiro', label: 'Financeiro', icon: DollarSign, color: 'text-emerald-500', bg: 'bg-emerald-50' },

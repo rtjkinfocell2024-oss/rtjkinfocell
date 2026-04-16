@@ -20,6 +20,8 @@ export interface Product {
   imei2?: string;
   sn?: string;
   color?: string;
+  storage?: string; // GB
+  ram?: string;
   condition?: 'Novo' | 'Semi-Novo';
 }
 
@@ -84,6 +86,17 @@ export interface Sale {
   machineFee: number;
   netValue: number;
   createdAt: string;
+}
+
+export interface DetailedSale extends Sale {
+  imei?: string;
+  sn?: string;
+  model?: string;
+  color?: string;
+  storage?: string;
+  ram?: string;
+  warranty: string; // 30, 60, 90, 180, personalizado
+  observations?: string;
 }
 
 export interface PaymentMachine {
