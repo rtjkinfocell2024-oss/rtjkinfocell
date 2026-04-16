@@ -140,7 +140,7 @@ export default function App() {
       case 'financeiro':
         return <Financial transactions={transactions} onSaveTransaction={handleSaveTransaction} />;
       case 'relatorios':
-        return <Reports />;
+        return <Reports serviceOrders={serviceOrders} transactions={transactions} products={products} />;
       case 'configuracoes':
         return <Settings machines={machines} onSaveMachines={setMachines} />;
       case 'menu':
