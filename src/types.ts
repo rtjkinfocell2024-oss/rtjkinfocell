@@ -90,6 +90,7 @@ export interface Sale {
 
 export interface DetailedSale extends Sale {
   imei?: string;
+  imei2?: string;
   sn?: string;
   model?: string;
   color?: string;
