@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Plus, Search, Filter, MoreVertical, Eye, Edit, Trash2 } from 'lucide-react';
 import { cn, formatCurrency, formatDate } from '@/src/lib/utils';
-import { ServiceOrder, OSStatus, Customer, PaymentMachine, Transaction } from '@/src/types';
+import { ServiceOrder, OSStatus, Customer, PaymentMachine, Transaction, OSPriority } from '@/src/types';
 import { OSModal } from './OSModal';
+import { AlertCircle, Zap, Clock } from 'lucide-react';
 
 interface ServiceOrdersProps {
   serviceOrders: ServiceOrder[];
@@ -14,9 +15,27 @@ interface ServiceOrdersProps {
 
 export function ServiceOrders({ serviceOrders, onSaveOS, customers, machines, onSaveTransaction }: ServiceOrdersProps) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('Todos Status');
+  const [priorityFilter, setPriorityFilter] = useState<string>('Todas Prioridades');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'create' | 'edit' | 'view'>('create');
   const [selectedOS, setSelectedOS] = useState<ServiceOrder | null>(null);
+
+  const getPriorityBadge = (priority: OSPriority) => {
+    switch (priority) {
+      case 'Muito Urgente': return 'bg-red-100 text-red-700 border-red-200';
+      case 'Urgente': return 'bg-orange-100 text-orange-700 border-orange-200';
+      default: return 'bg-blue-100 text-blue-700 border-blue-200';
+    }
+  };
+
+  const getPriorityIcon = (priority: OSPriority) => {
+    switch (priority) {
+      case 'Muito Urgente': return <Zap size={12} className="fill-current" />;
+      case 'Urgente': return <AlertCircle size={12} />;
+      default: return <Clock size={12} />;
+    }
+  };
 
   const getStatusBadge = (status: OSStatus) => {
     switch (status) {
@@ -36,11 +55,32 @@ export function ServiceOrders({ serviceOrders, onSaveOS, customers, machines, on
     setIsModalOpen(true);
   };
 
-  const filteredOS = serviceOrders.filter(os => 
-    os.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    os.device.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    os.id.includes(searchTerm)
-  );
+  const filteredOS = serviceOrders.filter(os => {
+    const matchesSearch = 
+      os.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      os.device.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      os.id.includes(searchTerm);
+    
+    const matchesStatus = statusFilter === 'Todos Status' || os.status === statusFilter;
+    const matchesPriority = priorityFilter === 'Todas Prioridades' || os.priority === priorityFilter;
+
+    return matchesSearch && matchesStatus && matchesPriority;
+  }).sort((a, b) => {
+    const priorityWeight = {
+      'Muito Urgente': 3,
+      'Urgente': 2,
+      'Normal': 1
+    };
+    
+    const weightA = priorityWeight[a.priority] || 0;
+    const weightB = priorityWeight[b.priority] || 0;
+    
+    if (weightA !== weightB) {
+      return weightB - weightA;
+    }
+    
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
 
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-500">
@@ -73,15 +113,28 @@ export function ServiceOrders({ serviceOrders, onSaveOS, customers, machines, on
           </div>
           
           <div className="flex items-center gap-2 w-full md:w-auto">
-            <button className="btn-secondary flex items-center gap-2 flex-1 md:flex-none">
-              <Filter size={16} />
-              Filtros
-            </button>
-            <select className="input w-full md:w-[150px]">
+            <select 
+              className="input w-full md:w-[150px] text-xs h-10"
+              value={priorityFilter}
+              onChange={(e) => setPriorityFilter(e.target.value)}
+            >
+              <option>Todas Prioridades</option>
+              <option>Normal</option>
+              <option>Urgente</option>
+              <option>Muito Urgente</option>
+            </select>
+            <select 
+              className="input w-full md:w-[150px] text-xs h-10"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
               <option>Todos Status</option>
+              <option>Pendente</option>
               <option>Orçamento</option>
               <option>Em Manutenção</option>
               <option>Pronto</option>
+              <option>Entregue</option>
+              <option>Cancelado</option>
             </select>
           </div>
         </div>
@@ -90,8 +143,9 @@ export function ServiceOrders({ serviceOrders, onSaveOS, customers, machines, on
           <table className="w-full text-sm text-left">
             <thead className="bg-slate-50 text-text-muted font-semibold uppercase text-[11px] tracking-wider">
               <tr>
+                <th className="px-5 py-3 text-center">Tipo</th>
+                <th className="px-5 py-3">Prioridade</th>
                 <th className="px-5 py-3">Nº OS</th>
-                <th className="px-5 py-3">Data</th>
                 <th className="px-5 py-3">Cliente</th>
                 <th className="px-5 py-3">Equipamento</th>
                 <th className="px-5 py-3">Status</th>
@@ -102,9 +156,32 @@ export function ServiceOrders({ serviceOrders, onSaveOS, customers, machines, on
             <tbody className="divide-y divide-border">
               {filteredOS.map((os) => (
                 <tr key={os.id} className="hover:bg-slate-50 transition-colors">
+                  <td className="px-5 py-4 text-center">
+                    <span className={cn(
+                      "text-[10px] font-black px-1.5 py-0.5 rounded-md border inline-block",
+                      os.type === 'Retorno' 
+                        ? "bg-purple-50 text-purple-700 border-purple-200" 
+                        : "bg-slate-50 text-slate-500 border-slate-200"
+                    )}>
+                      {os.type === 'Retorno' ? 'GARANTIA' : 'NOVA'}
+                    </span>
+                  </td>
+                  <td className="px-5 py-4">
+                    <div className={cn(
+                      "flex items-center gap-1.5 px-2 py-1 rounded-lg border w-fit text-[10px] font-bold uppercase",
+                      getPriorityBadge(os.priority)
+                    )}>
+                      {getPriorityIcon(os.priority)}
+                      {os.priority}
+                    </div>
+                  </td>
                   <td className="px-5 py-4 font-bold text-primary">#{os.id}</td>
-                  <td className="px-5 py-4 text-text-muted">{formatDate(os.createdAt)}</td>
-                  <td className="px-5 py-4 font-medium">{os.customerName}</td>
+                  <td className="px-5 py-4">
+                    <div className="flex flex-col">
+                      <span className="font-medium">{os.customerName}</span>
+                      <span className="text-[10px] text-text-muted">{formatDate(os.createdAt)}</span>
+                    </div>
+                  </td>
                   <td className="px-5 py-4">
                     <div className="flex flex-col">
                       <span className="font-medium">{os.device}</span>
@@ -169,6 +246,7 @@ export function ServiceOrders({ serviceOrders, onSaveOS, customers, machines, on
         customers={customers}
         machines={machines}
         onSaveTransaction={onSaveTransaction}
+        serviceOrders={serviceOrders}
       />
     </div>
   );

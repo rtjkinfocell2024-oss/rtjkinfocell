@@ -1,7 +1,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { X, Save, Printer, Smartphone, User, AlertCircle, Calendar, Clock, DollarSign, FileText, ChevronDown } from 'lucide-react';
-import { cn, formatCurrency } from '@/src/lib/utils';
-import { ServiceOrder, OSStatus, Customer, OSPriority, PaymentMachine, Transaction } from '@/src/types';
+import { cn, formatCurrency, formatDate } from '@/src/lib/utils';
+import { ServiceOrder, OSStatus, Customer, OSPriority, PaymentMachine, Transaction, OSType } from '@/src/types';
 
 interface OSModalProps {
   isOpen: boolean;
@@ -12,12 +12,14 @@ interface OSModalProps {
   customers: Customer[];
   machines: PaymentMachine[];
   onSaveTransaction: (tx: Transaction) => void;
+  serviceOrders: ServiceOrder[];
 }
 
 const statusOptions: OSStatus[] = ['Pendente', 'Orçamento', 'Aguardando Peça', 'Em Manutenção', 'Pronto', 'Entregue', 'Cancelado'];
-const priorityOptions: OSPriority[] = ['Baixa', 'Normal', 'Alta', 'Urgente'];
+const priorityOptions: OSPriority[] = ['Normal', 'Urgente', 'Muito Urgente'];
+const typeOptions: OSType[] = ['Nova', 'Retorno'];
 
-export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines, onSaveTransaction }: OSModalProps) {
+export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines, onSaveTransaction, serviceOrders }: OSModalProps) {
   const [formData, setFormData] = useState<Partial<ServiceOrder>>({
     customerId: '',
     customerName: '',
@@ -25,10 +27,13 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
     problem: '',
     status: 'Pendente',
     priority: 'Normal',
+    type: 'Nova',
     totalValue: 0,
     entryDate: new Date().toISOString().split('T')[0],
     deliveryForecast: '',
     technicalNotes: '',
+    returnReason: '',
+    originalOsId: '',
   });
 
   const [paymentMethod, setPaymentMethod] = useState('PIX');
@@ -51,9 +56,31 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
         entryDate: new Date().toISOString().split('T')[0],
         deliveryForecast: '',
         technicalNotes: '',
+        type: 'Nova',
+        returnReason: '',
+        originalOsId: '',
       });
     }
   }, [os, isOpen]);
+
+  const selectedOriginalOs = formData.originalOsId 
+    ? serviceOrders.find(s => s.id === formData.originalOsId)
+    : null;
+
+  const getWarrantyStatus = () => {
+    if (!selectedOriginalOs) return null;
+    const deliveryDate = new Date(selectedOriginalOs.updatedAt);
+    const expiryDate = new Date(deliveryDate);
+    expiryDate.setDate(expiryDate.getDate() + 90); // 90 days standard warranty
+    const isExpired = expiryDate < new Date();
+    
+    return {
+      expiry: expiryDate.toLocaleDateString('pt-BR'),
+      isExpired
+    };
+  };
+
+  const warranty = getWarrantyStatus();
 
   if (!isOpen) return null;
 
@@ -80,33 +107,37 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
     e.preventDefault();
     if (isView) return;
 
-    const isDelivering = formData.status === 'Entregue' && os?.status !== 'Entregue';
-    
-    if (isDelivering && !showPaymentSelector) {
-      setShowPaymentSelector(true);
-      return;
-    }
-
-    const newOS: ServiceOrder = {
-      id: os?.id || Math.floor(Math.random() * 10000).toString(),
-      customerId: formData.customerId || '',
-      customerName: formData.customerName || '',
-      device: formData.device || '',
-      problem: formData.problem || '',
-      status: formData.status as OSStatus || 'Pendente',
-      priority: formData.priority as OSPriority || 'Normal',
-      totalValue: formData.totalValue || 0,
-      entryDate: formData.entryDate || new Date().toISOString().split('T')[0],
-      deliveryForecast: formData.deliveryForecast || '',
-      technicalNotes: formData.technicalNotes || '',
-      createdAt: os?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    onSave(newOS);
-
-    // Sync with finance if delivered
-    if (isDelivering) {
+      const isDelivering = formData.status === 'Entregue' && os?.status !== 'Entregue';
+      const isWarranty = formData.type === 'Retorno';
+      
+      if (isDelivering && !showPaymentSelector && !isWarranty) {
+        setShowPaymentSelector(true);
+        return;
+      }
+  
+      const newOS: ServiceOrder = {
+        id: os?.id || Math.floor(Math.random() * 10000).toString(),
+        customerId: formData.customerId || '',
+        customerName: formData.customerName || '',
+        device: formData.device || '',
+        problem: formData.problem || '',
+        status: formData.status as OSStatus || 'Pendente',
+        priority: formData.priority as OSPriority || 'Normal',
+        type: formData.type as OSType || 'Nova',
+        originalOsId: formData.originalOsId,
+        returnReason: formData.returnReason,
+        totalValue: formData.totalValue || 0,
+        entryDate: formData.entryDate || new Date().toISOString().split('T')[0],
+        deliveryForecast: formData.deliveryForecast || '',
+        technicalNotes: formData.technicalNotes || '',
+        createdAt: os?.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+  
+      onSave(newOS);
+  
+      // Sync with finance if delivered and NOT warranty
+      if (isDelivering && !isWarranty) {
       const selectedMachine = machines.find(m => m.id === selectedMachineId);
       let feePercentage = 0;
       if (paymentMethod === 'PIX') feePercentage = selectedMachine?.pixFee || 0;
@@ -155,6 +186,101 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Tipo de OS */}
+            <div className="flex flex-col gap-1.5">
+              <label className="label">Tipo de OS *</label>
+              <div className="grid grid-cols-2 gap-2">
+                {typeOptions.map(type => (
+                  <button
+                    key={type}
+                    type="button"
+                    disabled={isView || (mode === 'edit' && os?.type === 'Retorno')}
+                    onClick={() => setFormData({ ...formData, type })}
+                    className={cn(
+                      "py-2 px-3 rounded-xl text-xs font-bold border transition-all",
+                      formData.type === type 
+                        ? "bg-primary text-white border-primary shadow-sm" 
+                        : "bg-white text-text-muted border-border hover:bg-slate-50"
+                    )}
+                  >
+                    {type === 'Nova' ? 'Nova Abertura' : 'Retorno / Garantia'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Prioridade */}
+            <div className="flex flex-col gap-1.5">
+              <label className="label">Prioridade *</label>
+              <div className="grid grid-cols-3 gap-2">
+                {priorityOptions.map(prio => (
+                  <button
+                    key={prio}
+                    type="button"
+                    disabled={isView}
+                    onClick={() => setFormData({ ...formData, priority: prio })}
+                    className={cn(
+                      "py-2 px-1 rounded-xl text-[10px] font-bold border transition-all",
+                      formData.priority === prio 
+                        ? prio === 'Normal' ? "bg-blue-600 text-white border-blue-600" :
+                          prio === 'Urgente' ? "bg-orange-500 text-white border-orange-500" :
+                          "bg-red-600 text-white border-red-600 shadow-sm"
+                        : "bg-white text-text-muted border-border hover:bg-slate-50"
+                    )}
+                  >
+                    {prio}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Campos de Retorno */}
+            {formData.type === 'Retorno' && (
+              <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in slide-in-from-left-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="label text-primary font-bold">OS Original *</label>
+                  <select 
+                    className="input border-primary/30"
+                    required
+                    disabled={isView}
+                    value={formData.originalOsId}
+                    onChange={(e) => setFormData({ ...formData, originalOsId: e.target.value })}
+                  >
+                    <option value="">Selecione a OS anterior...</option>
+                    {serviceOrders
+                      .filter(s => s.customerId === formData.customerId && s.id !== os?.id)
+                      .map(s => (
+                        <option key={s.id} value={s.id}>#{s.id} - {s.device} ({formatDate(s.createdAt)})</option>
+                      ))
+                    }
+                  </select>
+                </div>
+                {warranty && (
+                  <div className={cn(
+                    "flex flex-col justify-center p-4 rounded-xl border",
+                    warranty.isExpired ? "bg-red-50 border-red-200" : "bg-emerald-50 border-emerald-200"
+                  )}>
+                    <p className="text-[10px] uppercase font-black text-text-muted">Status da Garantia (90 dias)</p>
+                    <p className={cn("text-lg font-black", warranty.isExpired ? "text-red-600" : "text-emerald-600")}>
+                      {warranty.isExpired ? 'EXPIRADA' : 'VÁLIDA'}
+                    </p>
+                    <p className="text-xs font-bold text-text-muted">Vencimento: {warranty.expiry}</p>
+                  </div>
+                )}
+                <div className="md:col-span-2 flex flex-col gap-1.5">
+                  <label className="label">Motivo do Retorno *</label>
+                  <textarea 
+                    className="input min-h-[60px] py-2 border-primary/20" 
+                    placeholder="Descreva o motivo do retorno ou falha na garantia..."
+                    required
+                    disabled={isView}
+                    value={formData.returnReason}
+                    onChange={(e) => setFormData({ ...formData, returnReason: e.target.value })}
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Cliente */}
             <div className="flex flex-col gap-1.5 md:col-span-2">
               <label className="label">Cliente *</label>
@@ -216,22 +342,6 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
                 onChange={(e) => setFormData({ ...formData, status: e.target.value as OSStatus })}
               >
                 {statusOptions.map(opt => (
-                  <option key={opt} value={opt}>{opt}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Prioridade */}
-            <div className="flex flex-col gap-1.5">
-              <label className="label">Prioridade *</label>
-              <select 
-                className="input"
-                required
-                disabled={isView}
-                value={formData.priority}
-                onChange={(e) => setFormData({ ...formData, priority: e.target.value as OSPriority })}
-              >
-                {priorityOptions.map(opt => (
                   <option key={opt} value={opt}>{opt}</option>
                 ))}
               </select>
