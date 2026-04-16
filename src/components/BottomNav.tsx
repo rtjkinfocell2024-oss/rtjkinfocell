@@ -12,7 +12,7 @@ export function BottomNav({ activeTab, setActiveTab }: BottomNavProps) {
     { id: 'venda-rapida', label: 'Venda Rápida', icon: Zap },
     { id: 'os', label: 'O.S.', icon: Wrench },
     { id: 'clientes', label: 'Clientes', icon: Users },
-    { id: 'configuracoes', label: 'Menu', icon: Menu },
+    { id: 'menu', label: 'Menu', icon: Menu },
   ];
 
   return (

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { BottomNav } from './components/BottomNav';
+import { MobileFullMenu } from './components/MobileFullMenu';
 import { Dashboard } from './components/Dashboard';
 import { ServiceOrders } from './components/ServiceOrders';
 import { QuickSale } from './components/Sales';
@@ -118,6 +119,8 @@ export default function App() {
         return <Reports />;
       case 'configuracoes':
         return <Settings />;
+      case 'menu':
+        return <MobileFullMenu onSelect={setActiveTab} onClose={() => setActiveTab('dashboard')} />;
       default:
         return (
           <div className="flex flex-col items-center justify-center h-[60vh] text-text-muted">
@@ -137,6 +140,7 @@ export default function App() {
       case 'clientes': return 'Clientes';
       case 'financeiro': return 'Financeiro';
       case 'relatorios': return 'Relatórios';
+      case 'menu': return 'Menu Principal';
       case 'taxas': return 'Taxas de Máquina';
       case 'configuracoes': return 'Configurações';
       default: return activeTab;
