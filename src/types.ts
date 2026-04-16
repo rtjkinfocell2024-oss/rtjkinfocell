@@ -106,4 +106,5 @@ export interface Transaction {
   machineId?: string;
   installments?: number;
   customerId?: string;
+  pixMethod?: string;
 }

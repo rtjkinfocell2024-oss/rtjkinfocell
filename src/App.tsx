@@ -177,7 +177,7 @@ export default function App() {
       
       <main className="flex-1 p-4 md:p-8 overflow-y-auto pb-24 lg:pb-8">
         <div className="max-w-7xl mx-auto flex flex-col gap-6">
-          <div className="flex items-center gap-2 text-sm">
+          <div className="flex items-center gap-2 text-sm no-print">
             <span className="text-text-muted">Início</span>
             <span className="text-text-muted">/</span>
             <span className="font-semibold">{getBreadcrumb()}</span>

@@ -16,11 +16,13 @@ import {
   Printer,
   FileText,
   Package,
-  Wrench
+  Wrench,
+  ChevronRight
 } from 'lucide-react';
-import { cn, formatCurrency } from '@/src/lib/utils';
+import { cn, formatCurrency, formatDate } from '@/src/lib/utils';
 import { Product, SaleItem, Transaction, Customer, PaymentMachine } from '@/src/types';
 import { CustomerModal } from './CustomerModal';
+import { COMPANY_INFO } from '@/src/constants';
 
 interface QuickSaleProps {
   products: Product[];
@@ -36,10 +38,14 @@ export function QuickSale({ products, customers, machines, onSaveTransaction, on
   const [selectedCustomerId, setSelectedCustomerId] = useState('');
   const [selectedMachineId, setSelectedMachineId] = useState(machines[0]?.id || '');
   const [installments, setInstallments] = useState(1);
+  const [pixMethod, setPixMethod] = useState('C6 Bank');
   const [isSuccess, setIsSuccess] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   const [lastSaleId, setLastSaleId] = useState('');
+  const [printMode, setPrintMode] = useState<'A4' | 'Coupon' | null>(null);
+  const [soldItems, setSoldItems] = useState<SaleItem[]>([]);
+  const [finalPaymentInfo, setFinalPaymentInfo] = useState({ method: '', pixMethod: '', installments: 1, customer: null as Customer | null });
 
   // Search Logic
   const filteredProducts = useMemo(() => {
@@ -90,29 +96,42 @@ export function QuickSale({ products, customers, machines, onSaveTransaction, on
     const saleId = Math.floor(Math.random() * 10000).toString();
     const customerInfo = selectedCustomer ? ` - Cliente: ${selectedCustomer.name}` : '';
     const paymentInfo = paymentMethod === 'Crédito' ? ` (${installments}x)` : '';
+    const pixInfo = paymentMethod === 'PIX' ? ` [${pixMethod}]` : '';
     
     const newTransaction: Transaction = {
       id: saleId,
       type: 'Entrada',
       category: 'Venda',
-      description: `Venda PDV: ${cart.map(i => i.name).join(', ')}${customerInfo}${paymentInfo}`,
+      description: `Venda PDV: ${cart.map(i => i.name).join(', ')}${customerInfo}${paymentInfo}${pixInfo}`,
       value: total,
       date: new Date().toISOString(),
       machineId: selectedMachineId,
       installments: paymentMethod === 'Crédito' ? installments : 1,
-      customerId: selectedCustomerId || undefined
+      customerId: selectedCustomerId || undefined,
+      pixMethod: paymentMethod === 'PIX' ? pixMethod : undefined
     };
 
     onSaveTransaction(newTransaction);
     setLastSaleId(saleId);
+    setSoldItems([...cart]);
+    setFinalPaymentInfo({ 
+      method: paymentMethod, 
+      pixMethod: paymentMethod === 'PIX' ? pixMethod : '', 
+      installments: paymentMethod === 'Crédito' ? installments : 1,
+      customer: selectedCustomer || null
+    });
     setIsSuccess(true);
     setCart([]);
     setSelectedCustomerId('');
     setInstallments(1);
   };
 
-  const handlePrint = () => {
-    window.print();
+  const handlePrint = (mode: 'A4' | 'Coupon') => {
+    setPrintMode(mode);
+    setTimeout(() => {
+      window.print();
+      setPrintMode(null);
+    }, 100);
   };
 
   return (
@@ -304,7 +323,29 @@ export function QuickSale({ products, customers, machines, onSaveTransaction, on
                 ))}
               </div>
 
-              {['PIX', 'Débito', 'Crédito'].includes(paymentMethod) && (
+              {paymentMethod === 'PIX' && (
+                <div className="flex flex-col gap-3 p-4 bg-white rounded-2xl border border-primary/20 animate-in slide-in-from-right-2">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">Origem PIX</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {['C6 Bank', 'Máquina Rede', 'CNPJ', 'Infinity Play'].map(m => (
+                        <button
+                          key={m}
+                          onClick={() => setPixMethod(m)}
+                          className={cn(
+                            "py-2 px-1 rounded-lg text-[10px] font-bold border transition-all",
+                            pixMethod === m ? "bg-primary text-white border-primary" : "bg-slate-50 border-border"
+                          )}
+                        >
+                          {m}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {['Débito', 'Crédito'].includes(paymentMethod) && (
                 <div className="flex flex-col gap-3 p-4 bg-white rounded-2xl border border-primary/20 animate-in slide-in-from-right-2">
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">Dispositivo</label>
@@ -377,12 +418,12 @@ export function QuickSale({ products, customers, machines, onSaveTransaction, on
                </p>
 
                <div className="w-full flex flex-col gap-3">
-                 <button onClick={handlePrint} className="w-full py-4 bg-slate-100 hover:bg-slate-200 rounded-2xl flex items-center justify-center gap-3 font-black text-text-main transition-all group">
+                 <button onClick={() => handlePrint('A4')} className="w-full py-4 bg-slate-100 hover:bg-slate-200 rounded-2xl flex items-center justify-center gap-3 font-black text-text-main transition-all group">
                    <FileText size={20} className="group-hover:translate-y-[-2px] transition-transform" />
                    IMPRIMIR A4 (PDF)
                  </button>
                  
-                 <button onClick={() => window.print()} className="w-full py-4 bg-slate-900 hover:bg-black rounded-2xl flex items-center justify-center gap-3 font-black text-white transition-all group">
+                 <button onClick={() => handlePrint('Coupon')} className="w-full py-4 bg-slate-900 hover:bg-black rounded-2xl flex items-center justify-center gap-3 font-black text-white transition-all group">
                    <Printer size={20} className="group-hover:scale-110 transition-transform" />
                    IMPRIMIR CUPOM
                  </button>
@@ -407,6 +448,133 @@ export function QuickSale({ products, customers, machines, onSaveTransaction, on
         mode="create"
       />
 
+      {/* RENDERIZAÇÃO PARA IMPRESSÃO A4 */}
+      {printMode === 'A4' && (
+        <div className="fixed inset-0 bg-white z-[100] p-12 text-black font-sans leading-relaxed">
+           <header className="flex justify-between items-start border-b-2 border-black pb-8 mb-8">
+             <div className="flex flex-col gap-2">
+               <h1 className="text-4xl font-black tracking-tighter">{COMPANY_INFO.name}</h1>
+               <div className="text-sm font-bold text-slate-600">
+                  <p>CNPJ: {COMPANY_INFO.cnpj}</p>
+                  <p>{COMPANY_INFO.address}</p>
+                  <p>Fone: {COMPANY_INFO.phone}</p>
+                  <p>{COMPANY_INFO.email}</p>
+               </div>
+             </div>
+             <div className="text-right flex flex-col gap-1">
+               <span className="bg-black text-white px-4 py-1 text-xs font-black uppercase tracking-widest">Recibo de Venda</span>
+               <p className="text-sm font-bold mt-2">Nº #{lastSaleId}</p>
+               <p className="text-xs text-slate-500 font-bold uppercase">{formatDate(new Date().toISOString())}</p>
+             </div>
+           </header>
+
+           <section className="mb-10 bg-slate-50 p-6 rounded-2xl border border-slate-200">
+             <h4 className="text-[10px] font-black uppercase text-slate-400 mb-2 tracking-widest">Dados do Cliente</h4>
+             <p className="text-xl font-black">{finalPaymentInfo.customer?.name || 'CONSUMIDOR FINAL'}</p>
+             {finalPaymentInfo.customer?.cpf && <p className="text-sm font-bold text-slate-600 mt-1">CPF: {finalPaymentInfo.customer.cpf}</p>}
+           </section>
+
+           <section className="mb-10">
+             <table className="w-full text-left">
+               <thead>
+                 <tr className="border-b-2 border-black">
+                   <th className="py-4 text-xs font-black uppercase tracking-widest">Item / Descrição</th>
+                   <th className="py-4 text-center text-xs font-black uppercase tracking-widest">Qtd</th>
+                   <th className="py-4 text-right text-xs font-black uppercase tracking-widest">Valor Unit.</th>
+                   <th className="py-4 text-right text-xs font-black uppercase tracking-widest">Total</th>
+                 </tr>
+               </thead>
+               <tbody className="divide-y divide-slate-100">
+                 {soldItems.map((item, idx) => (
+                   <tr key={idx}>
+                     <td className="py-4 font-bold">{item.name}</td>
+                     <td className="py-4 text-center font-bold">{item.quantity}</td>
+                     <td className="py-4 text-right">{formatCurrency(item.price)}</td>
+                     <td className="py-4 text-right font-black">{formatCurrency(item.price * item.quantity)}</td>
+                   </tr>
+                 ))}
+               </tbody>
+               <tfoot>
+                 <tr className="border-t-2 border-black">
+                   <td colSpan={3} className="py-6 text-right font-black uppercase text-sm">Total Geral:</td>
+                   <td className="py-6 text-right font-black text-2xl tracking-tighter text-primary">
+                     {formatCurrency(soldItems.reduce((acc, i) => acc + (i.price * i.quantity), 0))}
+                   </td>
+                 </tr>
+               </tfoot>
+             </table>
+           </section>
+
+           <section className="mb-10 grid grid-cols-2 gap-8">
+             <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200">
+               <h4 className="text-[10px] font-black uppercase text-slate-400 mb-2 tracking-widest">Pagamento</h4>
+               <p className="text-lg font-black text-slate-700">
+                 {finalPaymentInfo.method}
+                 {finalPaymentInfo.method === 'PIX' && ` (${finalPaymentInfo.pixMethod})`}
+                 {finalPaymentInfo.method === 'Crédito' && ` em ${finalPaymentInfo.installments}x`}
+               </p>
+             </div>
+             <div className="flex flex-col justify-end text-right italic text-slate-400 text-xs">
+               <p>Obrigado pela preferência!</p>
+               <p>Volte sempre.</p>
+             </div>
+           </section>
+
+           <footer className="mt-auto pt-10 text-center text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] border-t border-slate-100">
+             Via única do cliente • Sistema de Gerenciamento RTJK INFOCELL
+           </footer>
+        </div>
+      )}
+
+      {/* RENDERIZAÇÃO PARA IMPRESSÃO CUPOM */}
+      {printMode === 'Coupon' && (
+        <div className="fixed inset-0 bg-white z-[100] w-[80mm] p-4 text-black font-mono text-xs overflow-visible">
+          <div className="text-center border-b border-dashed border-black pb-4 mb-4">
+            <h2 className="text-lg font-black">{COMPANY_INFO.name}</h2>
+            <p className="text-[10px]">{COMPANY_INFO.cnpj}</p>
+            <p className="text-[10px]">{COMPANY_INFO.address}</p>
+            <p className="text-[10px]">{COMPANY_INFO.phone}</p>
+          </div>
+
+          <div className="mb-4 text-[10px] border-b border-dashed border-black pb-2">
+            <p>DATA: {new Date().toLocaleDateString('pt-BR')} {new Date().toLocaleTimeString('pt-BR')}</p>
+            <p>PEDIDO: #{lastSaleId}</p>
+            <p>CLIENTE: {finalPaymentInfo.customer?.name || 'CONSUMIDOR'}</p>
+            {finalPaymentInfo.customer?.phone && <p>FONE: {finalPaymentInfo.customer.phone}</p>}
+          </div>
+
+          <div className="mb-4 border-b border-dashed border-black pb-2">
+            <div className="flex justify-between font-bold mb-1 border-b border-dotted border-black">
+              <span className="w-1/2">ITEM</span>
+              <span className="w-1/4 text-center">QTD</span>
+              <span className="w-1/4 text-right">TOTAL</span>
+            </div>
+            {soldItems.map((item, idx) => (
+              <div key={idx} className="flex justify-between mb-1 py-1">
+                <span className="w-1/2 truncate pr-1">{item.name}</span>
+                <span className="w-1/4 text-center">{item.quantity}</span>
+                <span className="w-1/4 text-right">{formatCurrency(item.price * item.quantity)}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex justify-between font-black text-sm mb-4">
+            <span>TOTAL:</span>
+            <span>{formatCurrency(soldItems.reduce((acc, i) => acc + (i.price * i.quantity), 0))}</span>
+          </div>
+
+          <div className="text-[10px] border-t border-dashed border-black pt-2 mb-4">
+            <p>PAGAMENTO: {finalPaymentInfo.method} {finalPaymentInfo.method === 'PIX' ? finalPaymentInfo.pixMethod : ''}</p>
+            {finalPaymentInfo.method === 'Crédito' && <p>PARCELAS: {finalPaymentInfo.installments}x</p>}
+          </div>
+
+          <div className="text-center mt-6">
+            <p className="text-[10px] font-bold">OBRIGADO PELA PREFERÊNCIA!</p>
+            <p className="text-[8px] mt-1 italic">RTJK INFOCELL - {COMPANY_INFO.instagram}</p>
+            <p className="text-[7px] mt-4">VIA ÚNICA</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

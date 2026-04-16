@@ -22,11 +22,14 @@
 }
 
 @media print {
-  .print\:hidden {
-    display: none !important;
-  }
-  
-  nav, aside, footer, .btn-primary, .btn-secondary, button {
+  .print\:hidden,
+  nav, 
+  aside, 
+  footer, 
+  .btn-primary, 
+  .btn-secondary, 
+  button,
+  .no-print {
     display: none !important;
   }
   
@@ -39,6 +42,8 @@
     background: white !important;
     padding: 0 !important;
     margin: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
   }
 }
 
