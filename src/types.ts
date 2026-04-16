@@ -105,4 +105,5 @@ export interface Transaction {
   date: string;
   machineId?: string;
   installments?: number;
+  customerId?: string;
 }

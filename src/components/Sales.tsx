@@ -59,7 +59,8 @@ export function QuickSale({ products, customers, machines, onSaveTransaction }: 
       value: total,
       date: new Date().toISOString(),
       machineId: selectedMachineId,
-      installments: paymentMethod === 'Crédito' ? installments : 1
+      installments: paymentMethod === 'Crédito' ? installments : 1,
+      customerId: selectedCustomerId || undefined
     };
 
     onSaveTransaction(newTransaction);

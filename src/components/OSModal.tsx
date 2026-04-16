@@ -127,7 +127,8 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
         value: netValue,
         date: new Date().toISOString(),
         machineId: selectedMachineId,
-        installments: paymentMethod === 'Crédito' ? installments : 1
+        installments: paymentMethod === 'Crédito' ? installments : 1,
+        customerId: newOS.customerId
       };
 
       onSaveTransaction(newTransaction);

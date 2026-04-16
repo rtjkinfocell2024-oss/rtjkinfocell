@@ -1,18 +1,22 @@
 import { useState } from 'react';
 import { Plus, Search, UserPlus, Phone, Mail, Edit, Trash2, History } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
-import { Customer } from '@/src/types';
+import { Customer, ServiceOrder, Transaction } from '@/src/types';
 import { CustomerModal } from './CustomerModal';
+import { CustomerHistoryModal } from './CustomerHistoryModal';
 
 interface CustomersProps {
   customers: Customer[];
+  serviceOrders: ServiceOrder[];
+  transactions: Transaction[];
   onSaveCustomer: (customer: Customer) => void;
   onDeleteCustomer: (id: string) => void;
 }
 
-export function Customers({ customers, onSaveCustomer, onDeleteCustomer }: CustomersProps) {
+export function Customers({ customers, serviceOrders, transactions, onSaveCustomer, onDeleteCustomer }: CustomersProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [modalMode, setModalMode] = useState<'create' | 'edit' | 'view'>('create');
 
@@ -38,6 +42,11 @@ export function Customers({ customers, onSaveCustomer, onDeleteCustomer }: Custo
     setSelectedCustomer(customer);
     setModalMode('view');
     setIsModalOpen(true);
+  };
+
+  const handleHistory = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setIsHistoryOpen(true);
   };
 
   return (
@@ -106,12 +115,14 @@ export function Customers({ customers, onSaveCustomer, onDeleteCustomer }: Custo
                   </td>
                   <td className="px-5 py-4 text-text-muted">{customer.cpf || '---'}</td>
                   <td className="px-5 py-4 text-center">
-                    <span className="font-bold text-primary">1</span>
+                    <span className="font-bold text-primary">
+                      {serviceOrders.filter(os => os.customerId === customer.id && os.status !== 'Entregue' && os.status !== 'Cancelado').length}
+                    </span>
                   </td>
                   <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center justify-center gap-2">
                       <button 
-                        onClick={() => alert('Histórico do cliente em breve!')}
+                        onClick={() => handleHistory(customer)}
                         className="p-1.5 text-text-muted hover:text-primary hover:bg-primary/5 rounded-md transition-colors" 
                         title="Histórico"
                       >
@@ -146,6 +157,14 @@ export function Customers({ customers, onSaveCustomer, onDeleteCustomer }: Custo
         onSave={onSaveCustomer}
         customer={selectedCustomer}
         mode={modalMode}
+      />
+
+      <CustomerHistoryModal
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        customer={selectedCustomer}
+        serviceOrders={serviceOrders}
+        transactions={transactions}
       />
     </div>
   );

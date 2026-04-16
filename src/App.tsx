@@ -136,7 +136,7 @@ export default function App() {
       case 'estoque':
         return <Inventory products={products} onSaveProduct={handleSaveProduct} onDeleteProduct={handleDeleteProduct} />;
       case 'clientes':
-        return <Customers customers={customers} onSaveCustomer={handleSaveCustomer} onDeleteCustomer={handleDeleteCustomer} />;
+        return <Customers customers={customers} serviceOrders={serviceOrders} transactions={transactions} onSaveCustomer={handleSaveCustomer} onDeleteCustomer={handleDeleteCustomer} />;
       case 'financeiro':
         return <Financial transactions={transactions} onSaveTransaction={handleSaveTransaction} />;
       case 'relatorios':
