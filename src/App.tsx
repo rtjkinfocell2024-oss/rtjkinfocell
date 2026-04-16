@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Sidebar } from './components/Sidebar';
+import { BottomNav } from './components/BottomNav';
 import { Dashboard } from './components/Dashboard';
 import { ServiceOrders } from './components/ServiceOrders';
 import { QuickSale } from './components/Sales';
@@ -106,7 +107,7 @@ export default function App() {
       case 'os':
         return <ServiceOrders serviceOrders={serviceOrders} onSaveOS={handleSaveOS} customers={customers} />;
       case 'venda-rapida':
-        return <QuickSale products={products} onSaveTransaction={handleSaveTransaction} />;
+        return <QuickSale products={products} customers={customers} onSaveTransaction={handleSaveTransaction} />;
       case 'estoque':
         return <Inventory products={products} onSaveProduct={handleSaveProduct} onDeleteProduct={handleDeleteProduct} />;
       case 'clientes':
@@ -146,7 +147,7 @@ export default function App() {
     <div className="flex min-h-screen bg-bg">
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
       
-      <main className="flex-1 p-8 overflow-y-auto">
+      <main className="flex-1 p-4 md:p-8 overflow-y-auto pb-24 lg:pb-8">
         <div className="max-w-7xl mx-auto flex flex-col gap-6">
           <div className="flex items-center gap-2 text-sm">
             <span className="text-text-muted">Início</span>
@@ -157,6 +158,8 @@ export default function App() {
           {renderContent()}
         </div>
       </main>
+
+      <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
     </div>
   );
 }

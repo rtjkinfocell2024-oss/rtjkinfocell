@@ -1,21 +1,25 @@
 import { useState } from 'react';
-import { ShoppingCart, Plus, Trash2, CreditCard, DollarSign, Smartphone, Zap, CheckCircle2 } from 'lucide-react';
+import { ShoppingCart, Plus, Trash2, CreditCard, DollarSign, Smartphone, Zap, CheckCircle2, User } from 'lucide-react';
 import { cn, formatCurrency } from '@/src/lib/utils';
-import { Product, SaleItem, Transaction } from '@/src/types';
+import { Product, SaleItem, Transaction, Customer } from '@/src/types';
 
 interface QuickSaleProps {
   products: Product[];
+  customers: Customer[];
   onSaveTransaction: (tx: Transaction) => void;
 }
 
-export function QuickSale({ products, onSaveTransaction }: QuickSaleProps) {
+export function QuickSale({ products, customers, onSaveTransaction }: QuickSaleProps) {
   const [cart, setCart] = useState<SaleItem[]>([]);
   const [paymentMethod, setPaymentMethod] = useState('PIX');
+  const [selectedCustomerId, setSelectedCustomerId] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   
   const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   const machineFee = paymentMethod === 'Crédito' ? subtotal * 0.035 : paymentMethod === 'Débito' ? subtotal * 0.015 : 0;
   const total = subtotal - machineFee;
+
+  const selectedCustomer = customers.find(c => c.id === selectedCustomerId);
 
   const addToCart = (product: Product) => {
     const existing = cart.find(item => item.id === product.id);
@@ -33,11 +37,12 @@ export function QuickSale({ products, onSaveTransaction }: QuickSaleProps) {
   const handleFinishSale = () => {
     if (cart.length === 0) return;
 
+    const customerInfo = selectedCustomer ? ` - Cliente: ${selectedCustomer.name}` : '';
     const newTransaction: Transaction = {
       id: Math.floor(Math.random() * 10000).toString(),
       type: 'Entrada',
       category: 'Venda',
-      description: `Venda PDV: ${cart.map(i => i.name).join(', ')}`,
+      description: `Venda PDV: ${cart.map(i => i.name).join(', ')}${customerInfo}`,
       value: total,
       date: new Date().toISOString(),
     };
@@ -45,6 +50,7 @@ export function QuickSale({ products, onSaveTransaction }: QuickSaleProps) {
     onSaveTransaction(newTransaction);
     setIsSuccess(true);
     setCart([]);
+    setSelectedCustomerId('');
     
     setTimeout(() => setIsSuccess(false), 3000);
   };
@@ -60,11 +66,25 @@ export function QuickSale({ products, onSaveTransaction }: QuickSaleProps) {
         )}
 
         <div className="card">
-          <div className="card-header">
+          <div className="card-header flex flex-col md:flex-row md:items-center justify-between gap-4">
             <h3 className="card-title flex items-center gap-2">
               <Zap size={18} className="text-primary" />
               Produtos e Serviços
             </h3>
+            
+            <div className="flex items-center gap-2 min-w-[250px]">
+              <User size={16} className="text-text-muted" />
+              <select 
+                className="input text-xs py-1.5"
+                value={selectedCustomerId}
+                onChange={(e) => setSelectedCustomerId(e.target.value)}
+              >
+                <option value="">Selecione o cliente (opcional)...</option>
+                {customers.map(c => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
           </div>
           <div className="card-content">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

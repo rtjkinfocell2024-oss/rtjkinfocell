@@ -29,7 +29,7 @@ const menuItems = [
 
 export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
   return (
-    <aside className="w-[240px] bg-white border-r border-border flex flex-col py-6 h-screen sticky top-0">
+    <aside className="hidden lg:flex w-[240px] bg-white border-r border-border flex-col py-6 h-screen sticky top-0 transition-all">
       <div className="px-6 mb-8">
         <h1 className="text-xl font-extrabold text-primary tracking-tight uppercase">RTJK INFOCELL</h1>
       </div>
