@@ -100,14 +100,13 @@ export function CustomerModal({ isOpen, onClose, onSave, customer, mode }: Custo
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="label">CPF *</label>
+              <label className="label">CPF</label>
               <div className="relative">
                 <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
                 <input 
                   type="text" 
                   className="input pl-10" 
                   placeholder="000.000.000-00"
-                  required
                   disabled={isView}
                   value={formData.cpf}
                   onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
