@@ -132,7 +132,7 @@ export default function App() {
       case 'os':
         return <ServiceOrders serviceOrders={serviceOrders} onSaveOS={handleSaveOS} customers={customers} machines={machines} onSaveTransaction={handleSaveTransaction} />;
       case 'venda-rapida':
-        return <QuickSale products={products} customers={customers} machines={machines} onSaveTransaction={handleSaveTransaction} />;
+        return <QuickSale products={products} customers={customers} machines={machines} onSaveTransaction={handleSaveTransaction} onSaveCustomer={handleSaveCustomer} />;
       case 'estoque':
         return <Inventory products={products} onSaveProduct={handleSaveProduct} onDeleteProduct={handleDeleteProduct} />;
       case 'clientes':
