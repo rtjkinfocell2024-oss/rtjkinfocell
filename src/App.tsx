@@ -12,7 +12,7 @@ import { Financial } from './components/Financial';
 import { Reports } from './components/Reports';
 import { Settings } from './components/Settings';
 import { cn } from './lib/utils';
-import { ServiceOrder, Product, Customer, Transaction, PaymentMachine } from './types';
+import { ServiceOrder, Product, Customer, Transaction, PaymentMachine, DetailedSale } from './types';
 
 const initialOS: ServiceOrder[] = [
   { id: '8922', customerId: '1', customerName: 'Ricardo Mendes', device: 'iPhone 13 Pro', problem: 'Troca de Tela', status: 'Aguardando Peça', priority: 'Normal', totalValue: 1200, entryDate: '2024-04-10', createdAt: '2024-04-10T10:00:00Z', updatedAt: '2024-04-12T14:30:00Z' },
@@ -76,6 +76,7 @@ export default function App() {
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
   const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
+  const [detailedSales, setDetailedSales] = useState<DetailedSale[]>([]);
   const [machines, setMachines] = useState<PaymentMachine[]>(initialMachines);
 
   const handleSaveOS = (os: ServiceOrder) => {
@@ -126,6 +127,16 @@ export default function App() {
     });
   };
 
+  const handleSaveDetailedSale = (sale: DetailedSale) => {
+    setDetailedSales(prev => {
+      const exists = prev.find(s => s.id === sale.id);
+      if (exists) {
+        return prev.map(s => s.id === sale.id ? sale : s);
+      }
+      return [sale, ...prev];
+    });
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
@@ -135,7 +146,15 @@ export default function App() {
       case 'venda-rapida':
         return <QuickSale products={products} customers={customers} machines={machines} onSaveTransaction={handleSaveTransaction} onSaveCustomer={handleSaveCustomer} />;
       case 'venda-completa':
-        return <CompleteSale products={products} customers={customers} machines={machines} onSaveTransaction={handleSaveTransaction} onSaveCustomer={handleSaveCustomer} />;
+        return <CompleteSale 
+          products={products} 
+          customers={customers} 
+          machines={machines} 
+          detailedSales={detailedSales}
+          onSaveTransaction={handleSaveTransaction} 
+          onSaveCustomer={handleSaveCustomer}
+          onSaveDetailedSale={handleSaveDetailedSale}
+        />;
       case 'estoque':
         return <Inventory products={products} onSaveProduct={handleSaveProduct} onDeleteProduct={handleDeleteProduct} />;
       case 'clientes':

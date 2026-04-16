@@ -97,6 +97,10 @@ export interface DetailedSale extends Sale {
   ram?: string;
   warranty: string; // 30, 60, 90, 180, personalizado
   observations?: string;
+  status: 'Finalizada' | 'Cancelada';
+  machineId?: string;
+  installments?: number;
+  pixMethod?: string;
 }
 
 export interface PaymentMachine {
