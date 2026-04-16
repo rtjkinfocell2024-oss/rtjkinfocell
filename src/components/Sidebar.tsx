@@ -1,3 +1,4 @@
+import { COMPANY_INFO } from '@/src/constants';
 import { 
   LayoutDashboard, 
   Wrench, 
@@ -33,7 +34,7 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
   return (
     <aside className="hidden lg:flex w-[240px] bg-white border-r border-border flex-col py-6 h-screen sticky top-0 transition-all">
       <div className="px-6 mb-8">
-        <h1 className="text-xl font-extrabold text-primary tracking-tight uppercase">RTJK INFOCELL</h1>
+        <h1 className="text-xl font-extrabold text-primary tracking-tight uppercase">{COMPANY_INFO.name}</h1>
       </div>
       
       <nav className="flex-1">
@@ -68,7 +69,7 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
             RI
           </div>
           <div className="flex-1 overflow-hidden">
-            <p className="text-xs font-bold truncate">RTJK INFOCELL</p>
+            <p className="text-xs font-bold truncate">{COMPANY_INFO.name}</p>
             <p className="text-[10px] text-text-muted truncate">Administrador</p>
           </div>
         </div>

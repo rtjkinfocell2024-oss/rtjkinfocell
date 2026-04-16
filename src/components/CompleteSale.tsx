@@ -746,7 +746,7 @@ export function CompleteSale({
               <div className="text-sm font-bold text-slate-700 mt-2">
                 <p>CNPJ: {COMPANY_INFO.cnpj}</p>
                 <p>{COMPANY_INFO.address}</p>
-                <p>WhatsApp: {COMPANY_INFO.phone}</p>
+                <p>WhatsApp: {COMPANY_INFO.phone} / {COMPANY_INFO.phone2}</p>
                 <p>{COMPANY_INFO.email}</p>
               </div>
             </div>

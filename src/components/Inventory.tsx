@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Plus, Search, Filter, Package, AlertTriangle, Edit, Trash2, FileText, Printer } from 'lucide-react';
 import { cn, formatCurrency } from '@/src/lib/utils';
 import { Product } from '@/src/types';
+import { COMPANY_INFO } from '@/src/constants';
 import { ProductModal } from './ProductModal';
 
 interface InventoryProps {
@@ -55,7 +56,7 @@ export function Inventory({ products, onSaveProduct, onDeleteProduct }: Inventor
       <div className="hidden print:block p-8 bg-white text-black">
         <header className="flex justify-between items-start border-b-2 border-slate-900 pb-6 mb-8">
           <div>
-            <h1 className="text-3xl font-black uppercase tracking-tighter">RTJK INFOCELL</h1>
+            <h1 className="text-3xl font-black uppercase tracking-tighter">{COMPANY_INFO.name}</h1>
             <p className="text-sm font-bold opacity-70">Relatório de Reposição de Estoque</p>
           </div>
           <div className="text-right">

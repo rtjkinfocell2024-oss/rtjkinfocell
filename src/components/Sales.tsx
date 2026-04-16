@@ -457,7 +457,7 @@ export function QuickSale({ products, customers, machines, onSaveTransaction, on
                <div className="text-sm font-bold text-slate-600">
                   <p>CNPJ: {COMPANY_INFO.cnpj}</p>
                   <p>{COMPANY_INFO.address}</p>
-                  <p>Fone: {COMPANY_INFO.phone}</p>
+                  <p>WhatsApp: {COMPANY_INFO.phone} / {COMPANY_INFO.phone2}</p>
                   <p>{COMPANY_INFO.email}</p>
                </div>
              </div>
@@ -533,7 +533,8 @@ export function QuickSale({ products, customers, machines, onSaveTransaction, on
             <h2 className="text-lg font-black">{COMPANY_INFO.name}</h2>
             <p className="text-[10px]">{COMPANY_INFO.cnpj}</p>
             <p className="text-[10px]">{COMPANY_INFO.address}</p>
-            <p className="text-[10px]">{COMPANY_INFO.phone}</p>
+            <p className="text-[10px]">WhatsApp: {COMPANY_INFO.phone}</p>
+            <p className="text-[10px]">WhatsApp: {COMPANY_INFO.phone2}</p>
           </div>
 
           <div className="mb-4 text-[10px] border-b border-dashed border-black pb-2">
