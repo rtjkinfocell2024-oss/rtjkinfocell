@@ -17,17 +17,20 @@ import {
   ChevronUp
 } from 'lucide-react';
 import { cn, formatCurrency } from '@/src/lib/utils';
-import { PaymentMachine } from '../types';
+import { PaymentMachine, StoreSettings } from '../types';
 
 interface SettingsProps {
   machines: PaymentMachine[];
   onSaveMachines: (machines: PaymentMachine[]) => void;
+  storeSettings: StoreSettings;
+  onSaveStoreSettings: (settings: StoreSettings) => void;
 }
 
-export function Settings({ machines, onSaveMachines }: SettingsProps) {
+export function Settings({ machines, onSaveMachines, storeSettings, onSaveStoreSettings }: SettingsProps) {
   const [activeSection, setActiveSection] = useState('loja');
   const [isSaved, setIsSaved] = useState(false);
   const [localMachines, setLocalMachines] = useState<PaymentMachine[]>(machines);
+  const [localStore, setLocalStore] = useState<StoreSettings>(storeSettings);
   const [expandedMachineId, setExpandedMachineId] = useState<string | null>(machines[0]?.id || null);
 
   const menuItems = [
@@ -42,6 +45,7 @@ export function Settings({ machines, onSaveMachines }: SettingsProps) {
 
   const handleSave = () => {
     onSaveMachines(localMachines);
+    onSaveStoreSettings(localStore);
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 3000);
   };
@@ -133,24 +137,76 @@ export function Settings({ machines, onSaveMachines }: SettingsProps) {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex flex-col gap-1.5">
                       <label className="label">Nome Fantasia</label>
-                      <input type="text" className="input" defaultValue="RTJK INFOCELL" />
+                      <input 
+                        type="text" 
+                        className="input" 
+                        value={localStore.name} 
+                        onChange={(e) => setLocalStore({...localStore, name: e.target.value})}
+                      />
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <label className="label">Razão Social</label>
-                      <input type="text" className="input" defaultValue="RTJK INFOCELL LTDA" />
+                      <input 
+                        type="text" 
+                        className="input" 
+                        value={localStore.corporateName} 
+                        onChange={(e) => setLocalStore({...localStore, corporateName: e.target.value})}
+                      />
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <label className="label">CNPJ</label>
-                      <input type="text" className="input" defaultValue="00.000.000/0001-00" />
+                      <input 
+                        type="text" 
+                        className="input" 
+                        value={localStore.cnpj} 
+                        onChange={(e) => setLocalStore({...localStore, cnpj: e.target.value})}
+                      />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label className="label">Telefone 1</label>
-                      <input type="text" className="input" defaultValue="(11) 99999-9999" />
+                      <label className="label">WhatsApp 1</label>
+                      <input 
+                        type="text" 
+                        className="input" 
+                        value={localStore.phone1} 
+                        onChange={(e) => setLocalStore({...localStore, phone1: e.target.value})}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="label">WhatsApp 2 (Opcional)</label>
+                      <input 
+                        type="text" 
+                        className="input" 
+                        value={localStore.phone2 || ''} 
+                        onChange={(e) => setLocalStore({...localStore, phone2: e.target.value})}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="label">E-mail</label>
+                      <input 
+                        type="email" 
+                        className="input" 
+                        value={localStore.email || ''} 
+                        onChange={(e) => setLocalStore({...localStore, email: e.target.value})}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="label">Instagram</label>
+                      <input 
+                        type="text" 
+                        className="input" 
+                        value={localStore.instagram || ''} 
+                        onChange={(e) => setLocalStore({...localStore, instagram: e.target.value})}
+                      />
                     </div>
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <label className="label">Endereço Completo</label>
-                    <input type="text" className="input" defaultValue="Av. Paulista, 1000 - São Paulo, SP" />
+                    <input 
+                      type="text" 
+                      className="input" 
+                      value={localStore.address} 
+                      onChange={(e) => setLocalStore({...localStore, address: e.target.value})}
+                    />
                   </div>
                 </div>
               </div>

@@ -1,4 +1,4 @@
-import { COMPANY_INFO } from '@/src/constants';
+import { StoreSettings } from '@/src/types';
 import { 
   LayoutDashboard, 
   Wrench, 
@@ -16,6 +16,7 @@ import { cn } from '@/src/lib/utils';
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  storeSettings: StoreSettings;
 }
 
 const menuItems = [
@@ -30,11 +31,11 @@ const menuItems = [
   { id: 'configuracoes', label: 'Configurações', icon: Settings },
 ];
 
-export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
+export function Sidebar({ activeTab, setActiveTab, storeSettings }: SidebarProps) {
   return (
     <aside className="hidden lg:flex w-[240px] bg-white border-r border-border flex-col py-6 h-screen sticky top-0 transition-all">
       <div className="px-6 mb-8">
-        <h1 className="text-xl font-extrabold text-primary tracking-tight uppercase">{COMPANY_INFO.name}</h1>
+        <h1 className="text-xl font-extrabold text-primary tracking-tight uppercase">{storeSettings.name}</h1>
       </div>
       
       <nav className="flex-1">
@@ -66,10 +67,10 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
       <div className="px-6 mt-auto pt-6 border-t border-border">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
-            RI
+            {storeSettings.name.substring(0, 2).toUpperCase()}
           </div>
           <div className="flex-1 overflow-hidden">
-            <p className="text-xs font-bold truncate">{COMPANY_INFO.name}</p>
+            <p className="text-xs font-bold truncate">{storeSettings.name}</p>
             <p className="text-[10px] text-text-muted truncate">Administrador</p>
           </div>
         </div>

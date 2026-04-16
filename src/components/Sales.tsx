@@ -20,9 +20,8 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { cn, formatCurrency, formatDate } from '@/src/lib/utils';
-import { Product, SaleItem, Transaction, Customer, PaymentMachine } from '@/src/types';
+import { Product, SaleItem, Transaction, Customer, PaymentMachine, StoreSettings } from '@/src/types';
 import { CustomerModal } from './CustomerModal';
-import { COMPANY_INFO } from '@/src/constants';
 
 interface QuickSaleProps {
   products: Product[];
@@ -30,9 +29,10 @@ interface QuickSaleProps {
   machines: PaymentMachine[];
   onSaveTransaction: (tx: Transaction) => void;
   onSaveCustomer: (customer: Customer) => void;
+  storeSettings: StoreSettings;
 }
 
-export function QuickSale({ products, customers, machines, onSaveTransaction, onSaveCustomer }: QuickSaleProps) {
+export function QuickSale({ products, customers, machines, onSaveTransaction, onSaveCustomer, storeSettings }: QuickSaleProps) {
   const [cart, setCart] = useState<SaleItem[]>([]);
   const [paymentMethod, setPaymentMethod] = useState('PIX');
   const [selectedCustomerId, setSelectedCustomerId] = useState('');
@@ -453,12 +453,12 @@ export function QuickSale({ products, customers, machines, onSaveTransaction, on
         <div className="fixed inset-0 bg-white z-[100] p-12 text-black font-sans leading-relaxed">
            <header className="flex justify-between items-start border-b-2 border-black pb-8 mb-8">
              <div className="flex flex-col gap-2">
-               <h1 className="text-4xl font-black tracking-tighter">{COMPANY_INFO.name}</h1>
+               <h1 className="text-4xl font-black tracking-tighter">{storeSettings.name}</h1>
                <div className="text-sm font-bold text-slate-600">
-                  <p>CNPJ: {COMPANY_INFO.cnpj}</p>
-                  <p>{COMPANY_INFO.address}</p>
-                  <p>WhatsApp: {COMPANY_INFO.phone} / {COMPANY_INFO.phone2}</p>
-                  <p>{COMPANY_INFO.email}</p>
+                  <p>CNPJ: {storeSettings.cnpj}</p>
+                  <p>{storeSettings.address}</p>
+                  <p>WhatsApp: {storeSettings.phone1} {storeSettings.phone2 ? `/ ${storeSettings.phone2}` : ''}</p>
+                  <p>{storeSettings.email}</p>
                </div>
              </div>
              <div className="text-right flex flex-col gap-1">
@@ -521,7 +521,7 @@ export function QuickSale({ products, customers, machines, onSaveTransaction, on
            </section>
 
            <footer className="mt-auto pt-10 text-center text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] border-t border-slate-100">
-             Via única do cliente • Sistema de Gerenciamento RTJK INFOCELL
+             Via única do cliente • Sistema de Gerenciamento {storeSettings.name}
            </footer>
         </div>
       )}
@@ -530,11 +530,11 @@ export function QuickSale({ products, customers, machines, onSaveTransaction, on
       {printMode === 'Coupon' && (
         <div className="fixed inset-0 bg-white z-[100] w-[80mm] p-4 text-black font-mono text-xs overflow-visible">
           <div className="text-center border-b border-dashed border-black pb-4 mb-4">
-            <h2 className="text-lg font-black">{COMPANY_INFO.name}</h2>
-            <p className="text-[10px]">{COMPANY_INFO.cnpj}</p>
-            <p className="text-[10px]">{COMPANY_INFO.address}</p>
-            <p className="text-[10px]">WhatsApp: {COMPANY_INFO.phone}</p>
-            <p className="text-[10px]">WhatsApp: {COMPANY_INFO.phone2}</p>
+            <h2 className="text-lg font-black">{storeSettings.name}</h2>
+            <p className="text-[10px]">{storeSettings.cnpj}</p>
+            <p className="text-[10px]">{storeSettings.address}</p>
+            <p className="text-[10px]">WhatsApp: {storeSettings.phone1}</p>
+            {storeSettings.phone2 && <p className="text-[10px]">WhatsApp: {storeSettings.phone2}</p>}
           </div>
 
           <div className="mb-4 text-[10px] border-b border-dashed border-black pb-2">
@@ -571,7 +571,7 @@ export function QuickSale({ products, customers, machines, onSaveTransaction, on
 
           <div className="text-center mt-6">
             <p className="text-[10px] font-bold">OBRIGADO PELA PREFERÊNCIA!</p>
-            <p className="text-[8px] mt-1 italic">RTJK INFOCELL - {COMPANY_INFO.instagram}</p>
+            <p className="text-[8px] mt-1 italic">{storeSettings.name} - {storeSettings.instagram}</p>
             <p className="text-[7px] mt-4">VIA ÚNICA</p>
           </div>
         </div>

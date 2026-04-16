@@ -11,10 +11,9 @@ import {
   Database
 } from 'lucide-react';
 import { cn, formatCurrency, formatDate } from '@/src/lib/utils';
-import { Product, Transaction, Customer, PaymentMachine, DetailedSale } from '@/src/types';
+import { Product, Transaction, Customer, PaymentMachine, DetailedSale, StoreSettings } from '@/src/types';
 import { CustomerModal } from './CustomerModal';
 import { CompleteSaleModal } from './CompleteSaleModal';
-import { COMPANY_INFO } from '@/src/constants';
 
 interface CompleteSaleProps {
   products: Product[];
@@ -24,6 +23,7 @@ interface CompleteSaleProps {
   onSaveTransaction: (tx: Transaction) => void;
   onSaveCustomer: (customer: Customer) => void;
   onSaveDetailedSale: (sale: DetailedSale) => void;
+  storeSettings: StoreSettings;
 }
 
 export function CompleteSale({ 
@@ -33,7 +33,8 @@ export function CompleteSale({
   detailedSales,
   onSaveTransaction, 
   onSaveCustomer,
-  onSaveDetailedSale
+  onSaveDetailedSale,
+  storeSettings
 }: CompleteSaleProps) {
   const [editingSale, setEditingSale] = useState<DetailedSale | null>(null);
   const [isSaleModalOpen, setIsSaleModalOpen] = useState(false);
@@ -178,12 +179,12 @@ export function CompleteSale({
           <div className="fixed inset-0 bg-white z-[100] p-12 text-black font-sans print-only overflow-visible">
             <header className="flex justify-between items-start border-b-4 border-black pb-8 mb-10">
               <div>
-                <h1 className="text-4xl font-black tracking-tighter uppercase">{COMPANY_INFO.name}</h1>
+                <h1 className="text-4xl font-black tracking-tighter uppercase">{storeSettings.name}</h1>
                 <div className="text-sm font-bold text-slate-700 mt-2">
-                  <p>CNPJ: {COMPANY_INFO.cnpj}</p>
-                  <p>{COMPANY_INFO.address}</p>
-                  <p>WhatsApp: {COMPANY_INFO.phone}</p>
-                  <p>{COMPANY_INFO.email}</p>
+                  <p>CNPJ: {storeSettings.cnpj}</p>
+                  <p>{storeSettings.address}</p>
+                  <p>WhatsApp: {storeSettings.phone1} {storeSettings.phone2 ? `/ ${storeSettings.phone2}` : ''}</p>
+                  <p>{storeSettings.email}</p>
                 </div>
               </div>
               <div className="text-right flex flex-col items-end gap-2">
@@ -299,12 +300,12 @@ export function CompleteSale({
               </div>
               <div className="flex flex-col items-center">
                  <div className="w-full h-px bg-black mb-2"></div>
-                 <p className="text-[10px] font-black uppercase tracking-widest">Assinatura {COMPANY_INFO.name}</p>
+                 <p className="text-[10px] font-black uppercase tracking-widest">Assinatura {storeSettings.name}</p>
               </div>
             </div>
 
             <footer className="mt-12 pt-8 text-center text-[8px] font-bold text-slate-400 uppercase tracking-[0.3em] border-t border-slate-100">
-               Contrato gerado eletronicamente • Sistema RTJK INFOCELL • {COMPANY_INFO.instagram}
+               Contrato gerado eletronicamente • Sistema {storeSettings.name} • {storeSettings.instagram}
             </footer>
           </div>
         )}
@@ -348,12 +349,12 @@ export function CompleteSale({
         <div className="fixed inset-0 bg-white z-[100] p-12 text-black font-sans print-only overflow-visible">
           <header className="flex justify-between items-start border-b-4 border-black pb-8 mb-10">
             <div>
-              <h1 className="text-4xl font-black tracking-tighter uppercase">{COMPANY_INFO.name}</h1>
+              <h1 className="text-4xl font-black tracking-tighter uppercase">{storeSettings.name}</h1>
               <div className="text-sm font-bold text-slate-700 mt-2">
-                <p>CNPJ: {COMPANY_INFO.cnpj}</p>
-                <p>{COMPANY_INFO.address}</p>
-                <p>WhatsApp: {COMPANY_INFO.phone} / {COMPANY_INFO.phone2}</p>
-                <p>{COMPANY_INFO.email}</p>
+                <p>CNPJ: {storeSettings.cnpj}</p>
+                <p>{storeSettings.address}</p>
+                <p>WhatsApp: {storeSettings.phone1} {storeSettings.phone2 ? `/ ${storeSettings.phone2}` : ''}</p>
+                <p>{storeSettings.email}</p>
               </div>
             </div>
             <div className="text-right flex flex-col items-end gap-2">
@@ -469,12 +470,12 @@ export function CompleteSale({
             </div>
             <div className="flex flex-col items-center">
                <div className="w-full h-px bg-black mb-2"></div>
-               <p className="text-[10px] font-black uppercase tracking-widest">Assinatura {COMPANY_INFO.name}</p>
+               <p className="text-[10px] font-black uppercase tracking-widest">Assinatura {storeSettings.name}</p>
             </div>
           </div>
 
           <footer className="mt-12 pt-8 text-center text-[8px] font-bold text-slate-400 uppercase tracking-[0.3em] border-t border-slate-100">
-             Contrato gerado eletronicamente • Sistema RTJK INFOCELL • {COMPANY_INFO.instagram}
+             Contrato gerado eletronicamente • Sistema {storeSettings.name} • {storeSettings.instagram}
           </footer>
         </div>
       )}

@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import { Plus, Search, Filter, Package, AlertTriangle, Edit, Trash2, FileText, Printer } from 'lucide-react';
 import { cn, formatCurrency } from '@/src/lib/utils';
-import { Product } from '@/src/types';
-import { COMPANY_INFO } from '@/src/constants';
+import { Product, StoreSettings } from '@/src/types';
 import { ProductModal } from './ProductModal';
 
 interface InventoryProps {
   products: Product[];
   onSaveProduct: (product: Product) => void;
   onDeleteProduct: (id: string) => void;
+  storeSettings: StoreSettings;
 }
 
-export function Inventory({ products, onSaveProduct, onDeleteProduct }: InventoryProps) {
+export function Inventory({ products, onSaveProduct, onDeleteProduct, storeSettings }: InventoryProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -56,7 +56,7 @@ export function Inventory({ products, onSaveProduct, onDeleteProduct }: Inventor
       <div className="hidden print:block p-8 bg-white text-black">
         <header className="flex justify-between items-start border-b-2 border-slate-900 pb-6 mb-8">
           <div>
-            <h1 className="text-3xl font-black uppercase tracking-tighter">{COMPANY_INFO.name}</h1>
+            <h1 className="text-3xl font-black uppercase tracking-tighter">{storeSettings.name}</h1>
             <p className="text-sm font-bold opacity-70">Relatório de Reposição de Estoque</p>
           </div>
           <div className="text-right">
@@ -96,7 +96,7 @@ export function Inventory({ products, onSaveProduct, onDeleteProduct }: Inventor
         </table>
 
         <footer className="mt-20 pt-8 border-t border-slate-200 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-          <span>Relatório gerado via RTJK Sistema</span>
+          <span>Relatório gerado via {storeSettings.name} Sistema</span>
           <span>Página 1 / 1</span>
         </footer>
       </div>

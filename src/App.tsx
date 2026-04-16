@@ -12,7 +12,19 @@ import { Financial } from './components/Financial';
 import { Reports } from './components/Reports';
 import { Settings } from './components/Settings';
 import { cn } from './lib/utils';
-import { ServiceOrder, Product, Customer, Transaction, PaymentMachine, DetailedSale } from './types';
+import { COMPANY_INFO } from './constants';
+import { ServiceOrder, Product, Customer, Transaction, PaymentMachine, DetailedSale, StoreSettings } from './types';
+
+const initialStoreSettings: StoreSettings = {
+  name: COMPANY_INFO.name,
+  corporateName: 'RTJK INFOCELL LTDA',
+  cnpj: COMPANY_INFO.cnpj,
+  phone1: COMPANY_INFO.phone,
+  phone2: COMPANY_INFO.phone2,
+  email: COMPANY_INFO.email,
+  instagram: COMPANY_INFO.instagram,
+  address: COMPANY_INFO.address,
+};
 
 const initialOS: ServiceOrder[] = [
   { id: '8922', customerId: '1', customerName: 'Ricardo Mendes', device: 'iPhone 13 Pro', problem: 'Troca de Tela', status: 'Aguardando Peça', priority: 'Normal', totalValue: 1200, entryDate: '2024-04-10', createdAt: '2024-04-10T10:00:00Z', updatedAt: '2024-04-12T14:30:00Z' },
@@ -78,6 +90,7 @@ export default function App() {
   const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
   const [detailedSales, setDetailedSales] = useState<DetailedSale[]>([]);
   const [machines, setMachines] = useState<PaymentMachine[]>(initialMachines);
+  const [storeSettings, setStoreSettings] = useState<StoreSettings>(initialStoreSettings);
 
   const handleSaveOS = (os: ServiceOrder) => {
     setServiceOrders(prev => {
@@ -144,7 +157,14 @@ export default function App() {
       case 'os':
         return <ServiceOrders serviceOrders={serviceOrders} onSaveOS={handleSaveOS} customers={customers} machines={machines} onSaveTransaction={handleSaveTransaction} />;
       case 'venda-rapida':
-        return <QuickSale products={products} customers={customers} machines={machines} onSaveTransaction={handleSaveTransaction} onSaveCustomer={handleSaveCustomer} />;
+        return <QuickSale 
+          products={products} 
+          customers={customers} 
+          machines={machines} 
+          onSaveTransaction={handleSaveTransaction} 
+          onSaveCustomer={handleSaveCustomer} 
+          storeSettings={storeSettings}
+        />;
       case 'venda-completa':
         return <CompleteSale 
           products={products} 
@@ -154,9 +174,15 @@ export default function App() {
           onSaveTransaction={handleSaveTransaction} 
           onSaveCustomer={handleSaveCustomer}
           onSaveDetailedSale={handleSaveDetailedSale}
+          storeSettings={storeSettings}
         />;
       case 'estoque':
-        return <Inventory products={products} onSaveProduct={handleSaveProduct} onDeleteProduct={handleDeleteProduct} />;
+        return <Inventory 
+          products={products} 
+          onSaveProduct={handleSaveProduct} 
+          onDeleteProduct={handleDeleteProduct} 
+          storeSettings={storeSettings}
+        />;
       case 'clientes':
         return <Customers customers={customers} serviceOrders={serviceOrders} transactions={transactions} onSaveCustomer={handleSaveCustomer} onDeleteCustomer={handleDeleteCustomer} />;
       case 'financeiro':
@@ -164,7 +190,12 @@ export default function App() {
       case 'relatorios':
         return <Reports serviceOrders={serviceOrders} transactions={transactions} products={products} />;
       case 'configuracoes':
-        return <Settings machines={machines} onSaveMachines={setMachines} />;
+        return <Settings 
+          machines={machines} 
+          onSaveMachines={setMachines} 
+          storeSettings={storeSettings}
+          onSaveStoreSettings={setStoreSettings}
+        />;
       case 'menu':
         return <MobileFullMenu onSelect={setActiveTab} onClose={() => setActiveTab('dashboard')} />;
       default:
@@ -196,7 +227,7 @@ export default function App() {
 
   return (
     <div className="flex min-h-screen bg-bg">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} storeSettings={storeSettings} />
       
       <main className="flex-1 p-4 md:p-8 overflow-y-auto pb-24 lg:pb-8">
         <div className="max-w-7xl mx-auto flex flex-col gap-6">

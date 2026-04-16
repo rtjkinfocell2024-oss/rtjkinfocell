@@ -126,3 +126,15 @@ export interface Transaction {
   customerId?: string;
   pixMethod?: string;
 }
+
+export interface StoreSettings {
+  name: string;
+  corporateName: string;
+  cnpj: string;
+  phone1: string;
+  phone2?: string;
+  email?: string;
+  instagram?: string;
+  address: string;
+  logoUrl?: string;
+}
