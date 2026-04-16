@@ -96,6 +96,15 @@ export default function App() {
   const [machines, setMachines] = useState<PaymentMachine[]>(initialMachines);
   const [storeSettings, setStoreSettings] = useState<StoreSettings>(initialStoreSettings);
 
+  // Synchronize isPublicView with the 'consulta' tab
+  useEffect(() => {
+    if (activeTab === 'consulta') {
+      setIsPublicView(true);
+    } else {
+      setIsPublicView(false);
+    }
+  }, [activeTab]);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const osId = params.get('os');
@@ -103,7 +112,6 @@ export default function App() {
     
     if (osId || view === 'consulta') {
       setActiveTab('consulta');
-      setIsPublicView(true);
       if (osId) setInitialSearch(osId);
     }
   }, []);
@@ -219,10 +227,13 @@ export default function App() {
             customers={customers}
             initialSearch={initialSearch} 
             onBack={() => {
-              setIsPublicView(false); 
               setActiveTab('dashboard');
-              // Clear URL param without reload
-              window.history.replaceState({}, '', window.location.pathname);
+              // Clear URL param without reload if possible
+              try {
+                window.history.replaceState({}, '', window.location.pathname);
+              } catch (e) {
+                console.warn('Could not update history state', e);
+              }
             }} 
           />
         );

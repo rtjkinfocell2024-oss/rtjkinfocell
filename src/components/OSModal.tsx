@@ -1,6 +1,7 @@
 import { useState, useEffect, FormEvent } from 'react';
-import { X, Save, Printer, Smartphone, User, AlertCircle, Calendar, Clock, DollarSign, FileText, ChevronDown } from 'lucide-react';
+import { X, Save, Printer, Smartphone, User, AlertCircle, Calendar, Clock, DollarSign, FileText, ChevronDown, Share2 } from 'lucide-react';
 import { cn, formatCurrency, formatDate } from '@/src/lib/utils';
+import { toast } from 'sonner';
 import { ServiceOrder, OSStatus, Customer, OSPriority, PaymentMachine, Transaction, OSType } from '@/src/types';
 
 interface OSModalProps {
@@ -505,14 +506,32 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
         )}
 
         <footer className="px-6 py-4 border-t border-border flex justify-between items-center bg-slate-50">
-          <button 
-            type="button"
-            className="btn-secondary flex items-center gap-2"
-            onClick={() => window.print()}
-          >
-            <Printer size={18} />
-            Imprimir Recibo
-          </button>
+          <div className="flex gap-3">
+            <button 
+              type="button"
+              className="btn-secondary flex items-center gap-2"
+              onClick={() => window.print()}
+            >
+              <Printer size={18} />
+              Imprimir
+            </button>
+            
+            {os && (
+              <button 
+                type="button"
+                className="btn-secondary flex items-center gap-2 text-primary"
+                onClick={() => {
+                  const url = `${window.location.origin}${window.location.pathname}?os=${os.id}`;
+                  navigator.clipboard.writeText(url).then(() => {
+                    toast.success('Link de consulta copiado!');
+                  });
+                }}
+              >
+                <Share2 size={18} />
+                Link Cliente
+              </button>
+            )}
+          </div>
           
           <div className="flex gap-3">
             <button type="button" onClick={onClose} className="btn-secondary">

@@ -9,7 +9,8 @@ import {
   BarChart3, 
   CreditCard, 
   Settings,
-  FileCheck
+  FileCheck,
+  Search
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 
@@ -28,6 +29,7 @@ const menuItems = [
   { id: 'clientes', label: 'Clientes', icon: Users },
   { id: 'financeiro', label: 'Financeiro', icon: DollarSign },
   { id: 'relatorios', label: 'Relatórios', icon: BarChart3 },
+  { id: 'consulta', label: 'Página de Consulta', icon: Search },
   { id: 'configuracoes', label: 'Configurações', icon: Settings },
 ];
 
