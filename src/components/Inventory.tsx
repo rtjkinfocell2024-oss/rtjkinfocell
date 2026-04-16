@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Search, Filter, Package, AlertTriangle, Edit, Trash2 } from 'lucide-react';
+import { Plus, Search, Filter, Package, AlertTriangle, Edit, Trash2, FileText, Printer } from 'lucide-react';
 import { cn, formatCurrency } from '@/src/lib/utils';
 import { Product } from '@/src/types';
 import { ProductModal } from './ProductModal';
@@ -21,6 +21,8 @@ export function Inventory({ products, onSaveProduct, onDeleteProduct }: Inventor
     p.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const lowStockProducts = products.filter(p => p.stock <= p.minStock);
+
   const handleCreate = () => {
     setSelectedProduct(null);
     setModalMode('create');
@@ -41,23 +43,77 @@ export function Inventory({ products, onSaveProduct, onDeleteProduct }: Inventor
 
   const totalStock = products.reduce((acc, p) => acc + p.stock, 0);
   const totalCost = products.reduce((acc, p) => acc + (p.cost * p.stock), 0);
-  const alertItems = products.filter(p => p.stock <= p.minStock).length;
+  const alertItems = lowStockProducts.length;
+
+  const handlePrintLowStock = () => {
+    window.print();
+  };
 
   return (
-    <div className="flex flex-col gap-6 animate-in fade-in duration-500">
-      <header className="flex justify-between items-center">
+    <div className="flex flex-col gap-6 animate-in fade-in duration-500 pb-10">
+      {/* Print View (Hidden Screen) */}
+      <div className="hidden print:block p-8 bg-white text-black">
+        <header className="flex justify-between items-start border-b-2 border-slate-900 pb-6 mb-8">
+          <div>
+            <h1 className="text-3xl font-black uppercase tracking-tighter">RTJK INFOCELL</h1>
+            <p className="text-sm font-bold opacity-70">Relatório de Reposição de Estoque</p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs font-bold uppercase text-slate-500">Data de Emissão</p>
+            <p className="font-bold">{new Date().toLocaleDateString('pt-BR')}</p>
+          </div>
+        </header>
+
+        <section className="mb-8">
+          <div className="bg-slate-100 p-4 rounded-xl inline-flex flex-col">
+            <span className="text-[10px] font-black uppercase text-slate-500 tracking-wider">Total de Itens Críticos</span>
+            <span className="text-2xl font-black">{alertItems} Produtos</span>
+          </div>
+        </section>
+
+        <table className="w-full text-sm border-collapse">
+          <thead>
+            <tr className="border-b-2 border-slate-200">
+              <th className="text-left py-3 font-black uppercase text-xs">Produto</th>
+              <th className="text-left py-3 font-black uppercase text-xs">Categoria</th>
+              <th className="text-center py-3 font-black uppercase text-xs">Qtd. Atual</th>
+              <th className="text-center py-3 font-black uppercase text-xs">Mínimo</th>
+              <th className="text-right py-3 font-black uppercase text-xs">Preço Custo</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {lowStockProducts.map(p => (
+              <tr key={p.id}>
+                <td className="py-4 font-bold">{p.name}</td>
+                <td className="py-4">{p.category}</td>
+                <td className="py-4 text-center font-black text-red-600">{p.stock}</td>
+                <td className="py-4 text-center">{p.minStock}</td>
+                <td className="py-4 text-right">{formatCurrency(p.cost)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <footer className="mt-20 pt-8 border-t border-slate-200 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+          <span>Relatório gerado via RTJK Sistema</span>
+          <span>Página 1 / 1</span>
+        </footer>
+      </div>
+
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 print:hidden">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Estoque e Produtos</h2>
           <p className="text-sm text-text-muted">Controle seu inventário e catálogo de serviços.</p>
         </div>
         
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <button 
-            onClick={() => alert('Gerenciamento de categorias em breve!')}
-            className="btn-secondary flex items-center gap-2"
+            disabled={alertItems === 0}
+            onClick={handlePrintLowStock}
+            className="btn-secondary flex items-center gap-2 border-warning/30 hover:bg-warning/10 text-warning-dark disabled:opacity-50"
           >
-            <Package size={18} />
-            Categorias
+            <FileText size={18} />
+            Relatório Estoque Baixo
           </button>
           <button onClick={handleCreate} className="btn-primary flex items-center gap-2">
             <Plus size={18} />
@@ -66,7 +122,7 @@ export function Inventory({ products, onSaveProduct, onDeleteProduct }: Inventor
         </div>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 print:hidden">
         <div className="card p-5">
           <p className="label">Total em Estoque</p>
           <h3 className="text-2xl font-bold">{totalStock} itens</h3>

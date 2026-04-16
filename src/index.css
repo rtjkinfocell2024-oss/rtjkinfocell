@@ -21,6 +21,27 @@
   }
 }
 
+@media print {
+  .print\:hidden {
+    display: none !important;
+  }
+  
+  nav, aside, footer, .btn-primary, .btn-secondary, button {
+    display: none !important;
+  }
+  
+  .card {
+    border: none !important;
+    box-shadow: none !important;
+  }
+  
+  body, html {
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}
+
 @layer components {
   .card {
     @apply bg-white rounded-xl border border-border flex flex-col overflow-hidden shadow-sm;
