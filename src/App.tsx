@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { BottomNav } from './components/BottomNav';
 import { MobileFullMenu } from './components/MobileFullMenu';
@@ -11,6 +11,7 @@ import { Customers } from './components/Customers';
 import { Financial } from './components/Financial';
 import { Reports } from './components/Reports';
 import { Settings } from './components/Settings';
+import { OSCustomerConsultation } from './components/OSCustomerConsultation';
 import { cn } from './lib/utils';
 import { COMPANY_INFO } from './constants';
 import { ServiceOrder, Product, Customer, Transaction, PaymentMachine, DetailedSale, StoreSettings } from './types';
@@ -84,6 +85,9 @@ const initialMachines: PaymentMachine[] = [
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isPublicView, setIsPublicView] = useState(false);
+  const [initialSearch, setInitialSearch] = useState('');
+  
   const [serviceOrders, setServiceOrders] = useState<ServiceOrder[]>(initialOS);
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
@@ -91,6 +95,18 @@ export default function App() {
   const [detailedSales, setDetailedSales] = useState<DetailedSale[]>([]);
   const [machines, setMachines] = useState<PaymentMachine[]>(initialMachines);
   const [storeSettings, setStoreSettings] = useState<StoreSettings>(initialStoreSettings);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const osId = params.get('os');
+    const view = params.get('view');
+    
+    if (osId || view === 'consulta') {
+      setActiveTab('consulta');
+      setIsPublicView(true);
+      if (osId) setInitialSearch(osId);
+    }
+  }, []);
 
   const handleSaveOS = (os: ServiceOrder) => {
     setServiceOrders(prev => {
@@ -196,6 +212,20 @@ export default function App() {
           storeSettings={storeSettings}
           onSaveStoreSettings={setStoreSettings}
         />;
+      case 'consulta':
+        return (
+          <OSCustomerConsultation 
+            serviceOrders={serviceOrders} 
+            customers={customers}
+            initialSearch={initialSearch} 
+            onBack={() => {
+              setIsPublicView(false); 
+              setActiveTab('dashboard');
+              // Clear URL param without reload
+              window.history.replaceState({}, '', window.location.pathname);
+            }} 
+          />
+        );
       case 'menu':
         return <MobileFullMenu onSelect={setActiveTab} onClose={() => setActiveTab('dashboard')} />;
       default:
@@ -227,21 +257,23 @@ export default function App() {
 
   return (
     <div className="flex min-h-screen bg-bg">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} storeSettings={storeSettings} />
+      {!isPublicView && <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} storeSettings={storeSettings} />}
       
-      <main className="flex-1 p-4 md:p-8 overflow-y-auto pb-24 lg:pb-8">
-        <div className="max-w-7xl mx-auto flex flex-col gap-6">
-          <div className="flex items-center gap-2 text-sm no-print">
-            <span className="text-text-muted">Início</span>
-            <span className="text-text-muted">/</span>
-            <span className="font-semibold">{getBreadcrumb()}</span>
-          </div>
+      <main className={cn("flex-1 overflow-y-auto pb-24 lg:pb-8", !isPublicView && "p-4 md:p-8")}>
+        <div className={cn("mx-auto flex flex-col gap-6", !isPublicView && "max-w-7xl")}>
+          {!isPublicView && (
+            <div className="flex items-center gap-2 text-sm no-print">
+              <span className="text-text-muted">Início</span>
+              <span className="text-text-muted">/</span>
+              <span className="font-semibold">{getBreadcrumb()}</span>
+            </div>
+          )}
           
           {renderContent()}
         </div>
       </main>
 
-      <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+      {!isPublicView && <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />}
     </div>
   );
 }

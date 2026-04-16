@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Plus, Search, Filter, MoreVertical, Eye, Edit, Trash2 } from 'lucide-react';
+import { Plus, Search, Filter, MoreVertical, Eye, Edit, Trash2, Link as LinkIcon, Share2 } from 'lucide-react';
 import { cn, formatCurrency, formatDate } from '@/src/lib/utils';
+import { toast } from 'sonner';
 import { ServiceOrder, OSStatus, Customer, PaymentMachine, Transaction, OSPriority } from '@/src/types';
 import { OSModal } from './OSModal';
 import { AlertCircle, Zap, Clock } from 'lucide-react';
@@ -20,6 +21,13 @@ export function ServiceOrders({ serviceOrders, onSaveOS, customers, machines, on
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'create' | 'edit' | 'view'>('create');
   const [selectedOS, setSelectedOS] = useState<ServiceOrder | null>(null);
+
+  const copyTrackingLink = (id: string) => {
+    const url = `${window.location.origin}${window.location.pathname}?os=${id}`;
+    navigator.clipboard.writeText(url).then(() => {
+      toast.success('Link de consulta copiado!');
+    });
+  };
 
   const getPriorityBadge = (priority: OSPriority) => {
     switch (priority) {
@@ -196,6 +204,13 @@ export function ServiceOrders({ serviceOrders, onSaveOS, customers, machines, on
                   <td className="px-5 py-4 text-right font-bold">{formatCurrency(os.totalValue)}</td>
                   <td className="px-5 py-4">
                     <div className="flex items-center justify-center gap-2">
+                       <button 
+                        onClick={() => copyTrackingLink(os.id)}
+                        className="p-1.5 text-primary hover:bg-primary/5 rounded-md transition-colors"
+                        title="Link de Consulta"
+                      >
+                        <Share2 size={16} />
+                      </button>
                       <button 
                         onClick={() => handleOpenModal('view', os)}
                         className="p-1.5 text-text-muted hover:text-primary hover:bg-primary/5 rounded-md transition-colors" 
