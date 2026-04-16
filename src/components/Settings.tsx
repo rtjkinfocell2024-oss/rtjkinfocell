@@ -10,20 +10,25 @@ import {
   CreditCard,
   Percent,
   Info,
-  CheckCircle2
+  CheckCircle2,
+  Plus,
+  Trash2,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { cn, formatCurrency } from '@/src/lib/utils';
+import { PaymentMachine } from '../types';
 
-export function Settings() {
+interface SettingsProps {
+  machines: PaymentMachine[];
+  onSaveMachines: (machines: PaymentMachine[]) => void;
+}
+
+export function Settings({ machines, onSaveMachines }: SettingsProps) {
   const [activeSection, setActiveSection] = useState('loja');
   const [isSaved, setIsSaved] = useState(false);
-  const [fees, setFees] = useState({
-    pix: 0,
-    debit: 1.5,
-    credit1x: 3.5,
-    credit6x: 8.9,
-    credit12x: 14.5
-  });
+  const [localMachines, setLocalMachines] = useState<PaymentMachine[]>(machines);
+  const [expandedMachineId, setExpandedMachineId] = useState<string | null>(machines[0]?.id || null);
 
   const menuItems = [
     { id: 'loja', label: 'Dados da Loja', icon: Store },
@@ -36,8 +41,46 @@ export function Settings() {
   ];
 
   const handleSave = () => {
+    onSaveMachines(localMachines);
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 3000);
+  };
+
+  const addMachine = () => {
+    const newMachine: PaymentMachine = {
+      id: Math.floor(Math.random() * 10000).toString(),
+      name: 'Nova Máquina',
+      pixFee: 0,
+      debitFee: 0,
+      creditFees: {
+        1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0
+      }
+    };
+    setLocalMachines([...localMachines, newMachine]);
+    setExpandedMachineId(newMachine.id);
+  };
+
+  const removeMachine = (id: string) => {
+    setLocalMachines(localMachines.filter(m => m.id !== id));
+  };
+
+  const updateMachine = (id: string, field: string, value: any) => {
+    setLocalMachines(localMachines.map(m => {
+      if (m.id === id) {
+        if (field.startsWith('creditFees.')) {
+          const installment = parseInt(field.split('.')[1]);
+          return {
+            ...m,
+            creditFees: {
+              ...m.creditFees,
+              [installment]: value
+            }
+          };
+        }
+        return { ...m, [field]: value };
+      }
+      return m;
+    }));
   };
 
   return (
@@ -48,7 +91,7 @@ export function Settings() {
           <p className="text-sm font-bold">Configurações salvas com sucesso!</p>
         </div>
       )}
-      <header className="flex justify-between items-center">
+      <header className="flex justify-between items-center px-4 md:px-0">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Configurações</h2>
           <p className="text-sm text-text-muted">Personalize o sistema para sua loja.</p>
@@ -60,8 +103,8 @@ export function Settings() {
         </button>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1 flex flex-col gap-2">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="lg:col-span-1 flex flex-col gap-2 px-4 md:px-0">
           {menuItems.map((item) => (
             <button 
               key={item.id}
@@ -79,9 +122,9 @@ export function Settings() {
           ))}
         </div>
 
-        <div className="lg:col-span-2 flex flex-col gap-6">
+        <div className="lg:col-span-3 flex flex-col gap-6 px-4 md:px-0">
           {activeSection === 'loja' && (
-            <>
+            <div className="space-y-6">
               <div className="card">
                 <div className="card-header">
                   <h3 className="card-title">Dados da Loja</h3>
@@ -104,178 +147,138 @@ export function Settings() {
                       <label className="label">Telefone 1</label>
                       <input type="text" className="input" defaultValue="(11) 99999-9999" />
                     </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="label">Telefone 2</label>
-                      <input type="text" className="input" defaultValue="(11) 98888-8888" />
-                    </div>
                   </div>
-
                   <div className="flex flex-col gap-1.5">
                     <label className="label">Endereço Completo</label>
                     <input type="text" className="input" defaultValue="Av. Paulista, 1000 - São Paulo, SP" />
-                  </div>
-
-                  <div className="pt-4 border-t border-border">
-                    <p className="label mb-3">Logotipo da Loja</p>
-                    <div className="flex items-center gap-4">
-                      <div className="w-20 h-20 rounded-xl bg-slate-100 border-2 border-dashed border-border flex items-center justify-center text-text-muted">
-                        <Store size={24} />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <button className="btn-secondary py-1.5 px-3 text-xs">Alterar Logo</button>
-                        <p className="text-[10px] text-text-muted">PNG ou JPG. Máximo 2MB.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="card">
-                <div className="card-header">
-                  <h3 className="card-title">Configurações de Recibo</h3>
-                </div>
-                <div className="card-content flex flex-col gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="label">Mensagem no Rodapé</label>
-                    <textarea 
-                      className="input min-h-[100px]" 
-                      defaultValue="Obrigado pela preferência! Garantia de 90 dias para serviços realizados."
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <input type="checkbox" id="print-auto" className="w-4 h-4 text-primary rounded border-border" defaultChecked />
-                    <label htmlFor="print-auto" className="text-sm font-medium cursor-pointer">Imprimir recibo automaticamente após venda</label>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-
-          {activeSection === 'taxas' && (
-            <div className="flex flex-col gap-6">
-              <div className="card">
-                <div className="card-header">
-                  <h3 className="card-title flex items-center gap-2">
-                    <CreditCard size={18} />
-                    Configuração de Taxas (%)
-                  </h3>
-                </div>
-                <div className="card-content flex flex-col gap-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="label">PIX</label>
-                      <div className="relative">
-                        <input 
-                          type="number" 
-                          className="input pr-10" 
-                          value={fees.pix} 
-                          onChange={(e) => setFees({...fees, pix: Number(e.target.value)})}
-                        />
-                        <Percent size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted" />
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="label">Débito</label>
-                      <div className="relative">
-                        <input 
-                          type="number" 
-                          className="input pr-10" 
-                          value={fees.debit}
-                          onChange={(e) => setFees({...fees, debit: Number(e.target.value)})}
-                        />
-                        <Percent size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted" />
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="label">Crédito (1x)</label>
-                      <div className="relative">
-                        <input 
-                          type="number" 
-                          className="input pr-10" 
-                          value={fees.credit1x}
-                          onChange={(e) => setFees({...fees, credit1x: Number(e.target.value)})}
-                        />
-                        <Percent size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted" />
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="label">Crédito (6x)</label>
-                      <div className="relative">
-                        <input 
-                          type="number" 
-                          className="input pr-10" 
-                          value={fees.credit6x}
-                          onChange={(e) => setFees({...fees, credit6x: Number(e.target.value)})}
-                        />
-                        <Percent size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted" />
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="label">Crédito (12x)</label>
-                      <div className="relative">
-                        <input 
-                          type="number" 
-                          className="input pr-10" 
-                          value={fees.credit12x}
-                          onChange={(e) => setFees({...fees, credit12x: Number(e.target.value)})}
-                        />
-                        <Percent size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-blue-50 p-4 rounded-xl flex gap-3 items-start">
-                    <div className="p-1 bg-primary/10 rounded text-primary">
-                      <Info size={16} />
-                    </div>
-                    <p className="text-xs text-primary leading-relaxed">
-                      Essas taxas são utilizadas nos módulos de <strong>Venda Rápida</strong> e <strong>Ordem de Serviço</strong> para calcular o valor líquido real que entrará no seu caixa após o desconto da operadora.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="card">
-                <div className="card-header">
-                  <h3 className="card-title">Simulador de Venda</h3>
-                </div>
-                <div className="card-content flex flex-col gap-6">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="label">Valor da Venda</label>
-                    <input type="number" className="input" placeholder="R$ 0,00" defaultValue={1000} />
-                  </div>
-
-                  <div className="space-y-3">
-                    <p className="label">Resultado por Modalidade</p>
-                    {[
-                      { label: 'PIX', fee: fees.pix },
-                      { label: 'Débito', fee: fees.debit },
-                      { label: 'Crédito (1x)', fee: fees.credit1x },
-                      { label: 'Crédito (12x)', fee: fees.credit12x },
-                    ].map((sim, i) => {
-                      const discount = 1000 * (sim.fee / 100);
-                      const net = 1000 - discount;
-                      return (
-                        <div key={i} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-border">
-                          <div>
-                            <p className="text-sm font-bold">{sim.label}</p>
-                            <p className="text-[10px] text-text-muted">Taxa de {sim.fee}%</p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm font-bold text-primary">{formatCurrency(net)}</p>
-                            <p className="text-[10px] text-danger">- {formatCurrency(discount)}</p>
-                          </div>
-                        </div>
-                      );
-                    })}
                   </div>
                 </div>
               </div>
             </div>
           )}
 
+          {activeSection === 'taxas' && (
+            <div className="flex flex-col gap-6 pb-12">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold flex items-center gap-2">
+                  <CreditCard size={20} className="text-primary" />
+                  Gerenciar Máquinas
+                </h3>
+                <button onClick={addMachine} className="btn-primary py-1.5 text-xs flex items-center gap-2">
+                  <Plus size={14} />
+                  Adicionar
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {localMachines.map((machine) => (
+                  <div key={machine.id} className="card overflow-hidden">
+                    <div 
+                      className="card-header cursor-pointer hover:bg-slate-50 flex justify-between items-center"
+                      onClick={() => setExpandedMachineId(expandedMachineId === machine.id ? null : machine.id)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-primary/10 rounded-lg text-primary">
+                          <Smartphone size={18} />
+                        </div>
+                        <div>
+                          <p className="font-bold text-sm">{machine.name}</p>
+                          <p className="text-[10px] text-text-muted">Personalize as taxas abaixo</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeMachine(machine.id);
+                          }}
+                          className="p-1.5 text-text-muted hover:text-danger hover:bg-danger/10 rounded-md transition-colors"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                        {expandedMachineId === machine.id ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                      </div>
+                    </div>
+
+                    {expandedMachineId === machine.id && (
+                      <div className="card-content border-t border-border bg-white animate-in slide-in-from-top-2 duration-300">
+                        <div className="space-y-6">
+                          <div className="flex flex-col gap-1.5">
+                            <label className="label">Nome da Máquina</label>
+                            <input 
+                              type="text" 
+                              className="input" 
+                              value={machine.name}
+                              onChange={(e) => updateMachine(machine.id, 'name', e.target.value)}
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-1.5">
+                              <label className="label">Taxa PIX (%)</label>
+                              <div className="relative">
+                                <input 
+                                  type="number" 
+                                  className="input pr-10" 
+                                  value={machine.pixFee}
+                                  onChange={(e) => updateMachine(machine.id, 'pixFee', Number(e.target.value))}
+                                />
+                                <Percent size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted" />
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="label">Taxa Débito (%)</label>
+                              <div className="relative">
+                                <input 
+                                  type="number" 
+                                  className="input pr-10" 
+                                  value={machine.debitFee}
+                                  onChange={(e) => updateMachine(machine.id, 'debitFee', Number(e.target.value))}
+                                />
+                                <Percent size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted" />
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="pt-4 border-t border-border">
+                            <p className="label mb-4 text-primary font-bold">Taxas de Crédito Parcelado (%)</p>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                              {Array.from({ length: 12 }, (_, i) => i + 1).map((idx) => (
+                                <div key={idx} className="flex flex-col gap-1.5">
+                                  <label className="label text-[10px] mb-0.5">Crédito {idx}x</label>
+                                  <div className="relative">
+                                    <input 
+                                      type="number" 
+                                      className="input pr-7 py-1.5 text-xs bg-slate-50/50" 
+                                      value={machine.creditFees[idx] || 0}
+                                      onChange={(e) => updateMachine(machine.id, `creditFees.${idx}`, Number(e.target.value))}
+                                    />
+                                    <Percent size={10} className="absolute right-2 top-1/2 -translate-y-1/2 text-text-muted" />
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div className="bg-blue-50 p-4 rounded-xl flex gap-3 items-start">
+                <div className="p-1 bg-primary/10 rounded text-primary">
+                  <Info size={16} />
+                </div>
+                <p className="text-xs text-primary leading-relaxed">
+                  As taxas configuradas aqui serão aplicadas automaticamente nos módulos de <strong>Venda Rápida</strong> e <strong>Ordens de Serviço</strong> ao selecionar a modalidade de pagamento correspondente.
+                </p>
+              </div>
+            </div>
+          )}
+
           {activeSection !== 'loja' && activeSection !== 'taxas' && (
-            <div className="card p-10 flex flex-col items-center justify-center text-text-muted">
+            <div className="card p-10 flex flex-col items-center justify-center text-text-muted bg-white">
               <h3 className="text-lg font-bold mb-2">Módulo em Desenvolvimento</h3>
               <p className="text-sm">Esta seção de configurações estará disponível em breve.</p>
             </div>

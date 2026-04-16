@@ -11,7 +11,7 @@ import { Financial } from './components/Financial';
 import { Reports } from './components/Reports';
 import { Settings } from './components/Settings';
 import { cn } from './lib/utils';
-import { ServiceOrder, Product, Customer, Transaction } from './types';
+import { ServiceOrder, Product, Customer, Transaction, PaymentMachine } from './types';
 
 const initialOS: ServiceOrder[] = [
   { id: '8922', customerId: '1', customerName: 'Ricardo Mendes', device: 'iPhone 13 Pro', problem: 'Troca de Tela', status: 'Aguardando Peça', priority: 'Normal', totalValue: 1200, entryDate: '2024-04-10', createdAt: '2024-04-10T10:00:00Z', updatedAt: '2024-04-12T14:30:00Z' },
@@ -46,12 +46,36 @@ const initialTransactions: Transaction[] = [
   { id: '5', type: 'Entrada', category: 'Venda', description: 'Venda de Fone Bluetooth', value: 250.00, date: '2024-04-13T16:45:00Z' },
 ];
 
+const initialMachines: PaymentMachine[] = [
+  {
+    id: '1',
+    name: 'SumUp',
+    pixFee: 0,
+    debitFee: 1.9,
+    creditFees: {
+      1: 4.6, 2: 5.9, 3: 7.2, 4: 8.5, 5: 9.8, 6: 11.1,
+      7: 12.4, 8: 13.7, 9: 15.0, 10: 16.3, 11: 17.6, 12: 18.9
+    }
+  },
+  {
+    id: '2',
+    name: 'Mercado Pago',
+    pixFee: 0,
+    debitFee: 1.99,
+    creditFees: {
+      1: 4.74, 2: 5.41, 3: 6.08, 4: 6.75, 5: 7.42, 6: 8.09,
+      7: 8.76, 8: 9.43, 9: 10.10, 10: 10.77, 11: 11.44, 12: 12.11
+    }
+  }
+];
+
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [serviceOrders, setServiceOrders] = useState<ServiceOrder[]>(initialOS);
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
   const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
+  const [machines, setMachines] = useState<PaymentMachine[]>(initialMachines);
 
   const handleSaveOS = (os: ServiceOrder) => {
     setServiceOrders(prev => {
@@ -108,7 +132,7 @@ export default function App() {
       case 'os':
         return <ServiceOrders serviceOrders={serviceOrders} onSaveOS={handleSaveOS} customers={customers} />;
       case 'venda-rapida':
-        return <QuickSale products={products} customers={customers} onSaveTransaction={handleSaveTransaction} />;
+        return <QuickSale products={products} customers={customers} machines={machines} onSaveTransaction={handleSaveTransaction} />;
       case 'estoque':
         return <Inventory products={products} onSaveProduct={handleSaveProduct} onDeleteProduct={handleDeleteProduct} />;
       case 'clientes':
@@ -118,7 +142,7 @@ export default function App() {
       case 'relatorios':
         return <Reports />;
       case 'configuracoes':
-        return <Settings />;
+        return <Settings machines={machines} onSaveMachines={setMachines} />;
       case 'menu':
         return <MobileFullMenu onSelect={setActiveTab} onClose={() => setActiveTab('dashboard')} />;
       default:

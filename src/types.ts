@@ -86,6 +86,16 @@ export interface Sale {
   createdAt: string;
 }
 
+export interface PaymentMachine {
+  id: string;
+  name: string;
+  pixFee: number;
+  debitFee: number;
+  creditFees: {
+    [key: number]: number; // 1 to 12
+  };
+}
+
 export interface Transaction {
   id: string;
   type: 'Entrada' | 'Saída';
@@ -93,11 +103,6 @@ export interface Transaction {
   description: string;
   value: number;
   date: string;
-}
-
-export interface MachineFeeConfig {
-  debit: number;
-  credit1x: number;
-  creditInstallments: number;
-  pix: number;
+  machineId?: string;
+  installments?: number;
 }
