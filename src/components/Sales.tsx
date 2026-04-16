@@ -405,7 +405,7 @@ export function QuickSale({ products, customers, machines, onSaveTransaction, on
 
       {/* MODAL DE SUCESSO E IMPRESSÃO */}
       {isSuccess && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300 print:hidden">
            <div className="bg-white w-full max-w-sm rounded-[32px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
              <div className="p-8 flex flex-col items-center text-center">
                <div className="w-20 h-20 bg-success rounded-full flex items-center justify-center text-white mb-6 animate-in bounce-in duration-500 delay-150 shadow-lg shadow-success/30">

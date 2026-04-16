@@ -17,30 +17,51 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { formatCurrency, cn } from '@/src/lib/utils';
-import { ServiceOrder } from '@/src/types';
+import { ServiceOrder, Transaction } from '@/src/types';
 
 interface DashboardProps {
   serviceOrders: ServiceOrder[];
+  transactions: Transaction[];
   setActiveTab: (tab: string) => void;
 }
 
-const data = [
-  { name: 'Seg', vendas: 2400, os: 1200 },
-  { name: 'Ter', vendas: 1398, os: 900 },
-  { name: 'Qua', vendas: 9800, os: 2400 },
-  { name: 'Qui', vendas: 3908, os: 1800 },
-  { name: 'Sex', vendas: 4800, os: 2100 },
-  { name: 'Sab', vendas: 3800, os: 1500 },
-  { name: 'Dom', vendas: 4300, os: 1200 },
-];
+export function Dashboard({ serviceOrders, transactions, setActiveTab }: DashboardProps) {
+  // Calculate stats from transactions
+  const today = new Date().toISOString().split('T')[0];
+  const salesToday = transactions
+    .filter(t => t.type === 'Entrada' && t.date.split('T')[0] === today)
+    .reduce((acc, t) => acc + t.value, 0);
 
-export function Dashboard({ serviceOrders, setActiveTab }: DashboardProps) {
+  const monthlyIncome = transactions
+    .filter(t => t.type === 'Entrada') // Simplified for now, should filter by month
+    .reduce((acc, t) => acc + t.value, 0);
+
   const stats = [
-    { label: 'Vendas Hoje', value: 2450.00, icon: TrendingUp, trend: '+12%', trendUp: true },
+    { label: 'Vendas Hoje', value: salesToday, icon: TrendingUp, trend: '+12%', trendUp: true },
     { label: 'OS em Aberto', value: serviceOrders.filter(os => os.status !== 'Entregue' && os.status !== 'Cancelado').length, icon: Wrench, trend: '-2', trendUp: false },
-    { label: 'Líquido Mensal', value: 18920.45, icon: DollarSign, trend: '+8.2%', trendUp: true },
+    { label: 'Líquido Mensal', value: monthlyIncome, icon: DollarSign, trend: '+8.2%', trendUp: true },
     { label: 'Novos Clientes', value: 32, icon: Users, trend: '+5', trendUp: true },
   ];
+
+  // Prepare chart data (last 7 days)
+  const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
+  const chartData = Array.from({ length: 7 }).map((_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    const dayName = days[d.getDay()];
+    const dateStr = d.toISOString().split('T')[0];
+    
+    const daySales = transactions
+      .filter(t => t.type === 'Entrada' && t.category === 'Venda' && t.date.split('T')[0] === dateStr)
+      .reduce((acc, t) => acc + t.value, 0);
+      
+    const dayOS = transactions
+      .filter(t => t.type === 'Entrada' && t.category === 'Serviço' && t.date.split('T')[0] === dateStr)
+      .reduce((acc, t) => acc + t.value, 0);
+
+    return { name: dayName, vendas: daySales, os: dayOS };
+  });
+
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-500">
       <header className="flex justify-between items-center">
@@ -95,7 +116,7 @@ export function Dashboard({ serviceOrders, setActiveTab }: DashboardProps) {
           </div>
           <div className="card-content h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data}>
+              <BarChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis 
                   dataKey="name" 

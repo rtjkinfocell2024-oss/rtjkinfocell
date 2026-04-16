@@ -128,7 +128,7 @@ export default function App() {
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard serviceOrders={serviceOrders} setActiveTab={setActiveTab} />;
+        return <Dashboard serviceOrders={serviceOrders} transactions={transactions} setActiveTab={setActiveTab} />;
       case 'os':
         return <ServiceOrders serviceOrders={serviceOrders} onSaveOS={handleSaveOS} customers={customers} machines={machines} onSaveTransaction={handleSaveTransaction} />;
       case 'venda-rapida':
