@@ -6,11 +6,10 @@ import { ServiceOrder, OSStatus, Customer } from '@/src/types';
 interface OSCustomerConsultationProps {
   serviceOrders: ServiceOrder[];
   customers: Customer[];
-  onBack?: () => void;
   initialSearch?: string;
 }
 
-export function OSCustomerConsultation({ serviceOrders, customers, onBack, initialSearch = '' }: OSCustomerConsultationProps) {
+export function OSCustomerConsultation({ serviceOrders, customers, initialSearch = '' }: OSCustomerConsultationProps) {
   const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [result, setResult] = useState<ServiceOrder | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -194,17 +193,6 @@ export function OSCustomerConsultation({ serviceOrders, customers, onBack, initi
               </p>
             </div>
           </div>
-        )}
-
-        {/* Back Button (Only if onBack is provided) */}
-        {onBack && (
-          <button 
-            onClick={onBack}
-            className="flex items-center justify-center gap-2 text-slate-400 hover:text-slate-600 transition-colors text-sm font-medium"
-          >
-            <ArrowLeft size={16} />
-            Voltar para o sistema
-          </button>
         )}
       </div>
     </div>

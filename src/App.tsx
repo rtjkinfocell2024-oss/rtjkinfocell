@@ -85,7 +85,7 @@ const initialMachines: PaymentMachine[] = [
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [isPublicView, setIsPublicView] = useState(false);
+  const [isExternalAccess, setIsExternalAccess] = useState(false);
   const [initialSearch, setInitialSearch] = useState('');
   
   const [serviceOrders, setServiceOrders] = useState<ServiceOrder[]>(initialOS);
@@ -96,14 +96,7 @@ export default function App() {
   const [machines, setMachines] = useState<PaymentMachine[]>(initialMachines);
   const [storeSettings, setStoreSettings] = useState<StoreSettings>(initialStoreSettings);
 
-  // Synchronize isPublicView with the 'consulta' tab
-  useEffect(() => {
-    if (activeTab === 'consulta') {
-      setIsPublicView(true);
-    } else {
-      setIsPublicView(false);
-    }
-  }, [activeTab]);
+  const isPublicView = isExternalAccess && activeTab === 'consulta';
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -111,6 +104,7 @@ export default function App() {
     const view = params.get('view');
     
     if (osId || view === 'consulta') {
+      setIsExternalAccess(true);
       setActiveTab('consulta');
       if (osId) setInitialSearch(osId);
     }
@@ -226,15 +220,6 @@ export default function App() {
             serviceOrders={serviceOrders} 
             customers={customers}
             initialSearch={initialSearch} 
-            onBack={() => {
-              setActiveTab('dashboard');
-              // Clear URL param without reload if possible
-              try {
-                window.history.replaceState({}, '', window.location.pathname);
-              } catch (e) {
-                console.warn('Could not update history state', e);
-              }
-            }} 
           />
         );
       case 'menu':
