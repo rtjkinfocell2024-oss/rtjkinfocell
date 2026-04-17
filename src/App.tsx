@@ -12,6 +12,7 @@ import { Financial } from './components/Financial';
 import { Reports } from './components/Reports';
 import { Settings } from './components/Settings';
 import { OSCustomerConsultation } from './components/OSCustomerConsultation';
+import { Login } from './components/Login';
 import { cn } from './lib/utils';
 import { COMPANY_INFO } from './constants';
 import { ServiceOrder, Product, Customer, Transaction, PaymentMachine, DetailedSale, StoreSettings } from './types';
@@ -87,6 +88,9 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isExternalAccess, setIsExternalAccess] = useState(false);
   const [initialSearch, setInitialSearch] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('rtjk_auth') === 'true';
+  });
   
   const [serviceOrders, setServiceOrders] = useState<ServiceOrder[]>(initialOS);
   const [products, setProducts] = useState<Product[]>(initialProducts);
@@ -109,6 +113,21 @@ export default function App() {
       if (osId) setInitialSearch(osId);
     }
   }, []);
+
+  const handleLogin = (password: string) => {
+    if (password === 'admin@rtjkinfocell') {
+      setIsAuthenticated(true);
+      localStorage.setItem('rtjk_auth', 'true');
+    } else {
+      alert('Senha incorreta!');
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('rtjk_auth');
+    setActiveTab('dashboard');
+  };
 
   const handleSaveOS = (os: ServiceOrder) => {
     setServiceOrders(prev => {
@@ -251,9 +270,20 @@ export default function App() {
     }
   };
 
+  if (!isPublicView && !isAuthenticated) {
+    return <Login onLogin={handleLogin} />;
+  }
+
   return (
     <div className="flex min-h-screen bg-bg">
-      {!isPublicView && <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} storeSettings={storeSettings} />}
+      {!isPublicView && (
+        <Sidebar 
+          activeTab={activeTab} 
+          setActiveTab={setActiveTab} 
+          storeSettings={storeSettings} 
+          onLogout={handleLogout}
+        />
+      )}
       
       <main className={cn("flex-1 overflow-y-auto pb-24 lg:pb-8", !isPublicView && "p-4 md:p-8")}>
         <div className={cn("mx-auto flex flex-col gap-6", !isPublicView && "max-w-7xl")}>

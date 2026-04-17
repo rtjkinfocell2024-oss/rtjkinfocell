@@ -10,7 +10,8 @@ import {
   CreditCard, 
   Settings,
   FileCheck,
-  Search
+  Search,
+  LogOut
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 
@@ -18,6 +19,7 @@ interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   storeSettings: StoreSettings;
+  onLogout?: () => void;
 }
 
 const menuItems = [
@@ -33,7 +35,7 @@ const menuItems = [
   { id: 'configuracoes', label: 'Configurações', icon: Settings },
 ];
 
-export function Sidebar({ activeTab, setActiveTab, storeSettings }: SidebarProps) {
+export function Sidebar({ activeTab, setActiveTab, storeSettings, onLogout }: SidebarProps) {
   return (
     <aside className="hidden lg:flex w-[240px] bg-white border-r border-border flex-col py-6 h-screen sticky top-0 transition-all">
       <div className="px-6 mb-8">
@@ -66,7 +68,7 @@ export function Sidebar({ activeTab, setActiveTab, storeSettings }: SidebarProps
         </ul>
       </nav>
       
-      <div className="px-6 mt-auto pt-6 border-t border-border">
+      <div className="px-6 mt-auto pt-6 border-t border-border space-y-4">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
             {storeSettings.name.substring(0, 2).toUpperCase()}
@@ -76,6 +78,16 @@ export function Sidebar({ activeTab, setActiveTab, storeSettings }: SidebarProps
             <p className="text-[10px] text-text-muted truncate">Administrador</p>
           </div>
         </div>
+
+        {onLogout && (
+          <button 
+            onClick={onLogout}
+            className="w-full flex items-center gap-3 py-2 text-sm font-medium text-danger hover:text-danger/80 transition-all cursor-pointer"
+          >
+            <LogOut size={18} />
+            Sair do Sistema
+          </button>
+        )}
       </div>
     </aside>
   );
