@@ -45,7 +45,21 @@ export function QuickSale({ products, customers, machines, onSaveTransaction, on
   const [lastSaleId, setLastSaleId] = useState('');
   const [printMode, setPrintMode] = useState<'A4' | 'Coupon' | null>(null);
   const [soldItems, setSoldItems] = useState<SaleItem[]>([]);
-  const [finalPaymentInfo, setFinalPaymentInfo] = useState({ method: '', pixMethod: '', installments: 1, customer: null as Customer | null });
+  const [finalPaymentInfo, setFinalPaymentInfo] = useState({ 
+    method: '', 
+    pixMethod: '', 
+    installments: 1, 
+    customer: null as Customer | null,
+    splitCash: 0,
+    splitCard: 0,
+    receivedCash: 0,
+    change: 0
+  });
+
+  // Novos estados para Pagamento
+  const [cashAmount, setCashAmount] = useState(0); // Para Misto
+  const [cardAmount, setCardAmount] = useState(0); // Para Misto
+  const [receivedCash, setReceivedCash] = useState(0); // Valor entregue pelo cliente
 
   // Search Logic
   const filteredProducts = useMemo(() => {
@@ -67,6 +81,11 @@ export function QuickSale({ products, customers, machines, onSaveTransaction, on
   
   const machineFee = subtotal * (feePercentage / 100);
   const total = subtotal - machineFee;
+
+  const change = Math.max(0, receivedCash - (paymentMethod === 'Dinheiro' ? subtotal : cashAmount));
+  const remainingTotal = subtotal - (paymentMethod === 'Misto' ? (cashAmount + cardAmount) : 0);
+  const isPaymentIncomplete = paymentMethod === 'Misto' && Math.round(cashAmount + cardAmount) < Math.round(subtotal);
+  const isCashInsufficient = paymentMethod === 'Dinheiro' && receivedCash < subtotal && receivedCash > 0;
 
   const selectedCustomer = customers.find(c => c.id === selectedCustomerId);
 
@@ -93,37 +112,84 @@ export function QuickSale({ products, customers, machines, onSaveTransaction, on
   const handleFinishSale = () => {
     if (cart.length === 0) return;
 
+    if (paymentMethod === 'Misto' && Math.round(cashAmount + cardAmount) < Math.round(subtotal)) {
+      alert('O valor total informado é menor que o valor dos itens!');
+      return;
+    }
+
+    if (paymentMethod === 'Dinheiro' && receivedCash < subtotal) {
+      alert('Valor recebido em dinheiro insuficiente!');
+      return;
+    }
+
     const saleId = Math.floor(Math.random() * 10000).toString();
     const customerInfo = selectedCustomer ? ` - Cliente: ${selectedCustomer.name}` : '';
     const paymentInfo = paymentMethod === 'Crédito' ? ` (${installments}x)` : '';
     const pixInfo = paymentMethod === 'PIX' ? ` [${pixMethod}]` : '';
     
-    const newTransaction: Transaction = {
-      id: saleId,
-      type: 'Entrada',
-      category: 'Venda',
-      description: `Venda PDV: ${cart.map(i => i.name).join(', ')}${customerInfo}${paymentInfo}${pixInfo}`,
-      value: total,
-      date: new Date().toISOString(),
-      machineId: selectedMachineId,
-      installments: paymentMethod === 'Crédito' ? installments : 1,
-      customerId: selectedCustomerId || undefined,
-      pixMethod: paymentMethod === 'PIX' ? pixMethod : undefined
-    };
+    // Registrar Transações
+    if (paymentMethod === 'Misto') {
+      // Registrar Dinheiro
+      if (cashAmount > 0) {
+        onSaveTransaction({
+          id: `${saleId}-1`,
+          type: 'Entrada',
+          category: 'Venda (Mista - Dinheiro)',
+          description: `Venda PDV (Mista): ${cart.map(i => i.name).join(', ')}${customerInfo}`,
+          value: cashAmount,
+          date: new Date().toISOString(),
+          customerId: selectedCustomerId || undefined,
+        });
+      }
+      // Registrar Cartão
+      if (cardAmount > 0) {
+        onSaveTransaction({
+          id: `${saleId}-2`,
+          type: 'Entrada',
+          category: 'Venda (Mista - Cartão)',
+          description: `Venda PDV (Mista): ${cart.map(i => i.name).join(', ')}${customerInfo}${paymentInfo}`,
+          value: cardAmount,
+          date: new Date().toISOString(),
+          machineId: selectedMachineId,
+          installments: installments,
+          customerId: selectedCustomerId || undefined,
+        });
+      }
+    } else {
+      const newTransaction: Transaction = {
+        id: saleId,
+        type: 'Entrada',
+        category: 'Venda',
+        description: `Venda PDV: ${cart.map(i => i.name).join(', ')}${customerInfo}${paymentInfo}${pixInfo}`,
+        value: total,
+        date: new Date().toISOString(),
+        machineId: selectedMachineId,
+        installments: paymentMethod === 'Crédito' ? installments : 1,
+        customerId: selectedCustomerId || undefined,
+        pixMethod: paymentMethod === 'PIX' ? pixMethod : undefined
+      };
+      onSaveTransaction(newTransaction);
+    }
 
-    onSaveTransaction(newTransaction);
     setLastSaleId(saleId);
     setSoldItems([...cart]);
     setFinalPaymentInfo({ 
       method: paymentMethod, 
       pixMethod: paymentMethod === 'PIX' ? pixMethod : '', 
       installments: paymentMethod === 'Crédito' ? installments : 1,
-      customer: selectedCustomer || null
+      customer: selectedCustomer || null,
+      splitCash: cashAmount,
+      splitCard: cardAmount,
+      receivedCash: receivedCash,
+      change: change
     });
     setIsSuccess(true);
     setCart([]);
     setSelectedCustomerId('');
     setInstallments(1);
+    setReceivedCash(0);
+    setCashAmount(0);
+    setCardAmount(0);
   };
 
   const handlePrint = (mode: 'A4' | 'Coupon') => {
@@ -300,28 +366,124 @@ export function QuickSale({ products, customers, machines, onSaveTransaction, on
 
             {/* Checkout Footer */}
             <div className="p-6 bg-slate-50 border-t border-border flex flex-col gap-6">
-              <div className="grid grid-cols-2 gap-2">
-                {['PIX', 'Dinheiro', 'Débito', 'Crédito'].map(method => (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+                {['PIX', 'Dinheiro', 'Débito', 'Crédito', 'Misto'].map(method => (
                   <button
                     key={method}
                     onClick={() => {
                       setPaymentMethod(method);
-                      if (method !== 'Crédito') setInstallments(1);
+                      if (method !== 'Crédito' && method !== 'Misto') setInstallments(1);
+                      if (method === 'Misto') {
+                        setCashAmount(0);
+                        setCardAmount(subtotal);
+                      }
                     }}
                     className={cn(
-                      "py-3 px-3 rounded-xl text-[11px] font-bold border transition-all flex items-center justify-center gap-2 shadow-sm",
+                      "py-3 px-2 rounded-xl text-[10px] font-bold border transition-all flex items-center justify-center gap-1 shadow-sm",
                       paymentMethod === method 
                         ? "bg-primary text-white border-primary shadow-lg shadow-primary/20 ring-1 ring-primary-light" 
                         : "bg-white text-text-muted border-border hover:bg-slate-50"
                     )}
                   >
-                    {method === 'PIX' && <Zap size={14} />}
-                    {method === 'Dinheiro' && <DollarSign size={14} />}
-                    {(method === 'Débito' || method === 'Crédito') && <CreditCard size={14} />}
+                    {method === 'PIX' && <Zap size={12} />}
+                    {method === 'Dinheiro' && <DollarSign size={12} />}
+                    {(method === 'Débito' || method === 'Crédito') && <CreditCard size={12} />}
+                    {method === 'Misto' && <Package size={12} />}
                     {method}
                   </button>
                 ))}
               </div>
+
+              {/* Detalhes de Dinheiro com Troco */}
+              {paymentMethod === 'Dinheiro' && (
+                <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">Valor Recebido</label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-primary" size={16} />
+                      <input 
+                        type="number" 
+                        className={cn(
+                          "input pl-10 font-bold",
+                          isCashInsufficient ? "border-danger ring-danger/20" : ""
+                        )}
+                        placeholder="0,00"
+                        value={receivedCash || ''}
+                        onChange={(e) => setReceivedCash(Number(e.target.value))}
+                      />
+                    </div>
+                  </div>
+                  
+                  {receivedCash > 0 && (
+                    <div className={cn(
+                      "p-4 rounded-2xl flex items-center justify-between animate-in zoom-in duration-300",
+                      change > 0 ? "bg-emerald-50 border border-emerald-100" : "bg-slate-100 border border-slate-200"
+                    )}>
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Seu Troco</p>
+                        <p className={cn("text-2xl font-black", change > 0 ? "text-emerald-600" : "text-slate-400")}>
+                          {formatCurrency(change)}
+                        </p>
+                      </div>
+                      <div className="p-3 bg-white rounded-xl shadow-sm">
+                        <DollarSign className={change > 0 ? "text-emerald-500" : "text-slate-300"} size={20} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Detalhes de Pagamento Misto */}
+              {paymentMethod === 'Misto' && (
+                <div className="p-4 bg-white rounded-2xl border border-primary/20 space-y-4 animate-in slide-in-from-right-2">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">Dinheiro</label>
+                      <input 
+                        type="number" 
+                        className="input h-10 px-3 text-sm font-bold bg-slate-50 border-none"
+                        value={cashAmount || ''}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setCashAmount(val);
+                          setCardAmount(Math.max(0, subtotal - val));
+                        }}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">Cartão</label>
+                      <input 
+                        type="number" 
+                        className="input h-10 px-3 text-sm font-bold bg-slate-50 border-none"
+                        value={cardAmount || ''}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setCardAmount(val);
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">Dispositivo Cartão</label>
+                    <select 
+                      className="input text-xs py-2 pr-10 appearance-none bg-slate-50/50"
+                      value={selectedMachineId}
+                      onChange={(e) => setSelectedMachineId(e.target.value)}
+                    >
+                      {machines.map(m => (
+                        <option key={m.id} value={m.id}>{m.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {isPaymentIncomplete && (
+                    <div className="p-2 bg-danger/10 border border-danger/20 rounded-lg text-danger text-[10px] font-bold text-center">
+                      Faltam {formatCurrency(subtotal - (cashAmount + cardAmount))} para completar o total
+                    </div>
+                  )}
+                </div>
+              )}
 
               {paymentMethod === 'PIX' && (
                 <div className="flex flex-col gap-3 p-4 bg-white rounded-2xl border border-primary/20 animate-in slide-in-from-right-2">

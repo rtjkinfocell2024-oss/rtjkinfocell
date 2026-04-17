@@ -42,6 +42,11 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
   const [installments, setInstallments] = useState(1);
   const [showPaymentSelector, setShowPaymentSelector] = useState(false);
 
+  // Novos estados para Pagamento
+  const [receivedCash, setReceivedCash] = useState(0);
+  const [cashAmount, setCashAmount] = useState(0); // Para Misto
+  const [cardAmount, setCardAmount] = useState(0); // Para Misto
+
   useEffect(() => {
     if (os) {
       setFormData(os);
@@ -139,32 +144,62 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
   
       // Sync with finance if delivered and NOT warranty
       if (isDelivering && !isWarranty) {
-      const selectedMachine = machines.find(m => m.id === selectedMachineId);
-      let feePercentage = 0;
-      if (paymentMethod === 'PIX') feePercentage = selectedMachine?.pixFee || 0;
-      else if (paymentMethod === 'Débito') feePercentage = selectedMachine?.debitFee || 0;
-      else if (paymentMethod === 'Crédito') feePercentage = selectedMachine?.creditFees[installments] || 0;
+        const totalValue = formData.totalValue || 0;
+        
+        if (paymentMethod === 'Misto') {
+          // Registro Dinheiro
+          if (cashAmount > 0) {
+            onSaveTransaction({
+              id: `${Math.floor(Math.random() * 10000)}-1`,
+              type: 'Entrada',
+              category: 'Serviço (Misto - Dinheiro)',
+              description: `OS #${newOS.id} Finalizada (Parte Dinheiro): ${newOS.device} - ${newOS.customerName}`,
+              value: cashAmount,
+              date: new Date().toISOString(),
+              customerId: newOS.customerId
+            });
+          }
+          // Registro Cartão
+          if (cardAmount > 0) {
+            onSaveTransaction({
+              id: `${Math.floor(Math.random() * 10000)}-2`,
+              type: 'Entrada',
+              category: 'Serviço (Misto - Cartão)',
+              description: `OS #${newOS.id} Finalizada (Parte Cartão): ${newOS.device} - ${newOS.customerName} (${installments}x)`,
+              value: cardAmount,
+              date: new Date().toISOString(),
+              machineId: selectedMachineId,
+              installments: installments,
+              customerId: newOS.customerId
+            });
+          }
+        } else {
+          const selectedMachine = machines.find(m => m.id === selectedMachineId);
+          let feePercentage = 0;
+          if (paymentMethod === 'PIX') feePercentage = selectedMachine?.pixFee || 0;
+          else if (paymentMethod === 'Débito') feePercentage = selectedMachine?.debitFee || 0;
+          else if (paymentMethod === 'Crédito') feePercentage = selectedMachine?.creditFees[installments] || 0;
 
-      const totalValue = formData.totalValue || 0;
-      const machineFee = totalValue * (feePercentage / 100);
-      const netValue = totalValue - machineFee;
+          const machineFee = totalValue * (feePercentage / 100);
+          const netValue = totalValue - machineFee;
 
-      const paymentInfo = paymentMethod === 'Crédito' ? ` (${installments}x)` : '';
-      
-      const newTransaction: Transaction = {
-        id: Math.floor(Math.random() * 10000).toString(),
-        type: 'Entrada',
-        category: 'Serviço',
-        description: `OS #${newOS.id} Finalizada: ${newOS.device} - ${newOS.customerName}${paymentInfo}`,
-        value: netValue,
-        date: new Date().toISOString(),
-        machineId: selectedMachineId,
-        installments: paymentMethod === 'Crédito' ? installments : 1,
-        customerId: newOS.customerId
-      };
+          const paymentInfo = paymentMethod === 'Crédito' ? ` (${installments}x)` : '';
+          
+          const newTransaction: Transaction = {
+            id: Math.floor(Math.random() * 10000).toString(),
+            type: 'Entrada',
+            category: 'Serviço',
+            description: `OS #${newOS.id} Finalizada: ${newOS.device} - ${newOS.customerName}${paymentInfo}`,
+            value: netValue,
+            date: new Date().toISOString(),
+            machineId: selectedMachineId,
+            installments: paymentMethod === 'Crédito' ? installments : 1,
+            customerId: newOS.customerId
+          };
 
-      onSaveTransaction(newTransaction);
-    }
+          onSaveTransaction(newTransaction);
+        }
+      }
 
     onClose();
     setShowPaymentSelector(false);
@@ -417,17 +452,21 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
                   <h4 className="font-bold">Finalizar Pagamento da OS</h4>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="flex flex-col gap-2">
-                    <p className="label text-[10px]">Forma de Pagamento</p>
+                    <p className="label text-[10px] uppercase font-black text-slate-400">Forma de Pagamento</p>
                     <div className="grid grid-cols-2 gap-2">
-                      {['PIX', 'Dinheiro', 'Débito', 'Crédito'].map(method => (
+                      {['PIX', 'Dinheiro', 'Débito', 'Crédito', 'Misto'].map(method => (
                         <button
                           key={method}
                           type="button"
                           onClick={() => {
                             setPaymentMethod(method);
-                            if (method !== 'Crédito') setInstallments(1);
+                            if (method !== 'Crédito' && method !== 'Misto') setInstallments(1);
+                            if (method === 'Misto') {
+                              setCashAmount(0);
+                              setCardAmount(formData.totalValue || 0);
+                            }
                           }}
                           className={cn(
                             "py-2 px-3 rounded-xl text-[11px] font-bold border transition-all",
@@ -442,13 +481,58 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
                     </div>
                   </div>
 
-                  {(['PIX', 'Débito', 'Crédito'].includes(paymentMethod)) && (
-                    <div className="flex flex-col gap-3">
-                      <div className="flex flex-col gap-1.5">
-                        <label className="label text-[10px]">Maquininha</label>
-                        <div className="relative">
-                          <select 
-                            className="input text-xs py-1.5 pr-8 bg-white"
+                  <div className="space-y-4">
+                    {/* Detalhes de Dinheiro */}
+                    {paymentMethod === 'Dinheiro' && (
+                      <div className="animate-in fade-in">
+                        <label className="text-[10px] font-black text-text-muted uppercase mb-1.5 block">Valor Recebido</label>
+                        <input 
+                          type="number" 
+                          placeholder="0,00"
+                          className="input h-10 font-bold"
+                          value={receivedCash || ''}
+                          onChange={(e) => setReceivedCash(Number(e.target.value))}
+                        />
+                        {receivedCash > (formData.totalValue || 0) && (
+                          <div className="mt-2 p-2 bg-emerald-50 rounded-lg text-emerald-600 text-xs font-bold flex justify-between">
+                            <span>Troco:</span>
+                            <span>{formatCurrency(receivedCash - (formData.totalValue || 0))}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Detalhes Misto */}
+                    {paymentMethod === 'Misto' && (
+                      <div className="space-y-2 animate-in fade-in">
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="space-y-1">
+                            <label className="text-[9px] font-bold text-slate-400 uppercase">Dinheiro</label>
+                            <input 
+                              type="number" 
+                              className="input h-9 px-2 text-xs font-bold"
+                              value={cashAmount || ''}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                setCashAmount(val);
+                                setCardAmount(Math.max(0, (formData.totalValue || 0) - val));
+                              }}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[9px] font-bold text-slate-400 uppercase">Cartão</label>
+                            <input 
+                              type="number" 
+                              className="input h-9 px-2 text-xs font-bold"
+                              value={cardAmount || ''}
+                              onChange={(e) => setCardAmount(Number(e.target.value))}
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[9px] font-bold text-slate-400 uppercase">Dispositivo</label>
+                           <select 
+                            className="input h-9 text-xs py-0"
                             value={selectedMachineId}
                             onChange={(e) => setSelectedMachineId(e.target.value)}
                           >
@@ -456,34 +540,53 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
                               <option key={m.id} value={m.id}>{m.name}</option>
                             ))}
                           </select>
-                          <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
                         </div>
                       </div>
+                    )}
 
-                      {paymentMethod === 'Crédito' && (
+                    {(['PIX', 'Débito', 'Crédito'].includes(paymentMethod)) && (
+                      <div className="flex flex-col gap-3">
                         <div className="flex flex-col gap-1.5">
-                          <label className="label text-[10px]">Parcelamento</label>
+                          <label className="label text-[10px]">Maquininha</label>
                           <div className="relative">
                             <select 
-                              className="input text-xs py-1.5 pr-8 bg-white font-bold"
-                              value={installments}
-                              onChange={(e) => setInstallments(Number(e.target.value))}
+                              className="input text-xs py-1.5 pr-8 bg-white"
+                              value={selectedMachineId}
+                              onChange={(e) => setSelectedMachineId(e.target.value)}
                             >
-                              {Array.from({ length: 12 }, (_, i) => i + 1).map(i => (
-                                <option key={i} value={i}>{i}x de {formatCurrency((formData.totalValue || 0) / i)}</option>
+                              {machines.map(m => (
+                                <option key={m.id} value={m.id}>{m.name}</option>
                               ))}
                             </select>
                             <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
                           </div>
                         </div>
-                      )}
-                    </div>
-                  )}
+
+                        {paymentMethod === 'Crédito' && (
+                          <div className="flex flex-col gap-1.5">
+                            <label className="label text-[10px]">Parcelamento</label>
+                            <div className="relative">
+                              <select 
+                                className="input text-xs py-1.5 pr-8 bg-white font-bold"
+                                value={installments}
+                                onChange={(e) => setInstallments(Number(e.target.value))}
+                              >
+                                {Array.from({ length: 12 }, (_, i) => i + 1).map(i => (
+                                  <option key={i} value={i}>{i}x de {formatCurrency((formData.totalValue || 0) / i)}</option>
+                                ))}
+                              </select>
+                              <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                <div className="bg-primary/10 p-3 rounded-xl flex justify-between items-center">
-                  <span className="text-xs font-bold text-primary">Valor à Receber:</span>
-                  <span className="text-lg font-black text-primary">{formatCurrency(formData.totalValue || 0)}</span>
+                <div className="bg-primary/10 p-4 rounded-xl flex justify-between items-center border border-primary/20">
+                  <span className="text-xs font-bold text-primary italic uppercase tracking-widest">Valor à Receber</span>
+                  <span className="text-2xl font-black text-primary">{formatCurrency(formData.totalValue || 0)}</span>
                 </div>
               </div>
             )}

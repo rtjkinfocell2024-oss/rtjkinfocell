@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent } from 'react';
-import { X, Save, Smartphone, User, DollarSign, FileText, UserPlus, ShieldCheck, Database, Cpu, CreditCard, Zap } from 'lucide-react';
+import { X, Save, Smartphone, User, DollarSign, FileText, UserPlus, ShieldCheck, Database, Cpu, CreditCard, Zap, Package } from 'lucide-react';
 import { cn, formatCurrency } from '@/src/lib/utils';
 import { DetailedSale, Customer, PaymentMachine, Transaction } from '@/src/types';
 
@@ -53,6 +53,11 @@ export function CompleteSaleModal({
 
   const [customWarranty, setCustomWarranty] = useState('');
   const [warrantyMode, setWarrantyMode] = useState<'preset' | 'custom'>('preset');
+
+  // Novos estados para Pagamento
+  const [receivedCash, setReceivedCash] = useState(0);
+  const [cashAmount, setCashAmount] = useState(0); // Para Misto
+  const [cardAmount, setCardAmount] = useState(0); // Para Misto
 
   useEffect(() => {
     if (sale) {
@@ -118,9 +123,19 @@ export function CompleteSaleModal({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+
+    const subtotal = productDetails.price;
+    if (formData.paymentMethod === 'Misto' && Math.round(cashAmount + cardAmount) < Math.round(subtotal)) {
+      alert('O valor total informado é menor que o valor da venda!');
+      return;
+    }
+
+    if (formData.paymentMethod === 'Dinheiro' && receivedCash < subtotal) {
+      alert('Valor em dinheiro insuficiente!');
+      return;
+    }
     
     const finalWarranty = warrantyMode === 'custom' ? customWarranty : `${formData.warranty} dias`;
-    const subtotal = productDetails.price;
     
     const selectedMachine = machines.find(m => m.id === formData.machineId);
     let feePercentage = 0;
@@ -160,21 +175,49 @@ export function CompleteSaleModal({
       pixMethod: formData.paymentMethod === 'PIX' ? formData.pixMethod : undefined
     };
 
-    const newTransaction: Transaction = {
-      id: saleId,
-      type: 'Entrada',
-      category: 'Venda de Dispositivo',
-      description: `Venda ${productDetails.name} (${productDetails.model}) - Cliente: ${newSale.customerName} [Garantia: ${finalWarranty}]`,
-      value: total,
-      date: newSale.createdAt,
-      machineId: formData.machineId,
-      installments: formData.installments || 1,
-      customerId: formData.customerId || undefined,
-      pixMethod: formData.pixMethod
-    };
+    // Registrar Transações (Suporte Misto)
+    if (formData.paymentMethod === 'Misto') {
+      if (cashAmount > 0) {
+        onSaveTransaction({
+          id: `${saleId}-1`,
+          type: 'Entrada',
+          category: 'Venda de Dispositivo (Mista - Dinheiro)',
+          description: `Venda ${productDetails.name} (Parte Dinheiro) - Cliente: ${newSale.customerName}`,
+          value: cashAmount,
+          date: newSale.createdAt,
+          customerId: formData.customerId || undefined,
+        });
+      }
+      if (cardAmount > 0) {
+        onSaveTransaction({
+          id: `${saleId}-2`,
+          type: 'Entrada',
+          category: 'Venda de Dispositivo (Mista - Cartão)',
+          description: `Venda ${productDetails.name} (Parte Cartão) - Cliente: ${newSale.customerName} (${formData.installments}x)`,
+          value: cardAmount,
+          date: newSale.createdAt,
+          machineId: formData.machineId,
+          installments: formData.installments || 1,
+          customerId: formData.customerId || undefined,
+        });
+      }
+    } else {
+      const newTransaction: Transaction = {
+        id: saleId,
+        type: 'Entrada',
+        category: 'Venda de Dispositivo',
+        description: `Venda ${productDetails.name} (${productDetails.model}) - Cliente: ${newSale.customerName} [Garantia: ${finalWarranty}]`,
+        value: total,
+        date: newSale.createdAt,
+        machineId: formData.machineId,
+        installments: formData.installments || 1,
+        customerId: formData.customerId || undefined,
+        pixMethod: formData.pixMethod
+      };
+      onSaveTransaction(newTransaction);
+    }
 
     onSave(newSale);
-    onSaveTransaction(newTransaction);
     onClose();
   };
 
@@ -371,36 +414,104 @@ export function CompleteSaleModal({
           </div>
 
           {/* Seção Pagamento */}
-          <div className="space-y-2">
+          <div className="space-y-4">
             <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest pl-1">Forma de Pagamento</h4>
-            <div className="grid grid-cols-3 gap-2">
-              {['PIX', 'Dinheiro', 'Cartão'].map(method => (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {['PIX', 'Dinheiro', 'Cartão', 'Misto'].map(method => (
                 <button
                   key={method}
                   type="button"
                   onClick={() => {
-                    // Mapping "Cartão" to "Crédito" by default for detailed sale or toggle?
-                    // User said "Cartão", the previous was Débito/Crédito.
-                    // For simplicity, let's allow child selection or just default to Crédito if Cartão
                     const actualMethod = method === 'Cartão' ? 'Crédito' : method;
                     setFormData({...formData, paymentMethod: actualMethod as any});
+                    if (method === 'Misto') {
+                      setCashAmount(0);
+                      setCardAmount(productDetails.price);
+                    }
                   }}
                   className={cn(
-                    "py-4 rounded-2xl text-xs font-black border transition-all flex flex-col items-center gap-1",
-                    (formData.paymentMethod === method || (method === 'Cartão' && (formData.paymentMethod === 'Crédito' || formData.paymentMethod === 'Débito')))
+                    "py-3 rounded-2xl text-[10px] font-black border transition-all flex flex-col items-center gap-1",
+                    (formData.paymentMethod === method || 
+                     (method === 'Cartão' && (formData.paymentMethod === 'Crédito' || formData.paymentMethod === 'Débito')) ||
+                     (method === 'Misto' && formData.paymentMethod === 'Misto'))
                       ? "bg-primary text-white border-primary shadow-sm" 
                       : "bg-slate-50 text-text-muted border-border hover:bg-white"
                   )}
                 >
-                  {method === 'PIX' && <Zap size={18} />}
-                  {method === 'Dinheiro' && <DollarSign size={18} />}
-                  {method === 'Cartão' && <CreditCard size={18} />}
+                  {method === 'PIX' && <Zap size={16} />}
+                  {method === 'Dinheiro' && <DollarSign size={16} />}
+                  {method === 'Cartão' && <CreditCard size={16} />}
+                  {method === 'Misto' && <Package size={16} />}
                   {method}
                 </button>
               ))}
             </div>
 
-            {/* Sub-opções de Pagamento */}
+            {/* Detalhes de Dinheiro (Troco) */}
+            {formData.paymentMethod === 'Dinheiro' && (
+              <div className="p-3 bg-slate-50 rounded-xl border border-border animate-in fade-in space-y-2">
+                <div className="flex flex-col gap-1">
+                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Valor Recebido</label>
+                  <input 
+                    type="number" 
+                    className="input h-9 text-sm font-bold"
+                    placeholder="0,00"
+                    value={receivedCash || ''}
+                    onChange={(e) => setReceivedCash(Number(e.target.value))}
+                  />
+                </div>
+                {receivedCash > productDetails.price && (
+                  <div className="flex justify-between items-center text-xs font-bold text-emerald-600">
+                    <span>Troco:</span>
+                    <span className="text-sm font-black">{formatCurrency(receivedCash - productDetails.price)}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Detalhes Misto */}
+            {formData.paymentMethod === 'Misto' && (
+              <div className="p-3 bg-slate-50 rounded-xl border border-border animate-in fade-in space-y-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Dinheiro</label>
+                    <input 
+                      type="number" 
+                      className="input h-9 text-xs font-bold"
+                      value={cashAmount || ''}
+                      onChange={(e) => {
+                        const val = Number(e.target.value);
+                        setCashAmount(val);
+                        setCardAmount(Math.max(0, productDetails.price - val));
+                      }}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Cartão</label>
+                    <input 
+                      type="number" 
+                      className="input h-9 text-xs font-bold"
+                      value={cardAmount || ''}
+                      onChange={(e) => setCardAmount(Number(e.target.value))}
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Maquininha</label>
+                   <select 
+                    className="input h-9 text-xs py-0"
+                    value={formData.machineId}
+                    onChange={(e) => setFormData({...formData, machineId: e.target.value})}
+                  >
+                    {machines.map(m => (
+                      <option key={m.id} value={m.id}>{m.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* Sub-opções de Pagamento (PIX e Cartão Convencional) */}
             {(formData.paymentMethod === 'PIX') && (
               <div className="grid grid-cols-2 gap-2 p-3 bg-slate-50 rounded-xl border border-border animate-in fade-in">
                 {['C6 Bank', 'Máquina Rede', 'CNPJ', 'Infinity Play'].map(m => (
