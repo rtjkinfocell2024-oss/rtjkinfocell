@@ -748,53 +748,54 @@ export function QuickSale({ products, customers, machines, onSaveTransaction, on
         </div>
       )}
 
-      {/* RENDERIZAÇÃO PARA IMPRESSÃO CUPOM */}
+      {/* RENDERIZAÇÃO PARA IMPRESSÃO CUPOM TÉRMICO (80mm) */}
       {printMode === 'Coupon' && (
-        <div className="fixed inset-0 bg-white z-[100] w-[80mm] p-4 text-black font-mono text-xs overflow-visible">
-          <div className="text-center border-b border-dashed border-black pb-4 mb-4">
-            <h2 className="text-lg font-black">{storeSettings.name}</h2>
-            <p className="text-[10px]">{storeSettings.cnpj}</p>
-            <p className="text-[10px]">{storeSettings.address}</p>
-            <p className="text-[10px]">WhatsApp: {storeSettings.phone1}</p>
-            {storeSettings.phone2 && <p className="text-[10px]">WhatsApp: {storeSettings.phone2}</p>}
-          </div>
+        <div className="hidden print:flex print-area coupon-container bg-white text-black font-mono text-[9px] leading-tight">
+          <div className="w-full">
+            <header className="text-center border-b border-dashed border-black pb-2 mb-2">
+              <h2 className="text-xs font-black uppercase tracking-tight">{storeSettings.name}</h2>
+              <p className="opacity-80">CNPJ: {storeSettings.cnpj}</p>
+              <p className="opacity-80">{storeSettings.address}</p>
+              <p className="opacity-80">TEL: {storeSettings.phone1}</p>
+            </header>
 
-          <div className="mb-4 text-[10px] border-b border-dashed border-black pb-2">
-            <p>DATA: {new Date().toLocaleDateString('pt-BR')} {new Date().toLocaleTimeString('pt-BR')}</p>
-            <p>PEDIDO: #{lastSaleId}</p>
-            <p>CLIENTE: {finalPaymentInfo.customer?.name || 'CONSUMIDOR'}</p>
-            {finalPaymentInfo.customer?.phone && <p>FONE: {finalPaymentInfo.customer.phone}</p>}
-          </div>
-
-          <div className="mb-4 border-b border-dashed border-black pb-2">
-            <div className="flex justify-between font-bold mb-1 border-b border-dotted border-black">
-              <span className="w-1/2">ITEM</span>
-              <span className="w-1/4 text-center">QTD</span>
-              <span className="w-1/4 text-right">TOTAL</span>
+            <div className="mb-2 space-y-0.5">
+              <p>DATA: {new Date().toLocaleDateString('pt-BR')} {new Date().toLocaleTimeString('pt-BR')}</p>
+              <p>PEDIDO: #{lastSaleId}</p>
+              <p>CLIENTE: {finalPaymentInfo.customer?.name || 'CONSUMIDOR FINAL'}</p>
             </div>
-            {soldItems.map((item, idx) => (
-              <div key={idx} className="flex justify-between mb-1 py-1">
-                <span className="w-1/2 truncate pr-1">{item.name}</span>
-                <span className="w-1/4 text-center">{item.quantity}</span>
-                <span className="w-1/4 text-right">{formatCurrency(item.price * item.quantity)}</span>
+
+            <div className="border-b border-dashed border-black mb-2 pb-1">
+              <div className="flex justify-between font-black border-b border-dotted border-black pb-0.5 mb-1">
+                <span className="flex-1">DESCRIÇÃO</span>
+                <span className="w-8 text-center">QTD</span>
+                <span className="w-16 text-right">TOTAL</span>
               </div>
-            ))}
-          </div>
+              {soldItems.map((item, idx) => (
+                <div key={idx} className="flex justify-between py-0.5">
+                  <span className="flex-1 pr-1 truncate italic">{item.name}</span>
+                  <span className="w-8 text-center">{item.quantity}</span>
+                  <span className="w-16 text-right">{formatCurrency(item.price * item.quantity)}</span>
+                </div>
+              ))}
+            </div>
 
-          <div className="flex justify-between font-black text-sm mb-4">
-            <span>TOTAL:</span>
-            <span>{formatCurrency(soldItems.reduce((acc, i) => acc + (i.price * i.quantity), 0))}</span>
-          </div>
+            <div className="border-b border-dashed border-black mb-2 pb-2">
+              <div className="flex justify-between font-black text-xs">
+                <span>TOTAL:</span>
+                <span>{formatCurrency(soldItems.reduce((acc, i) => acc + (i.price * i.quantity), 0))}</span>
+              </div>
+              <div className="mt-1 space-y-0.5 opacity-80">
+                <p>PAGAMENTO: {finalPaymentInfo.method} {finalPaymentInfo.method === 'PIX' ? `(${finalPaymentInfo.pixMethod})` : ''}</p>
+                {finalPaymentInfo.method === 'Crédito' && <p>PARCELAS: {finalPaymentInfo.installments}x</p>}
+              </div>
+            </div>
 
-          <div className="text-[10px] border-t border-dashed border-black pt-2 mb-4">
-            <p>PAGAMENTO: {finalPaymentInfo.method} {finalPaymentInfo.method === 'PIX' ? finalPaymentInfo.pixMethod : ''}</p>
-            {finalPaymentInfo.method === 'Crédito' && <p>PARCELAS: {finalPaymentInfo.installments}x</p>}
-          </div>
-
-          <div className="text-center mt-6">
-            <p className="text-[10px] font-bold">OBRIGADO PELA PREFERÊNCIA!</p>
-            <p className="text-[8px] mt-1 italic">{storeSettings.name} - {storeSettings.instagram}</p>
-            <p className="text-[7px] mt-4">VIA ÚNICA</p>
+            <footer className="text-center mt-4 pt-2">
+              <p className="font-black uppercase">Obrigado pela preferência!</p>
+              <p className="text-[7px] mt-1 opacity-60 italic">Documento sem valor fiscal</p>
+              <p className="text-[6px] mt-4 opacity-40">RTJK SISTEMAS</p>
+            </footer>
           </div>
         </div>
       )}
