@@ -19,6 +19,7 @@ interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   storeSettings: StoreSettings;
+  userName?: string;
   onLogout?: () => void;
 }
 
@@ -35,7 +36,7 @@ const menuItems = [
   { id: 'configuracoes', label: 'Configurações', icon: Settings },
 ];
 
-export function Sidebar({ activeTab, setActiveTab, storeSettings, onLogout }: SidebarProps) {
+export function Sidebar({ activeTab, setActiveTab, storeSettings, userName = 'Administrador', onLogout }: SidebarProps) {
   return (
     <aside className="hidden lg:flex w-[240px] bg-white border-r border-border flex-col py-6 h-screen sticky top-0 transition-all">
       <div className="px-6 mb-8">
@@ -74,7 +75,7 @@ export function Sidebar({ activeTab, setActiveTab, storeSettings, onLogout }: Si
             {storeSettings.name.substring(0, 2).toUpperCase()}
           </div>
           <div className="flex-1 overflow-hidden">
-            <p className="text-xs font-bold truncate">{storeSettings.name}</p>
+            <p className="text-xs font-bold truncate">{userName}</p>
             <p className="text-[10px] text-text-muted truncate">Administrador</p>
           </div>
         </div>

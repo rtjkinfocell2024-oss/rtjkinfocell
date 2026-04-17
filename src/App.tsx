@@ -91,6 +91,9 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return localStorage.getItem('rtjk_auth') === 'true';
   });
+  const [currentUser, setCurrentUser] = useState(() => {
+    return localStorage.getItem('rtjk_user') || 'Administrador';
+  });
   
   const [serviceOrders, setServiceOrders] = useState<ServiceOrder[]>(initialOS);
   const [products, setProducts] = useState<Product[]>(initialProducts);
@@ -114,18 +117,27 @@ export default function App() {
     }
   }, []);
 
-  const handleLogin = (password: string) => {
-    if (password === 'admin@rtjkinfocell') {
+  const handleLogin = (user: string, password: string) => {
+    const validUsers: Record<string, string> = {
+      'Thales': '5812',
+      'Juca': '6411'
+    };
+
+    if (validUsers[user] === password) {
       setIsAuthenticated(true);
+      setCurrentUser(user);
       localStorage.setItem('rtjk_auth', 'true');
+      localStorage.setItem('rtjk_user', user);
     } else {
-      alert('Senha incorreta!');
+      alert('Senha incorreta para o usuário selecionado!');
     }
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
+    setCurrentUser('Administrador');
     localStorage.removeItem('rtjk_auth');
+    localStorage.removeItem('rtjk_user');
     setActiveTab('dashboard');
   };
 
@@ -281,6 +293,7 @@ export default function App() {
           activeTab={activeTab} 
           setActiveTab={setActiveTab} 
           storeSettings={storeSettings} 
+          userName={currentUser}
           onLogout={handleLogout}
         />
       )}
