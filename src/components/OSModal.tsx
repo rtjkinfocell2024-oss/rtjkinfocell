@@ -750,7 +750,7 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
 
       {/* RENDERIZAÇÃO PROFISSIONAL PARA IMPRESSÃO A4 */}
       {os && (
-        <div className="fixed inset-0 bg-white z-[100] p-0 text-black font-sans print-only overflow-hidden a4-container" style={{ display: 'none' }}>
+        <div className="hidden print:flex print-area a4-container bg-white text-black font-sans overflow-hidden">
            <div className="a4-content">
               {/* Cabeçalho Profissional - PADRÃO ÚNICO */}
               <header className="flex justify-between items-start border-b-2 border-slate-900 pb-4 mb-4">
