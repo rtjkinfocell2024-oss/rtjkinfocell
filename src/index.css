@@ -1,6 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
+  --font-sans: "Inter", sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
   --color-bg: #f8fafc;
   --color-sidebar-bg: #ffffff;
   --color-primary: #2563eb;
@@ -24,7 +27,7 @@
 @media print {
   @page {
     size: A4;
-    margin: 10mm 15mm;
+    margin: 0; /* Marginal managed by container to avoid browser inconsistencies */
   }
   
   .print\:hidden,
@@ -47,10 +50,9 @@
     background: white !important;
     padding: 0 !important;
     margin: 0 !important;
-    height: auto !important;
-    overflow: visible !important;
-    width: 100% !important;
-    max-width: 100% !important;
+    height: 297mm !important;
+    width: 210mm !important;
+    overflow: hidden !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
@@ -61,47 +63,43 @@
   }
 
   .a4-container {
-    display: block !important;
-    position: static !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    overflow: visible !important;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    padding: 10mm 15mm !important; /* Safe margins */
+    margin: 0 auto !important;
     background: white !important;
-    left: auto !important;
-    top: auto !important;
-    right: auto !important;
-    bottom: auto !important;
-    box-shadow: none !important;
-    border: none !important;
-    z-index: auto !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+  }
+
+  .a4-content {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    max-width: 180mm !important; /* Safety width */
+    margin: 0 auto !important;
+    width: 100% !important;
   }
 
   .a4-container * {
     max-width: 100% !important;
     box-sizing: border-box !important;
-    overflow-wrap: break-word !important;
   }
 
-  /* Prevent awkward breaks */
+  /* Force single page layout */
   .a4-container header,
   .a4-container section,
   .a4-container .grid,
-  .a4-container table tr {
-    page-break-inside: avoid;
+  .a4-container table {
+    page-break-inside: avoid !important;
   }
 
-  /* Ensure content fits within width and has correct padding */
-  .a4-container > div {
-    width: 100% !important;
-    height: auto !important;
-    margin: 0 !important;
-    padding: 5mm !important; /* Internal spacing within the page margin */
-    flex: none !important;
-    border: 1px solid #e2e8f0 !important; /* Keep a light border if requested */
+  /* Fix for text rendering in print */
+  h1, h2, h3, h4, p, span, td, th {
+    color: #0f172a !important;
   }
 }
 

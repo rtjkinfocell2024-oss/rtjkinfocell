@@ -612,141 +612,138 @@ export function QuickSale({ products, customers, machines, onSaveTransaction, on
 
       {/* RENDERIZAÇÃO PROFISSIONAL PARA IMPRESSÃO A4 */}
       {printMode === 'A4' && (
-        <div className="fixed inset-0 bg-white z-[100] p-0 text-black font-sans print-only overflow-visible a4-container" style={{ display: 'none' }}>
-           <div className="p-8 flex flex-col border-[1px] border-slate-300 m-4 rounded-sm">
-             {/* Cabeçalho Profissional */}
-             <header className="flex justify-between items-start border-b-2 border-slate-900 pb-6 mb-6">
-                <div className="flex items-center gap-6">
-                   {storeSettings.logoUrl ? (
-                     <img src={storeSettings.logoUrl} alt="Logo" className="w-24 h-24 object-contain" referrerPolicy="no-referrer" />
-                   ) : (
-                     <div className="w-20 h-20 bg-slate-900 text-white rounded-2xl flex items-center justify-center font-black text-2xl">
-                        {storeSettings.name.substring(0, 2).toUpperCase()}
-                     </div>
-                   )}
-                   <div className="flex flex-col">
-                      <h1 className="text-3xl font-black uppercase tracking-tighter text-slate-900">{storeSettings.name}</h1>
-                      <div className="text-[10px] font-bold text-slate-600 space-y-0.5 mt-1 leading-tight">
-                         <p>{storeSettings.corporateName}</p>
-                         <p>CNPJ: {storeSettings.cnpj}</p>
-                         <p>{storeSettings.address}</p>
-                         <p>Fone: {storeSettings.phone1} {storeSettings.phone2 ? ` / ${storeSettings.phone2}` : ''}</p>
+        <div className="fixed inset-0 bg-white z-[100] p-0 text-black font-sans print-only overflow-hidden a4-container" style={{ display: 'none' }}>
+           <div className="a4-content">
+              {/* Cabeçalho Profissional - PADRÃO ÚNICO */}
+              <header className="flex justify-between items-start border-b-2 border-slate-900 pb-4 mb-4">
+                 <div className="flex items-center gap-4">
+                    {storeSettings.logoUrl ? (
+                      <img src={storeSettings.logoUrl} alt="Logo" className="w-20 h-20 object-contain" referrerPolicy="no-referrer" />
+                    ) : (
+                      <div className="w-16 h-16 bg-slate-900 text-white rounded-xl flex items-center justify-center font-black text-xl">
+                         {storeSettings.name.substring(0, 2).toUpperCase()}
                       </div>
-                   </div>
-                </div>
-                <div className="text-right flex flex-col items-end">
-                   <div className="bg-slate-900 text-white px-8 py-3 rounded-bl-3xl">
-                      <p className="text-[10px] font-black uppercase tracking-widest opacity-80">Comprovante de Venda</p>
-                      <h2 className="text-3xl font-black">#{lastSaleId}</h2>
-                   </div>
-                   <p className="text-[10px] font-bold mt-2 text-slate-400 uppercase tracking-widest italic">Venda Rápida</p>
-                   <p className="text-xs font-black mt-1 uppercase italic">{formatDate(new Date().toISOString())}</p>
-                </div>
-             </header>
+                    )}
+                    <div className="flex flex-col">
+                       <h1 className="text-2xl font-black uppercase tracking-tighter text-slate-900">{storeSettings.name}</h1>
+                       <div className="text-[9px] font-bold text-slate-600 space-y-0 mt-0.5 leading-tight">
+                          <p>{storeSettings.corporateName}</p>
+                          <p>CNPJ: {storeSettings.cnpj} | {storeSettings.address}</p>
+                          <p>Fone: {storeSettings.phone1} {storeSettings.phone2 ? ` / ${storeSettings.phone2}` : ''}</p>
+                       </div>
+                    </div>
+                 </div>
+                 <div className="text-right flex flex-col items-end">
+                    <div className="bg-slate-900 text-white px-6 py-2 rounded-bl-2xl">
+                       <p className="text-[8px] font-black uppercase tracking-widest opacity-80">Comprovante de Venda</p>
+                       <h2 className="text-2xl font-black">#{lastSaleId}</h2>
+                    </div>
+                    <p className="text-[8px] font-bold mt-1 text-slate-500 uppercase tracking-widest italic">Venda Direta</p>
+                    <p className="text-[10px] font-black mt-0.5 uppercase italic">{formatDate(new Date().toISOString())}</p>
+                 </div>
+              </header>
 
-             <div className="space-y-6 flex-1">
-                {/* Dados do Cliente */}
-                <div className="border border-slate-200 rounded-xl p-4 bg-slate-50/50">
-                   <h3 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Dados do Cliente</h3>
-                   <div className="grid grid-cols-2 gap-4">
-                      <div>
-                         <span className="text-[8px] uppercase text-slate-400 block tracking-widest font-black">Cliente</span>
-                         <p className="text-lg font-black text-slate-900 uppercase">{finalPaymentInfo.customer?.name || 'CONSUMIDOR FINAL'}</p>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 text-[11px] font-bold text-slate-700">
-                         {finalPaymentInfo.customer?.cpf && (
-                           <div>
-                              <span className="text-[8px] uppercase text-slate-400 block tracking-widest">CPF/CNPJ</span>
-                              {finalPaymentInfo.customer.cpf}
-                           </div>
-                         )}
-                         {finalPaymentInfo.customer?.phone && (
-                           <div>
-                              <span className="text-[8px] uppercase text-slate-400 block tracking-widest">Telefone</span>
-                              {finalPaymentInfo.customer.phone}
-                           </div>
-                         )}
-                      </div>
-                   </div>
-                </div>
+              <div className="space-y-4 flex-1">
+                 {/* 1. SEÇÃO CLIENTE */}
+                 <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+                    <h3 className="text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1.5">Dados do Cliente</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                       <div>
+                          <span className="text-[7px] uppercase text-slate-400 block font-black">Identificação</span>
+                          <p className="text-base font-black text-slate-900 uppercase leading-none">{finalPaymentInfo.customer?.name || 'CONSUMIDOR FINAL'}</p>
+                       </div>
+                       <div className="grid grid-cols-2 gap-2 text-[10px] font-bold text-slate-700">
+                          <div>
+                             <span className="text-[7px] uppercase text-slate-400 block">CPF/CNPJ</span>
+                             {finalPaymentInfo.customer?.cpf || 'N/A'}
+                          </div>
+                          <div>
+                             <span className="text-[7px] uppercase text-slate-400 block">Telefone</span>
+                             {finalPaymentInfo.customer?.phone || 'N/A'}
+                          </div>
+                       </div>
+                    </div>
+                 </div>
 
-                {/* Itens da Venda */}
-                <div className="border border-slate-900 rounded-xl overflow-hidden shadow-sm">
-                   <div className="bg-slate-900 text-white px-4 py-2">
-                     <h3 className="text-[10px] font-black uppercase tracking-widest">Descrição dos Itens / Serviços</h3>
-                   </div>
-                   <table className="w-full text-left">
-                     <thead>
-                       <tr className="bg-slate-50 border-b border-slate-200">
-                         <th className="px-4 py-2 text-[8px] font-black uppercase text-slate-400 tracking-widest">Item</th>
-                         <th className="px-4 py-2 text-[8px] font-black uppercase text-slate-400 tracking-widest text-center">Qtd</th>
-                         <th className="px-4 py-2 text-[8px] font-black uppercase text-slate-400 tracking-widest text-right">Unitário</th>
-                         <th className="px-4 py-2 text-[8px] font-black uppercase text-slate-400 tracking-widest text-right">Subtotal</th>
-                       </tr>
-                     </thead>
-                     <tbody className="divide-y divide-slate-100">
-                       {soldItems.map((item, idx) => (
-                         <tr key={idx} className="text-[11px] font-bold">
-                           <td className="px-4 py-3 text-slate-900">{item.name}</td>
-                           <td className="px-4 py-3 text-center text-slate-600">{item.quantity}</td>
-                           <td className="px-4 py-3 text-right text-slate-600">{formatCurrency(item.price)}</td>
-                           <td className="px-4 py-3 text-right text-slate-900">{formatCurrency(item.price * item.quantity)}</td>
-                         </tr>
-                       ))}
-                     </tbody>
-                   </table>
-                </div>
-             </div>
+                 {/* 2. ITENS DA VENDA */}
+                 <div className="border border-slate-200 rounded-lg overflow-hidden">
+                    <table className="w-full text-left">
+                       <thead>
+                          <tr className="bg-slate-900 text-white">
+                             <th className="px-3 py-1.5 text-[8px] font-black uppercase tracking-widest">Descrição dos Itens / Serviços</th>
+                             <th className="px-3 py-1.5 text-[8px] font-black uppercase tracking-widest text-center">Quant</th>
+                             <th className="px-3 py-1.5 text-[8px] font-black uppercase tracking-widest text-right">Unitário</th>
+                             <th className="px-3 py-1.5 text-[8px] font-black uppercase tracking-widest text-right">Subtotal</th>
+                          </tr>
+                       </thead>
+                       <tbody className="divide-y divide-slate-100 text-[10px] font-bold">
+                          {soldItems.map((item, idx) => (
+                            <tr key={idx}>
+                              <td className="px-3 py-2.5 text-slate-800">{item.name}</td>
+                              <td className="px-3 py-2.5 text-center text-slate-600">{item.quantity}</td>
+                              <td className="px-3 py-2.5 text-right text-slate-600">{formatCurrency(item.price)}</td>
+                              <td className="px-3 py-2.5 text-right text-slate-900">{formatCurrency(item.price * item.quantity)}</td>
+                            </tr>
+                          ))}
+                       </tbody>
+                    </table>
+                 </div>
 
-             {/* Rodapé e Financeiro */}
-             <div className="mt-8 pt-6 border-t border-slate-200">
-                <div className="grid grid-cols-2 gap-10">
-                   <div className="flex flex-col justify-end">
-                      <div className="border border-slate-200 p-4 rounded-xl mb-8">
-                        <h4 className="text-[9px] font-black uppercase text-slate-400 mb-2 tracking-widest">Informações de Garantia</h4>
-                        <p className="text-[9px] font-bold text-slate-600 leading-tight">
-                          A garantia legal é de 90 dias para defeitos de fabricação. 
-                          Danos físicos, líquidos ou intervenção de terceiros anulam a garantia.
-                          Guarde este recibo para qualquer solicitação futura.
-                        </p>
-                      </div>
-                      <div className="grid grid-cols-2 gap-6 items-end">
-                        <div className="flex flex-col items-center">
-                           <div className="w-full h-px bg-slate-900"></div>
-                           <p className="text-[8px] font-black uppercase mt-1">Assinatura</p>
-                        </div>
-                         <div className="flex flex-col items-center text-center">
-                           <p className="text-[10px] font-black uppercase text-slate-900 mb-1">{storeSettings.name}</p>
-                           <p className="text-[8px] font-bold text-slate-400 italic">Obrigado pela preferência!</p>
-                        </div>
-                      </div>
-                   </div>
-                   <div className="bg-slate-900 text-white rounded-2xl p-6 flex flex-col justify-between shadow-lg shadow-slate-200">
-                      <div className="space-y-3">
-                         <div className="flex justify-between items-center text-[10px] font-bold opacity-60 uppercase">
-                            <span>Subtotal</span>
-                            <span>{formatCurrency(soldItems.reduce((acc, i) => acc + (i.price * i.quantity), 0))}</span>
-                         </div>
-                         <div className="h-px bg-white/10 my-2"></div>
-                         <div className="flex justify-between items-end">
-                            <span className="text-[10px] uppercase font-black tracking-widest">Total Geral</span>
-                            <span className="text-3xl font-black leading-none">{formatCurrency(soldItems.reduce((acc, i) => acc + (i.price * i.quantity), 0))}</span>
-                         </div>
-                      </div>
-                      <div className="mt-6 pt-4 border-t border-white/10 text-[9px] font-bold">
-                         <p className="uppercase text-white/40 tracking-widest mb-1">Pagamento</p>
-                         <p className="text-sm italic uppercase">
-                           {finalPaymentInfo.method}
-                           {finalPaymentInfo.method === 'PIX' && ` [${finalPaymentInfo.pixMethod}]`}
-                           {finalPaymentInfo.method === 'Crédito' && ` (em ${finalPaymentInfo.installments}x)`}
-                         </p>
-                      </div>
-                   </div>
-                </div>
-                <footer className="text-center mt-10 text-[8px] font-bold text-slate-400 uppercase tracking-[0.4em]">
-                   {storeSettings.name} • {storeSettings.instagram} • {new Date().toLocaleDateString()}
-                </footer>
-             </div>
+                 {/* 3. GARANTIA E OBSERVACÕES */}
+                 <div className="grid grid-cols-2 gap-3">
+                    <div className="border border-slate-200 p-3 rounded-lg">
+                       <h4 className="text-[8px] font-black uppercase text-slate-400 mb-1.5 tracking-widest">Informações de Garantia</h4>
+                       <div className="text-[9px] font-bold text-slate-600 leading-tight space-y-0.5">
+                          <p>• Garantia legal de 90 dias contra defeitos de fabricação.</p>
+                          <p>• Danos físicos, líquidos ou selos rompidos anulam a garantia.</p>
+                          <p>• É indispensável a apresentação deste recibo para garantia.</p>
+                       </div>
+                    </div>
+                    <div className="border border-slate-200 p-3 rounded-lg flex flex-col justify-center items-center text-center italic text-slate-400">
+                       <p className="text-[9px] font-bold uppercase tracking-widest mb-1">{storeSettings.name}</p>
+                       <p className="text-[8px]">Obrigado pela preferência!</p>
+                       <p className="text-[7px] mt-1">{storeSettings.instagram}</p>
+                    </div>
+                 </div>
+              </div>
+
+              {/* 4. FINANCEIRO E ASSINATURAS */}
+              <div className="mt-4 pt-4 border-t-2 border-slate-900">
+                 <div className="grid grid-cols-3 gap-6 items-end">
+                    <div className="col-span-2 flex flex-col gap-8">
+                       <div className="grid grid-cols-2 gap-6">
+                          <div className="flex flex-col items-center">
+                             <div className="w-full h-px bg-slate-900"></div>
+                             <p className="text-[7px] font-black uppercase mt-1">Assinatura do Cliente</p>
+                          </div>
+                           <div className="flex flex-col items-center">
+                             <div className="w-full h-px bg-slate-900"></div>
+                             <p className="text-[7px] font-black uppercase mt-1">Carimbo / Loja</p>
+                          </div>
+                       </div>
+                       <footer className="text-[7px] font-bold text-slate-400 uppercase tracking-widest">
+                          DOCUMENTO EMITIDO EM {new Date().toLocaleDateString('pt-BR')} às {new Date().toLocaleTimeString('pt-BR')}
+                       </footer>
+                    </div>
+                    
+                    <div className="bg-slate-900 text-white rounded-xl p-4 flex flex-col justify-between">
+                       <div className="space-y-1 mb-2">
+                          <div className="flex justify-between items-center text-[8px] font-bold opacity-70 uppercase">
+                             <span>Subtotal</span>
+                             <span>{formatCurrency(soldItems.reduce((acc, i) => acc + (i.price * i.quantity), 0))}</span>
+                          </div>
+                          <div className="h-px bg-white/10"></div>
+                          <div className="flex justify-between items-end">
+                             <span className="text-[8px] uppercase font-black tracking-widest">Total Líquido</span>
+                             <span className="text-xl font-black">{formatCurrency(soldItems.reduce((acc, i) => acc + (i.price * i.quantity), 0))}</span>
+                          </div>
+                       </div>
+                       <div className="border-t border-white/10 pt-2 text-[8px] font-bold">
+                          <p className="uppercase text-white/40 tracking-widest">Pagamento: <span className="text-white opacity-100">{finalPaymentInfo.method} {finalPaymentInfo.method === 'Crédito' ? `(${finalPaymentInfo.installments}x)` : ''}</span></p>
+                       </div>
+                    </div>
+                 </div>
+              </div>
            </div>
         </div>
       )}
