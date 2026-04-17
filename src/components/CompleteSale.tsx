@@ -177,7 +177,7 @@ export function CompleteSale({
         {/* RENDERIZAÇÃO PROFISSIONAL PARA IMPRESSÃO A4 */}
         {printMode && finalSale && (
           <div className="fixed inset-0 bg-white z-[100] p-0 text-black font-sans print-only overflow-visible a4-container" style={{ display: 'none' }}>
-             <div className="p-8 h-full flex flex-col border-[1px] border-slate-300 m-4 rounded-sm">
+             <div className="p-8 flex flex-col border-[1px] border-slate-300 m-4 rounded-sm">
                {/* Cabeçalho Profissional */}
                <header className="flex justify-between items-start border-b-2 border-slate-900 pb-6 mb-6">
                   <div className="flex items-center gap-6">
