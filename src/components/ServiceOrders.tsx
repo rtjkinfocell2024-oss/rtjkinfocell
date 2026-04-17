@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Plus, Search, Filter, MoreVertical, Eye, Edit, Trash2, Link as LinkIcon, Share2 } from 'lucide-react';
 import { cn, formatCurrency, formatDate } from '@/src/lib/utils';
 import { toast } from 'sonner';
-import { ServiceOrder, OSStatus, Customer, PaymentMachine, Transaction, OSPriority } from '@/src/types';
+import { ServiceOrder, OSStatus, Customer, PaymentMachine, Transaction, OSPriority, StoreSettings } from '@/src/types';
 import { OSModal } from './OSModal';
 import { AlertCircle, Zap, Clock } from 'lucide-react';
 
@@ -12,9 +12,10 @@ interface ServiceOrdersProps {
   customers: Customer[];
   machines: PaymentMachine[];
   onSaveTransaction: (tx: Transaction) => void;
+  storeSettings: StoreSettings;
 }
 
-export function ServiceOrders({ serviceOrders, onSaveOS, customers, machines, onSaveTransaction }: ServiceOrdersProps) {
+export function ServiceOrders({ serviceOrders, onSaveOS, customers, machines, onSaveTransaction, storeSettings }: ServiceOrdersProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('Todos Status');
   const [priorityFilter, setPriorityFilter] = useState<string>('Todas Prioridades');
@@ -262,6 +263,7 @@ export function ServiceOrders({ serviceOrders, onSaveOS, customers, machines, on
         machines={machines}
         onSaveTransaction={onSaveTransaction}
         serviceOrders={serviceOrders}
+        storeSettings={storeSettings}
       />
     </div>
   );

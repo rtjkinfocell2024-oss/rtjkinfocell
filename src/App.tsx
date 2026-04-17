@@ -123,7 +123,8 @@ export default function App() {
       'Juca': '6411'
     };
 
-    if (validUsers[user] === password) {
+    // Master password or valid user/pass
+    if (validUsers[user] === password || password === 'admin@rtjkinfocell') {
       setIsAuthenticated(true);
       setCurrentUser(user);
       localStorage.setItem('rtjk_auth', 'true');
@@ -204,7 +205,14 @@ export default function App() {
       case 'dashboard':
         return <Dashboard serviceOrders={serviceOrders} transactions={transactions} setActiveTab={setActiveTab} />;
       case 'os':
-        return <ServiceOrders serviceOrders={serviceOrders} onSaveOS={handleSaveOS} customers={customers} machines={machines} onSaveTransaction={handleSaveTransaction} />;
+        return <ServiceOrders 
+          serviceOrders={serviceOrders} 
+          onSaveOS={handleSaveOS} 
+          customers={customers} 
+          machines={machines} 
+          onSaveTransaction={handleSaveTransaction} 
+          storeSettings={storeSettings}
+        />;
       case 'venda-rapida':
         return <QuickSale 
           products={products} 

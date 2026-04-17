@@ -49,12 +49,27 @@ export type OSStatus = 'Pendente' | 'Orçamento' | 'Aguardando Peça' | 'Em Manu
 export type OSPriority = 'Normal' | 'Urgente' | 'Muito Urgente';
 export type OSType = 'Nova' | 'Retorno';
 
+export interface ServiceOrderItem {
+  id: string;
+  description: string;
+  quantity: number;
+  unitValue: number;
+  totalValue: number;
+  type: 'service' | 'part';
+}
+
 export interface ServiceOrder {
   id: string;
   customerId: string;
   customerName: string;
   device: string;
-  serialNumber?: string;
+  model?: string;
+  imei?: string;
+  imei2?: string;
+  sn?: string;
+  color?: string;
+  storage?: string;
+  ram?: string;
   problem: string;
   solution?: string;
   status: OSStatus;
@@ -66,6 +81,7 @@ export interface ServiceOrder {
   entryDate: string;
   deliveryForecast?: string;
   technicalNotes?: string;
+  items?: ServiceOrderItem[];
   createdAt: string;
   updatedAt: string;
 }

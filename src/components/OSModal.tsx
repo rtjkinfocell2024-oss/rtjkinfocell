@@ -2,7 +2,7 @@ import { useState, useEffect, FormEvent } from 'react';
 import { X, Save, Printer, Smartphone, User, AlertCircle, Calendar, Clock, DollarSign, FileText, ChevronDown, Share2 } from 'lucide-react';
 import { cn, formatCurrency, formatDate } from '@/src/lib/utils';
 import { toast } from 'sonner';
-import { ServiceOrder, OSStatus, Customer, OSPriority, PaymentMachine, Transaction, OSType } from '@/src/types';
+import { ServiceOrder, OSStatus, Customer, OSPriority, PaymentMachine, Transaction, OSType, StoreSettings } from '@/src/types';
 
 interface OSModalProps {
   isOpen: boolean;
@@ -14,17 +14,25 @@ interface OSModalProps {
   machines: PaymentMachine[];
   onSaveTransaction: (tx: Transaction) => void;
   serviceOrders: ServiceOrder[];
+  storeSettings: StoreSettings;
 }
 
 const statusOptions: OSStatus[] = ['Pendente', 'Orçamento', 'Aguardando Peça', 'Em Manutenção', 'Pronto', 'Entregue', 'Cancelado'];
 const priorityOptions: OSPriority[] = ['Normal', 'Urgente', 'Muito Urgente'];
 const typeOptions: OSType[] = ['Nova', 'Retorno'];
 
-export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines, onSaveTransaction, serviceOrders }: OSModalProps) {
+export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines, onSaveTransaction, serviceOrders, storeSettings }: OSModalProps) {
   const [formData, setFormData] = useState<Partial<ServiceOrder>>({
     customerId: '',
     customerName: '',
     device: '',
+    model: '',
+    imei: '',
+    imei2: '',
+    sn: '',
+    color: '',
+    storage: '',
+    ram: '',
     problem: '',
     status: 'Pendente',
     priority: 'Normal',
@@ -35,6 +43,7 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
     technicalNotes: '',
     returnReason: '',
     originalOsId: '',
+    items: [],
   });
 
   const [paymentMethod, setPaymentMethod] = useState('PIX');
@@ -55,6 +64,13 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
         customerId: '',
         customerName: '',
         device: '',
+        model: '',
+        imei: '',
+        imei2: '',
+        sn: '',
+        color: '',
+        storage: '',
+        ram: '',
         problem: '',
         status: 'Pendente',
         priority: 'Normal',
@@ -65,6 +81,7 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
         type: 'Nova',
         returnReason: '',
         originalOsId: '',
+        items: [],
       });
     }
   }, [os, isOpen]);
@@ -126,6 +143,13 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
         customerId: formData.customerId || '',
         customerName: formData.customerName || '',
         device: formData.device || '',
+        model: formData.model || '',
+        imei: formData.imei || '',
+        imei2: formData.imei2 || '',
+        sn: formData.sn || '',
+        color: formData.color || '',
+        storage: formData.storage || '',
+        ram: formData.ram || '',
         problem: formData.problem || '',
         status: formData.status as OSStatus || 'Pendente',
         priority: formData.priority as OSPriority || 'Normal',
@@ -136,6 +160,7 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
         entryDate: formData.entryDate || new Date().toISOString().split('T')[0],
         deliveryForecast: formData.deliveryForecast || '',
         technicalNotes: formData.technicalNotes || '',
+        items: formData.items || [],
         createdAt: os?.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -337,19 +362,92 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
               </div>
             </div>
 
-            {/* Equipamento */}
-            <div className="flex flex-col gap-1.5 md:col-span-2">
-              <label className="label">Equipamento *</label>
-              <div className="relative">
-                <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+            {/* Equipamento e Detalhes */}
+            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-border">
+              <div className="md:col-span-3">
+                <h4 className="text-[10px] font-black uppercase text-text-muted tracking-widest mb-1.5">Equipamento</h4>
+                <div className="relative">
+                  <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+                  <input 
+                    type="text" 
+                    className="input pl-10" 
+                    placeholder="Nome do Aparelho"
+                    required
+                    disabled={isView}
+                    value={formData.device}
+                    onChange={(e) => setFormData({ ...formData, device: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="label text-[10px]">Modelo</label>
                 <input 
                   type="text" 
-                  className="input pl-10" 
-                  placeholder="Ex: iPhone 12 Pro, Samsung Galaxy S21"
-                  required
+                  className="input h-9 text-xs" 
                   disabled={isView}
-                  value={formData.device}
-                  onChange={(e) => setFormData({ ...formData, device: e.target.value })}
+                  value={formData.model}
+                  onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="label text-[10px]">Cor</label>
+                <input 
+                  type="text" 
+                  className="input h-9 text-xs" 
+                  disabled={isView}
+                  value={formData.color}
+                  onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="label text-[10px]">Capacidade / RAM</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <input 
+                    type="text" 
+                    placeholder="GB"
+                    className="input h-9 text-xs" 
+                    disabled={isView}
+                    value={formData.storage}
+                    onChange={(e) => setFormData({ ...formData, storage: e.target.value })}
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="RAM"
+                    className="input h-9 text-xs" 
+                    disabled={isView}
+                    value={formData.ram}
+                    onChange={(e) => setFormData({ ...formData, ram: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="label text-[10px]">IMEI 1</label>
+                <input 
+                  type="text" 
+                  className="input h-9 text-xs" 
+                  disabled={isView}
+                  value={formData.imei}
+                  onChange={(e) => setFormData({ ...formData, imei: e.target.value })}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="label text-[10px]">IMEI 2</label>
+                <input 
+                  type="text" 
+                  className="input h-9 text-xs" 
+                  disabled={isView}
+                  value={formData.imei2}
+                  onChange={(e) => setFormData({ ...formData, imei2: e.target.value })}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="label text-[10px]">Número de Série (SN)</label>
+                <input 
+                  type="text" 
+                  className="input h-9 text-xs" 
+                  disabled={isView}
+                  value={formData.sn}
+                  onChange={(e) => setFormData({ ...formData, sn: e.target.value })}
                 />
               </div>
             </div>
@@ -649,6 +747,187 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
           </div>
         </footer>
       </div>
+
+      {/* RENDERIZAÇÃO PROFISSIONAL PARA IMPRESSÃO A4 */}
+      {os && (
+        <div className="fixed inset-0 bg-white z-[100] p-0 text-black font-sans print-only overflow-visible a4-container" style={{ display: 'none' }}>
+           <div className="p-8 h-full flex flex-col border-[1px] border-slate-300 m-4 rounded-sm">
+             {/* Cabeçalho Profissional */}
+             <header className="flex justify-between items-start border-b-2 border-slate-900 pb-6 mb-6">
+                <div className="flex items-center gap-6">
+                   {storeSettings.logoUrl ? (
+                     <img src={storeSettings.logoUrl} alt="Logo" className="w-24 h-24 object-contain" referrerPolicy="no-referrer" />
+                   ) : (
+                     <div className="w-20 h-20 bg-slate-900 text-white rounded-2xl flex items-center justify-center font-black text-2xl">
+                        {storeSettings.name.substring(0, 2).toUpperCase()}
+                     </div>
+                   )}
+                   <div className="flex flex-col">
+                      <h1 className="text-3xl font-black uppercase tracking-tighter text-slate-900">{storeSettings.name}</h1>
+                      <div className="text-[10px] font-bold text-slate-600 space-y-0.5 mt-1 leading-tight">
+                         <p>{storeSettings.corporateName}</p>
+                         <p>CNPJ: {storeSettings.cnpj}</p>
+                         <p>{storeSettings.address}</p>
+                         <p>Fone: {storeSettings.phone1} {storeSettings.phone2 ? ` / ${storeSettings.phone2}` : ''}</p>
+                      </div>
+                   </div>
+                </div>
+                <div className="text-right flex flex-col items-end">
+                   <div className="bg-slate-900 text-white px-8 py-3 rounded-bl-3xl">
+                      <p className="text-[10px] font-black uppercase tracking-widest opacity-80">Ordem de Serviço</p>
+                      <h2 className="text-3xl font-black">#{os.id}</h2>
+                   </div>
+                   <p className="text-[10px] font-bold mt-2 text-slate-400 uppercase tracking-widest">
+                      {os.type === 'Retorno' ? 'GARANTIA / RETORNO' : 'ENTRADA DE EQUIPAMENTO'}
+                   </p>
+                   <p className="text-xs font-black mt-1 uppercase italic">{formatDate(os.createdAt)}</p>
+                </div>
+             </header>
+
+             {/* Corpo do Documento */}
+             <div className="space-y-6 flex-1">
+                {/* Dados do Cliente e Equipamento */}
+                <div className="grid grid-cols-2 gap-4">
+                   <div className="border border-slate-200 rounded-xl p-4 bg-slate-50/50">
+                      <h3 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Dados do Cliente</h3>
+                      <p className="text-lg font-black text-slate-900 uppercase leading-none">{os.customerName}</p>
+                      <div className="grid grid-cols-2 mt-3 gap-y-2 text-[11px] font-bold text-slate-700">
+                         <div>
+                            <span className="text-[8px] uppercase text-slate-400 block tracking-widest">CPF/CNPJ</span>
+                            {customers.find(c => c.id === os.customerId)?.cpf || 'N/A'}
+                         </div>
+                         <div>
+                            <span className="text-[8px] uppercase text-slate-400 block tracking-widest">Telefone</span>
+                            {customers.find(c => c.id === os.customerId)?.phone || 'N/A'}
+                         </div>
+                         <div className="col-span-2">
+                            <span className="text-[8px] uppercase text-slate-400 block tracking-widest font-black">Endereço</span>
+                            {customers.find(c => c.id === os.customerId)?.address || 'N/A'}
+                         </div>
+                      </div>
+                   </div>
+                   <div className="border border-slate-200 rounded-xl p-4 bg-slate-50/50">
+                      <h3 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Equipamento / Aparelho</h3>
+                      <p className="text-lg font-black text-slate-900 uppercase leading-none">{os.device}</p>
+                      <div className="grid grid-cols-2 mt-3 gap-y-2 text-[11px] font-bold text-slate-700">
+                         <div>
+                            <span className="text-[8px] uppercase text-slate-400 block tracking-widest">Modelo / Cor</span>
+                            {os.model || 'N/A'} {os.color ? `/ ${os.color}` : ''}
+                         </div>
+                         <div>
+                            <span className="text-[8px] uppercase text-slate-400 block tracking-widest">Capacidade / RAM</span>
+                            {os.storage || '--'} / {os.ram || '--'}
+                         </div>
+                         <div className="col-span-2">
+                            <span className="text-[8px] uppercase text-slate-400 block tracking-widest">IMEI / SN</span>
+                            {os.imei || 'SEM IMEI'} {os.imei2 ? `/ ${os.imei2}` : ''} {os.sn ? ` (SN: ${os.sn})` : ''}
+                         </div>
+                      </div>
+                   </div>
+                </div>
+
+                {/* Descrição do Problema */}
+                <div className="border border-slate-900 rounded-xl overflow-hidden shadow-sm">
+                   <div className="bg-slate-900 text-white px-4 py-2 flex justify-between items-center">
+                     <h3 className="text-[10px] font-black uppercase tracking-widest">Defeito Reclamado / Descrição Técnica</h3>
+                     <span className="text-[9px] font-bold uppercase py-0.5 px-2 bg-white/20 rounded">Prioridade: {os.priority}</span>
+                   </div>
+                   <div className="p-4 min-h-[100px] text-sm font-bold text-slate-800 italic leading-relaxed whitespace-pre-wrap">
+                      {os.problem}
+                   </div>
+                </div>
+
+                {/* Serviços Executados e Peças */}
+                <div className="grid grid-cols-1 gap-4">
+                   <div className="border border-slate-200 rounded-xl overflow-hidden">
+                      <table className="w-full text-left">
+                         <thead>
+                            <tr className="bg-slate-50 border-b border-slate-200">
+                               <th className="px-4 py-2 text-[9px] font-black uppercase text-slate-400 tracking-widest">Serviços Executados e Peças Aplicadas</th>
+                               <th className="px-4 py-2 text-[9px] font-black uppercase text-slate-400 tracking-widest text-center">Quant</th>
+                               <th className="px-4 py-2 text-[9px] font-black uppercase text-slate-400 tracking-widest text-right">Unitário</th>
+                               <th className="px-4 py-2 text-[9px] font-black uppercase text-slate-400 tracking-widest text-right">Total</th>
+                            </tr>
+                         </thead>
+                         <tbody className="divide-y divide-slate-100 italic text-[11px] font-bold">
+                            {os.items && os.items.length > 0 ? os.items.map(item => (
+                              <tr key={item.id}>
+                                <td className="px-4 py-3">{item.description} <span className="text-[8px] opacity-50 uppercase tracking-tighter ml-2">({item.type === 'part' ? 'Peça' : 'Serviço'})</span></td>
+                                <td className="px-4 py-3 text-center">{item.quantity}</td>
+                                <td className="px-4 py-3 text-right">{formatCurrency(item.unitValue)}</td>
+                                <td className="px-4 py-3 text-right">{formatCurrency(item.totalValue)}</td>
+                              </tr>
+                            )) : (
+                              <tr>
+                                <td className="px-4 py-6 text-slate-400 uppercase text-center font-black tracking-widest opacity-20" colSpan={4}>Campo reservado para descrição de serviços realizados durante a manutenção</td>
+                              </tr>
+                            )}
+                         </tbody>
+                      </table>
+                   </div>
+                </div>
+
+                {/* Notas Técnicas (Apenas se preenchido) */}
+                {os.technicalNotes && (
+                   <div className="p-4 bg-slate-50 rounded-xl border border-dotted border-slate-300">
+                      <h4 className="text-[9px] font-black uppercase text-slate-400 mb-1 tracking-widest">Observações Técnicas e Solução Efetuada</h4>
+                      <p className="text-xs font-bold text-slate-700 italic leading-relaxed whitespace-pre-wrap">{os.technicalNotes}</p>
+                   </div>
+                )}
+             </div>
+
+             {/* Rodapé e Financeiro */}
+             <div className="mt-8 pt-6 border-t border-slate-200">
+                <div className="grid grid-cols-3 gap-10">
+                   <div className="col-span-2 grid grid-cols-2 gap-4">
+                      <div className="border border-slate-200 p-4 rounded-xl">
+                        <h4 className="text-[9px] font-black uppercase text-slate-400 mb-2 tracking-widest">Garantia / Termos</h4>
+                        <div className="text-[10px] font-bold text-slate-600 leading-tight space-y-1">
+                           <p>• Garantia legal de 90 dias conforme CDC nas peças substituídas.</p>
+                           <p>• A garantia não cobre danos por mau uso, quedas ou contato com líquidos.</p>
+                           <p>• Equipamentos não retirados em 90 dias serão descartados ou leiloados para custeio.</p>
+                        </div>
+                      </div>
+                      <div className="flex flex-col justify-end gap-10 mt-6">
+                        <div className="flex flex-col items-center">
+                           <div className="w-full h-px bg-slate-900"></div>
+                           <p className="text-[8px] font-black uppercase mt-1">Assinatura do Cliente</p>
+                        </div>
+                         <div className="flex flex-col items-center">
+                           <div className="w-full h-px bg-slate-900"></div>
+                           <p className="text-[8px] font-black uppercase mt-1">Responsável Técnico</p>
+                        </div>
+                      </div>
+                   </div>
+                   <div className="bg-slate-900 text-white rounded-2xl p-6 flex flex-col justify-between shadow-lg shadow-slate-200">
+                      <div className="space-y-3">
+                         <div className="flex justify-between items-center text-[10px] font-bold opacity-60 uppercase">
+                            <span>Subtotal</span>
+                            <span>{formatCurrency(os.totalValue)}</span>
+                         </div>
+                         <div className="flex justify-between items-center text-[10px] font-bold opacity-60 uppercase">
+                            <span>Desconto</span>
+                            <span>{formatCurrency(0)}</span>
+                         </div>
+                         <div className="h-px bg-white/10 my-2"></div>
+                         <div className="flex justify-between items-end">
+                            <span className="text-[10px] uppercase font-black tracking-widest">Total Geral</span>
+                            <span className="text-3xl font-black leading-none">{formatCurrency(os.totalValue)}</span>
+                         </div>
+                      </div>
+                      <div className="mt-6 pt-4 border-t border-white/10 text-[9px] font-bold">
+                         <p className="uppercase text-white/40 tracking-widest mb-1">Pagamento Realizado via</p>
+                         <p className="text-sm italic uppercase">{paymentMethod} {paymentMethod === 'Crédito' ? `(${installments}x)` : ''}</p>
+                      </div>
+                   </div>
+                </div>
+                <footer className="text-center mt-10 text-[8px] font-bold text-slate-400 uppercase tracking-[0.4em]">
+                   Recibo gerado eletronicamente em {new Date().toLocaleDateString('pt-BR')} às {new Date().toLocaleTimeString('pt-BR')}
+                </footer>
+             </div>
+           </div>
+        </div>
+      )}
     </div>
   );
 }
