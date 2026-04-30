@@ -23,6 +23,7 @@ export interface Product {
   storage?: string; // GB
   ram?: string;
   condition?: 'Novo' | 'Semi-Novo';
+  isSold?: boolean;
 }
 
 export interface Service {

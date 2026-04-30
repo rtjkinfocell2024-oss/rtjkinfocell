@@ -13,6 +13,7 @@ import { Reports } from './components/Reports';
 import { Settings } from './components/Settings';
 import { OSCustomerConsultation } from './components/OSCustomerConsultation';
 import { Login } from './components/Login';
+import { PriceTableGenerator } from './components/PriceTableGenerator';
 import { cn } from './lib/utils';
 import { COMPANY_INFO } from './constants';
 import { ServiceOrder, Product, Customer, Transaction, PaymentMachine, DetailedSale, StoreSettings } from './types';
@@ -116,6 +117,11 @@ export default function App() {
       if (osId) setInitialSearch(osId);
     }
   }, []);
+
+  // Scroll to top when tab changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [activeTab]);
 
   const handleLogin = (user: string, password: string) => {
     const validUsers: Record<string, string> = {
@@ -230,6 +236,7 @@ export default function App() {
           detailedSales={detailedSales}
           onSaveTransaction={handleSaveTransaction} 
           onSaveCustomer={handleSaveCustomer}
+          onSaveProduct={handleSaveProduct}
           onSaveDetailedSale={handleSaveDetailedSale}
           storeSettings={storeSettings}
         />;
@@ -246,6 +253,8 @@ export default function App() {
         return <Financial transactions={transactions} onSaveTransaction={handleSaveTransaction} />;
       case 'relatorios':
         return <Reports serviceOrders={serviceOrders} transactions={transactions} products={products} />;
+      case 'tabela-precos':
+        return <PriceTableGenerator />;
       case 'configuracoes':
         return <Settings 
           machines={machines} 
@@ -283,6 +292,7 @@ export default function App() {
       case 'clientes': return 'Clientes';
       case 'financeiro': return 'Financeiro';
       case 'relatorios': return 'Relatórios';
+      case 'tabela-precos': return 'Gerador de Tabela WhatsApp';
       case 'menu': return 'Menu Principal';
       case 'taxas': return 'Taxas de Máquina';
       case 'configuracoes': return 'Configurações';

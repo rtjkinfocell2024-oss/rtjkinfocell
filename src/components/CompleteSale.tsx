@@ -22,6 +22,7 @@ interface CompleteSaleProps {
   detailedSales: DetailedSale[];
   onSaveTransaction: (tx: Transaction) => void;
   onSaveCustomer: (customer: Customer) => void;
+  onSaveProduct: (product: Product) => void;
   onSaveDetailedSale: (sale: DetailedSale) => void;
   storeSettings: StoreSettings;
 }
@@ -33,6 +34,7 @@ export function CompleteSale({
   detailedSales,
   onSaveTransaction, 
   onSaveCustomer,
+  onSaveProduct,
   onSaveDetailedSale,
   storeSettings
 }: CompleteSaleProps) {
@@ -55,6 +57,10 @@ export function CompleteSale({
     setFinalSale(saleRecord);
     setLastSaleId(saleRecord.id);
     setIsSuccess(true);
+  };
+
+  const handleSaveProductInternally = (product: Product) => {
+    onSaveProduct(product);
   };
 
   const handlePrint = () => {
@@ -348,8 +354,10 @@ export function CompleteSale({
         onClose={() => setIsSaleModalOpen(false)}
         onSave={handleFinishSale}
         onSaveTransaction={onSaveTransaction}
+        onSaveProduct={handleSaveProductInternally}
         sale={editingSale}
         mode={editingSale ? 'edit' : 'create'}
+        products={products}
         customers={customers}
         machines={machines}
         onQuickAddCustomer={() => setIsCustomerModalOpen(true)}

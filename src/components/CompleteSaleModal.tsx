@@ -1,15 +1,17 @@
-import { useState, useEffect, FormEvent } from 'react';
-import { X, Save, Smartphone, User, DollarSign, FileText, UserPlus, ShieldCheck, Database, Cpu, CreditCard, Zap, Package } from 'lucide-react';
+import { useState, useEffect, FormEvent, useMemo } from 'react';
+import { X, Save, Smartphone, User, DollarSign, FileText, UserPlus, ShieldCheck, Database, Cpu, CreditCard, Zap, Package, ChevronDown, CheckCircle2 } from 'lucide-react';
 import { cn, formatCurrency } from '@/src/lib/utils';
-import { DetailedSale, Customer, PaymentMachine, Transaction } from '@/src/types';
+import { DetailedSale, Customer, PaymentMachine, Transaction, Product } from '@/src/types';
 
 interface CompleteSaleModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (sale: DetailedSale) => void;
   onSaveTransaction: (tx: Transaction) => void;
+  onSaveProduct: (product: Product) => void;
   sale?: DetailedSale | null;
   mode: 'create' | 'edit';
+  products: Product[];
   customers: Customer[];
   machines: PaymentMachine[];
   onQuickAddCustomer: () => void;
@@ -22,8 +24,10 @@ export function CompleteSaleModal({
   onClose, 
   onSave, 
   onSaveTransaction,
+  onSaveProduct,
   sale, 
   mode, 
+  products,
   customers, 
   machines,
   onQuickAddCustomer
@@ -40,6 +44,7 @@ export function CompleteSaleModal({
   });
 
   const [productDetails, setProductDetails] = useState({
+    id: '',
     name: '',
     model: '',
     imei1: '',
@@ -50,6 +55,37 @@ export function CompleteSaleModal({
     ram: '',
     price: 0
   });
+
+  const [productSearch, setProductSearch] = useState('');
+  const [showProductResults, setShowProductResults] = useState(false);
+
+  const filteredProducts = useMemo(() => {
+    if (!productSearch) return [];
+    return products.filter(p => 
+      !p.isSold && 
+      p.category === 'Celular' && 
+      (p.name.toLowerCase().includes(productSearch.toLowerCase()) || 
+       p.model?.toLowerCase().includes(productSearch.toLowerCase()) ||
+       p.imei1?.includes(productSearch))
+    );
+  }, [products, productSearch]);
+
+  const handleSelectProduct = (product: Product) => {
+    setProductDetails({
+      id: product.id,
+      name: product.name,
+      model: product.model || '',
+      imei1: product.imei1 || '',
+      imei2: product.imei2 || '',
+      sn: product.sn || '',
+      color: product.color || '',
+      storage: product.storage || '',
+      ram: product.ram || '',
+      price: product.price
+    });
+    setProductSearch('');
+    setShowProductResults(false);
+  };
 
   const [customWarranty, setCustomWarranty] = useState('');
   const [warrantyMode, setWarrantyMode] = useState<'preset' | 'custom'>('preset');
@@ -63,6 +99,7 @@ export function CompleteSaleModal({
     if (sale) {
       setFormData(sale);
       setProductDetails({
+        id: '',
         name: sale.items[0]?.name || '',
         model: sale.model || '',
         imei1: sale.imei || '',
@@ -95,6 +132,7 @@ export function CompleteSaleModal({
         pixMethod: 'C6 Bank'
       });
       setProductDetails({
+        id: '',
         name: '',
         model: '',
         imei1: '',
@@ -217,6 +255,18 @@ export function CompleteSaleModal({
       onSaveTransaction(newTransaction);
     }
 
+    // Atualizar estoque se for um novo produto selecionado
+    if (productDetails.id) {
+      const selectedProduct = products.find(p => p.id === productDetails.id);
+      if (selectedProduct) {
+        onSaveProduct({
+          ...selectedProduct,
+          isSold: true,
+          stock: Math.max(0, (selectedProduct.stock || 0) - 1)
+        });
+      }
+    }
+
     onSave(newSale);
     onClose();
   };
@@ -237,6 +287,46 @@ export function CompleteSaleModal({
         </header>
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 space-y-5">
+          {/* Busca de Produto */}
+          <div className="space-y-2 relative">
+            <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest pl-1">Buscar Produto em Estoque</h4>
+            <div className="relative">
+              <Package className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={14} />
+              <input 
+                type="text" 
+                className="input pl-8 text-xs h-10" 
+                placeholder="Busque por Nome, Modelo ou IMEI..."
+                value={productSearch}
+                onChange={(e) => {
+                  setProductSearch(e.target.value);
+                  setShowProductResults(true);
+                }}
+                onFocus={() => setShowProductResults(true)}
+              />
+            </div>
+            
+            {showProductResults && filteredProducts.length > 0 && (
+              <div className="absolute top-full left-0 right-0 z-20 mt-1 bg-white border border-border rounded-xl shadow-xl max-h-48 overflow-y-auto overflow-x-hidden animate-in fade-in slide-in-from-top-2">
+                {filteredProducts.map(p => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => handleSelectProduct(p)}
+                    className="w-full text-left px-4 py-3 hover:bg-slate-50 border-b border-border last:border-0 transition-colors flex items-center justify-between group"
+                  >
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-xs font-black group-hover:text-primary transition-colors">{p.name} {p.model}</span>
+                      <span className="text-[10px] text-text-muted font-bold">IMEI: {p.imei1 || 'N/A'} • {p.storage || '-'}</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-xs font-black text-primary">{formatCurrency(p.price)}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Seção Cliente */}
           <div className="space-y-2">
             <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest pl-1">Cliente</h4>
@@ -598,15 +688,4 @@ export function CompleteSaleModal({
   );
 }
 
-const ChevronDown = ({ size, className }: { size: number, className?: string }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="m6 9 6 6 6-6" />
-  </svg>
-);
 
-const CheckCircle2 = ({ size, className }: { size: number, className?: string }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
-    <path d="m9 12 2 2 4-4" />
-  </svg>
-);

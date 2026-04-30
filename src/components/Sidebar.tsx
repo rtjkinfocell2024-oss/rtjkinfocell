@@ -11,7 +11,8 @@ import {
   Settings,
   FileCheck,
   Search,
-  LogOut
+  LogOut,
+  ClipboardList
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 
@@ -32,6 +33,7 @@ const menuItems = [
   { id: 'clientes', label: 'Clientes', icon: Users },
   { id: 'financeiro', label: 'Financeiro', icon: DollarSign },
   { id: 'relatorios', label: 'Relatórios', icon: BarChart3 },
+  { id: 'tabela-precos', label: 'Tabela de Preços', icon: ClipboardList },
   { id: 'consulta', label: 'Página de Consulta', icon: Search },
   { id: 'configuracoes', label: 'Configurações', icon: Settings },
 ];
