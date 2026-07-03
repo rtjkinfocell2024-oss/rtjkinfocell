@@ -360,7 +360,7 @@ export function CompleteSale({
              </div>
 
              {/* Folha A4 interativa renderizada na tela */}
-             <div className="w-full max-w-4xl mx-auto bg-white text-black p-8 sm:p-12 rounded-2xl shadow-2xl border border-slate-200 flex flex-col min-h-[297mm] print:p-0 print:m-0 print:border-none print:shadow-none print:rounded-none">
+             <div className="recibo-container w-full max-w-4xl mx-auto bg-white text-black p-8 sm:p-12 rounded-2xl shadow-2xl border border-slate-200 flex flex-col min-h-[297mm] print:min-h-0 print:h-auto print:p-0 print:m-0 print:border-none print:shadow-none print:rounded-none">
                 <div className="print-area a4-container flex flex-col flex-1 bg-white text-black font-sans">
                    <div className="a4-content flex flex-col flex-1">
                       {/* Cabeçalho */}
@@ -491,7 +491,7 @@ export function CompleteSale({
                                </div>
 
                                {/* Observações */}
-                               <div className="info-card border border-slate-200 p-2.5 rounded-lg">
+                               <div className="observacoes-container info-card border border-slate-200 p-2.5 rounded-lg">
                                   <h4 className="text-[8px] font-black uppercase text-slate-400 mb-1 tracking-widest">Observações Gerais</h4>
                                   <p className="text-[9px] font-bold text-slate-600 leading-tight italic line-clamp-3">
                                      {finalSale.observations || "Nenhuma observação adicional registrada para esta venda."}
@@ -527,7 +527,7 @@ export function CompleteSale({
                          </div>
 
                          {/* 5. ASSINATURAS E RODAPÉ */}
-                         <div className="mt-4 pt-3 border-t border-dashed border-slate-300">
+                         <div className="signatures-table mt-4 pt-3 border-t border-dashed border-slate-300">
                             <div className="grid grid-cols-2 gap-10">
                                <div className="flex flex-col items-center">
                                   <div className="w-full h-px bg-slate-400"></div>

@@ -25,17 +25,36 @@
 }
 
 @media print {
-  /* 1. Força o HTML e o Body a aceitarem a rolagem natural da folha A4 */
+  /* 1. Remove margens, padding extras e impede a criação de páginas subsequentes por rolagem */
   html, body {
     height: auto !important;
-    overflow: visible !important;
+    min-height: auto !important;
+    overflow: hidden !important;
     position: static !important;
     margin: 0 !important;
     padding: 0 !important;
   }
 
+  /* Garante que nenhum elemento ancestral ou container tenha 'min-height: 100vh' ou 'height: 100%' ativo no print */
+  html, body, #root, .flex, main, .main-content-container, .recibo-container, .a4-container, .print-area {
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  /* Remove quebras após o container principal */
+  .recibo-container, form, main {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  /* Zera margens de elementos finais para não empurrarem a folha */
+  .signatures-table, footer, .observacoes-container {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
   /* 2. Oculte absolutamente tudo o que for da barra lateral, menu, cabeçalhos do sistema e botões */
-  nav, sidebar, aside, footer, .no-print, button, .sidebar-class, .navbar-class {
+  nav, sidebar, aside, footer:not(.signatures-table footer), .no-print, button, .sidebar-class, .navbar-class {
     display: none !important;
   }
 
@@ -46,7 +65,7 @@
     left: 0 !important;
     width: 100% !important;
     height: auto !important;
-    overflow: visible !important;
+    overflow: hidden !important;
     display: block !important;
   }
 
