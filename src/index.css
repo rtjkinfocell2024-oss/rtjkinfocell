@@ -25,21 +25,18 @@
 }
 
 @media print {
+  /* Força a renderização completa de cores e fundos */
   * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-
-  body {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     color-scheme: light !important;
   }
-
-  .financial-card, .info-card, th {
+  
+  /* Garante que os cards e tabelas mantenham a cor cinza claro ou escura de fundo */
+  .financial-card, .info-card, card, div, th, td {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
-    background-color: #f7fafc !important; /* Mantém o fundo visível */
+    background-color: inherit !important; 
   }
 
   @page {
