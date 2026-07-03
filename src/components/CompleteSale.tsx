@@ -457,8 +457,8 @@ export function CompleteSale({
                                     <tr key={item.id}>
                                       <td className="px-3 py-3 text-slate-800">{item.name}</td>
                                       <td className="px-3 py-3 text-center text-slate-600">1</td>
-                                      <td className="px-3 py-3 text-right text-slate-600">{formatCurrency(item.price)}</td>
-                                      <td className="px-3 py-3 text-right text-slate-900">{formatCurrency(item.price)}</td>
+                                      <td className="px-3 py-3 text-right text-slate-600">{(item.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                                      <td className="px-3 py-3 text-right text-slate-900">{(item.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                                     </tr>
                                   ))}
                                </tbody>
@@ -509,11 +509,11 @@ export function CompleteSale({
                                   <div className="space-y-1.5">
                                      <div className="flex justify-between items-center text-[10px] font-bold text-slate-600">
                                         <span>Subtotal:</span>
-                                        <span className="text-slate-950 font-black">{formatCurrency(finalSale.subtotal)}</span>
+                                        <span className="text-slate-950 font-black">{(finalSale.subtotal).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
                                      </div>
                                      <div className="flex justify-between items-center text-[10px] font-bold text-slate-600">
                                         <span>Desconto:</span>
-                                        <span className="text-red-750 font-black">-{formatCurrency(finalSale.discount || 0)}</span>
+                                        <span className="text-red-750 font-black">-{(finalSale.discount || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
                                      </div>
                                      <div className="flex justify-between items-center text-[10px] font-bold text-slate-600">
                                         <span>Pagamento:</span>
@@ -522,7 +522,7 @@ export function CompleteSale({
                                      <div className="h-px bg-slate-200 my-1.5"></div>
                                      <div className="flex justify-between items-baseline pt-0.5">
                                         <span className="text-[9px] uppercase font-black text-slate-950 tracking-wider">Total Geral:</span>
-                                        <span className="text-lg font-black text-slate-900 font-sans">{formatCurrency(finalSale.total)}</span>
+                                        <span className="text-lg font-black text-slate-900 font-sans">{(finalSale.total).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
                                      </div>
                                   </div>
                                </div>

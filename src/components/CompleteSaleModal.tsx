@@ -1,6 +1,6 @@
 import { useState, useEffect, FormEvent, useMemo } from 'react';
 import { X, Save, Smartphone, User, DollarSign, FileText, UserPlus, ShieldCheck, Database, Cpu, CreditCard, Zap, Package, ChevronDown, CheckCircle2 } from 'lucide-react';
-import { cn, formatCurrency } from '@/src/lib/utils';
+import { cn, formatCurrency, formatBRLInput, parseBRLInput, parseCentsBRLInput } from '@/src/lib/utils';
 import { DetailedSale, Customer, PaymentMachine, Transaction, Product } from '@/src/types';
 
 interface CompleteSaleModalProps {
@@ -432,14 +432,14 @@ export function CompleteSaleModal({
               </div>
               <div className="flex flex-col gap-1 col-span-2">
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-primary" size={16} />
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary font-black text-xs">R$</span>
                   <input 
-                    type="number" 
+                    type="text" 
                     placeholder="Preço de Venda" 
                     className="input h-11 pl-10 text-base font-black text-primary"
                     required
-                    value={productDetails.price || ''}
-                    onChange={(e) => setProductDetails({...productDetails, price: Number(e.target.value)})}
+                    value={formatBRLInput(productDetails.price)}
+                    onChange={(e) => setProductDetails({...productDetails, price: parseCentsBRLInput(e.target.value)})}
                   />
                 </div>
               </div>
@@ -543,11 +543,11 @@ export function CompleteSaleModal({
                 <div className="flex flex-col gap-1">
                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Valor Recebido</label>
                   <input 
-                    type="number" 
+                    type="text" 
                     className="input h-9 text-sm font-bold"
                     placeholder="0,00"
-                    value={receivedCash || ''}
-                    onChange={(e) => setReceivedCash(Number(e.target.value))}
+                    value={formatBRLInput(receivedCash)}
+                    onChange={(e) => setReceivedCash(parseCentsBRLInput(e.target.value))}
                   />
                 </div>
                 {receivedCash > productDetails.price && (
@@ -566,11 +566,11 @@ export function CompleteSaleModal({
                   <div className="flex flex-col gap-1">
                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Dinheiro</label>
                     <input 
-                      type="number" 
+                      type="text" 
                       className="input h-9 text-xs font-bold"
-                      value={cashAmount || ''}
+                      value={formatBRLInput(cashAmount)}
                       onChange={(e) => {
-                        const val = Number(e.target.value);
+                        const val = parseCentsBRLInput(e.target.value);
                         setCashAmount(val);
                         setCardAmount(Math.max(0, productDetails.price - val));
                       }}
@@ -579,10 +579,10 @@ export function CompleteSaleModal({
                   <div className="flex flex-col gap-1">
                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Cartão</label>
                     <input 
-                      type="number" 
+                      type="text" 
                       className="input h-9 text-xs font-bold"
-                      value={cardAmount || ''}
-                      onChange={(e) => setCardAmount(Number(e.target.value))}
+                      value={formatBRLInput(cardAmount)}
+                      onChange={(e) => setCardAmount(parseCentsBRLInput(e.target.value))}
                     />
                   </div>
                 </div>

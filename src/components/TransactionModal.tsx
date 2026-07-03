@@ -1,5 +1,6 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { X, Save, DollarSign, Tag, FileText, Calendar, ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
+import { cn, formatBRLInput, parseCentsBRLInput } from '@/src/lib/utils';
 import { Transaction } from '@/src/types';
 
 interface TransactionModalProps {
@@ -122,15 +123,15 @@ export function TransactionModal({ isOpen, onClose, onSave, transaction, mode }:
             <div className="flex flex-col gap-1.5">
               <label className="label">Valor (R$)</label>
               <div className="relative">
-                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted font-black text-xs">R$</span>
                 <input 
-                  type="number" 
-                  className="input pl-10 font-bold" 
+                  type="text" 
+                  className="input pl-10 font-black text-slate-900" 
                   placeholder="0,00"
                   required
                   disabled={isView}
-                  value={formData.value}
-                  onChange={(e) => setFormData({ ...formData, value: Number(e.target.value) })}
+                  value={formatBRLInput(formData.value)}
+                  onChange={(e) => setFormData({ ...formData, value: parseCentsBRLInput(e.target.value) })}
                 />
               </div>
             </div>

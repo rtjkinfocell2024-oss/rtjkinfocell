@@ -1,6 +1,6 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { X, Save, Printer, Smartphone, User, AlertCircle, Calendar, Clock, DollarSign, FileText, ChevronDown, Share2 } from 'lucide-react';
-import { cn, formatCurrency, formatDate } from '@/src/lib/utils';
+import { cn, formatCurrency, formatDate, formatBRLInput, parseCentsBRLInput } from '@/src/lib/utils';
 import { toast } from 'sonner';
 import { ServiceOrder, OSStatus, Customer, OSPriority, PaymentMachine, Transaction, OSType, StoreSettings } from '@/src/types';
 
@@ -515,14 +515,14 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
             <div className="flex flex-col gap-1.5">
               <label className="label">Valor Total</label>
               <div className="relative">
-                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted font-black text-xs">R$</span>
                 <input 
-                  type="number" 
-                  className="input pl-10" 
+                  type="text" 
+                  className="input pl-10 font-bold" 
                   placeholder="0,00"
                   disabled={isView}
-                  value={formData.totalValue}
-                  onChange={(e) => setFormData({ ...formData, totalValue: Number(e.target.value) })}
+                  value={formatBRLInput(formData.totalValue)}
+                  onChange={(e) => setFormData({ ...formData, totalValue: parseCentsBRLInput(e.target.value) })}
                 />
               </div>
             </div>
@@ -585,11 +585,11 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
                       <div className="animate-in fade-in">
                         <label className="text-[10px] font-black text-text-muted uppercase mb-1.5 block">Valor Recebido</label>
                         <input 
-                          type="number" 
+                          type="text" 
                           placeholder="0,00"
                           className="input h-10 font-bold"
-                          value={receivedCash || ''}
-                          onChange={(e) => setReceivedCash(Number(e.target.value))}
+                          value={formatBRLInput(receivedCash)}
+                          onChange={(e) => setReceivedCash(parseCentsBRLInput(e.target.value))}
                         />
                         {receivedCash > (formData.totalValue || 0) && (
                           <div className="mt-2 p-2 bg-emerald-50 rounded-lg text-emerald-600 text-xs font-bold flex justify-between">
@@ -607,11 +607,11 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
                           <div className="space-y-1">
                             <label className="text-[9px] font-bold text-slate-400 uppercase">Dinheiro</label>
                             <input 
-                              type="number" 
+                              type="text" 
                               className="input h-9 px-2 text-xs font-bold"
-                              value={cashAmount || ''}
+                              value={formatBRLInput(cashAmount)}
                               onChange={(e) => {
-                                const val = Number(e.target.value);
+                                const val = parseCentsBRLInput(e.target.value);
                                 setCashAmount(val);
                                 setCardAmount(Math.max(0, (formData.totalValue || 0) - val));
                               }}
@@ -620,10 +620,10 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
                           <div className="space-y-1">
                             <label className="text-[9px] font-bold text-slate-400 uppercase">Cartão</label>
                             <input 
-                              type="number" 
+                              type="text" 
                               className="input h-9 px-2 text-xs font-bold"
-                              value={cardAmount || ''}
-                              onChange={(e) => setCardAmount(Number(e.target.value))}
+                              value={formatBRLInput(cardAmount)}
+                              onChange={(e) => setCardAmount(parseCentsBRLInput(e.target.value))}
                             />
                           </div>
                         </div>

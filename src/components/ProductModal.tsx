@@ -1,6 +1,6 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { X, Save, Package, Tag, DollarSign, BarChart, Info, Truck, Barcode, Layers, Smartphone, Hash, Palette } from 'lucide-react';
-import { cn } from '@/src/lib/utils';
+import { cn, formatBRLInput, parseCentsBRLInput } from '@/src/lib/utils';
 import { Product } from '@/src/types';
 
 interface ProductModalProps {
@@ -207,14 +207,14 @@ export function ProductModal({ isOpen, onClose, onSave, product, mode }: Product
             <div className="flex flex-col gap-1.5">
               <label className="label">Preço de Custo (R$)</label>
               <div className="relative">
-                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted font-black text-xs">R$</span>
                 <input 
-                  type="number" 
+                  type="text" 
                   className="input pl-10" 
                   placeholder="0,00"
                   disabled={isView}
-                  value={formData.cost}
-                  onChange={(e) => setFormData({ ...formData, cost: Number(e.target.value) })}
+                  value={formatBRLInput(formData.cost)}
+                  onChange={(e) => setFormData({ ...formData, cost: parseCentsBRLInput(e.target.value) })}
                 />
               </div>
             </div>
@@ -223,15 +223,15 @@ export function ProductModal({ isOpen, onClose, onSave, product, mode }: Product
             <div className="flex flex-col gap-1.5">
               <label className="label">Preço de Venda * (R$)</label>
               <div className="relative">
-                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted font-black text-xs">R$</span>
                 <input 
-                  type="number" 
-                  className="input pl-10" 
+                  type="text" 
+                  className="input pl-10 font-black text-primary" 
                   placeholder="0,00"
                   required
                   disabled={isView}
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
+                  value={formatBRLInput(formData.price)}
+                  onChange={(e) => setFormData({ ...formData, price: parseCentsBRLInput(e.target.value) })}
                 />
               </div>
             </div>
