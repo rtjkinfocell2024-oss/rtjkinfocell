@@ -433,14 +433,6 @@ export function CompleteSale({
                             </div>
                          </div>
 
-                         {/* 2. DESCRIÇÃO DA VENDA */}
-                         <div className="border-l-4 border-slate-900 bg-slate-100/50 p-3">
-                            <h3 className="text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1">Itens Adicionais e Descritivo</h3>
-                            <p className="text-[11px] font-bold text-slate-800 italic leading-snug">
-                               Venda de aparelho celular conforme especificações acima discriminadas, acompanhando acessórios básicos conforme acordado.
-                            </p>
-                         </div>
-
                          {/* 3. LISTAGEM DE VALORES */}
                          <div className="border border-slate-200 rounded-lg overflow-hidden">
                             <table className="w-full text-left">
@@ -471,7 +463,7 @@ export function CompleteSale({
                             <div className="col-span-3 space-y-3">
                                {/* Termos de Venda */}
                                <div className="border border-slate-200 p-3 rounded-lg">
-                                  <h4 className="text-[8px] font-black uppercase text-slate-400 mb-1 tracking-widest">Termos de Venda e Uso</h4>
+                                  <h4 className="text-[8px] font-black uppercase text-slate-400 mb-1 tracking-widest">Termo de garantia</h4>
                                   <div className="text-[9px] font-bold text-slate-600 leading-tight space-y-1">
                                      <p>• O cliente declara ter testado e aprovado o aparelho no ato da compra.</p>
                                      <div className="flex items-center gap-1.5 flex-wrap print:hidden">
@@ -490,6 +482,11 @@ export function CompleteSale({
                                      </div>
                                      <p>• A garantia de <span className="font-black text-slate-950 underline">{selectedWarranty}</span> é restrita a hardware interno.</p>
                                      <p>• Quebras de tela, carcaça ou danos por líquido invalidam o termo.</p>
+                                     {selectedWarranty === 'Garantia de 180 dias' && (
+                                        <p className="mt-2 text-[8px] leading-snug font-black text-slate-800 border-t border-slate-200 pt-1.5 uppercase">
+                                           A garantia nao cobre: Defeitos ou danos causados pelo uso inadequado do produto pelo cliente, como pecas arranhadas, trincadas, quebradas externamente ou internamente derramamento de liquidos de qualquer natureza, danos causados por agentes naturais (chuva, maresia, descarga eletrica e outros), Obs: Remoção da película perca de garantia no ato, exposicao excessiva ao calor.
+                                        </p>
+                                     )}
                                   </div>
                                </div>
 

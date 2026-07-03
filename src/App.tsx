@@ -44,6 +44,39 @@ const initialProducts: Product[] = [
   { id: '4', name: 'Carregador Turbo 20W', category: 'Acessórios', price: 150, cost: 60, stock: 20, minStock: 5 },
   { id: '5', name: 'Tela iPhone 13 Pro', category: 'Peças', price: 850, cost: 450, stock: 3, minStock: 2 },
   { id: '6', name: 'Bateria Samsung S22', category: 'Peças', price: 180, cost: 60, stock: 1, minStock: 2 },
+  { id: '7', name: 'Redmi Note 14 Pro + 5G Midnight Black', category: 'Celular', price: 2592.10, cost: 1800, stock: 5, minStock: 1 },
+];
+
+const initialDetailedSales: DetailedSale[] = [
+  {
+    id: 'V-1001',
+    customerId: '2',
+    customerName: 'Ana Clara Silva',
+    model: 'Redmi Note 14 Pro + 5G Midnight Black',
+    imei: '863921048892110',
+    color: 'Midnight Black',
+    storage: '512GB',
+    warranty: 'Garantia de 180 dias',
+    observations: 'Aparelho entregue em perfeito estado com película de vidro de brinde.',
+    subtotal: 2592.10,
+    discount: 0,
+    total: 2592.10,
+    paymentMethod: 'Crédito',
+    installments: 12,
+    machineFee: 0,
+    netValue: 2592.10,
+    createdAt: new Date().toISOString(),
+    status: 'Finalizada',
+    items: [
+      {
+        id: '7',
+        name: 'Redmi Note 14 Pro + 5G Midnight Black',
+        price: 2592.10,
+        quantity: 1,
+        type: 'product'
+      }
+    ]
+  }
 ];
 
 const initialCustomers: Customer[] = [
@@ -65,22 +98,32 @@ const initialTransactions: Transaction[] = [
 const initialMachines: PaymentMachine[] = [
   {
     id: '1',
-    name: 'SumUp',
+    name: 'Rede',
     pixFee: 0,
-    debitFee: 1.9,
+    debitFee: 1.2,
     creditFees: {
-      1: 4.6, 2: 5.9, 3: 7.2, 4: 8.5, 5: 9.8, 6: 11.1,
-      7: 12.4, 8: 13.7, 9: 15.0, 10: 16.3, 11: 17.6, 12: 18.9
+      1: 3.5, 2: 4.5, 3: 5.5, 4: 6.5, 5: 7.5, 6: 8.5,
+      7: 9.5, 8: 10.5, 9: 11.5, 10: 12.5, 11: 13.5, 12: 14.5
     }
   },
   {
     id: '2',
-    name: 'Mercado Pago',
+    name: 'Picpay',
     pixFee: 0,
-    debitFee: 1.99,
+    debitFee: 1.4,
     creditFees: {
-      1: 4.74, 2: 5.41, 3: 6.08, 4: 6.75, 5: 7.42, 6: 8.09,
-      7: 8.76, 8: 9.43, 9: 10.10, 10: 10.77, 11: 11.44, 12: 12.11
+      1: 3.8, 2: 4.8, 3: 5.8, 4: 6.8, 5: 7.8, 6: 8.8,
+      7: 9.8, 8: 10.8, 9: 11.8, 10: 12.8, 11: 13.8, 12: 14.8
+    }
+  },
+  {
+    id: '3',
+    name: 'Infinitpay',
+    pixFee: 0,
+    debitFee: 1.1,
+    creditFees: {
+      1: 3.2, 2: 4.1, 3: 5.0, 4: 5.9, 5: 6.8, 6: 7.7,
+      7: 8.6, 8: 9.5, 9: 10.4, 10: 11.3, 11: 12.2, 12: 13.1
     }
   }
 ];
@@ -100,7 +143,7 @@ export default function App() {
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
   const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
-  const [detailedSales, setDetailedSales] = useState<DetailedSale[]>([]);
+  const [detailedSales, setDetailedSales] = useState<DetailedSale[]>(initialDetailedSales);
   const [machines, setMachines] = useState<PaymentMachine[]>(initialMachines);
   const [storeSettings, setStoreSettings] = useState<StoreSettings>(initialStoreSettings);
 
