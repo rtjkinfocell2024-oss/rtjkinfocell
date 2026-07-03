@@ -232,7 +232,7 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
 
   return (
     <div className="modal-os-container fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300 print:bg-white print:p-0 print:overflow-visible print:static print:block">
-      <div className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] animate-in zoom-in-95 duration-300 print:hidden">
+      <div className="bg-white w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] animate-in zoom-in-95 duration-300 print:hidden">
         <header className="px-6 py-4 border-b border-border flex justify-between items-center bg-slate-50">
           <div>
             <h3 className="text-lg font-bold">
@@ -246,131 +246,146 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
         </header>
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Tipo de OS */}
-            <div className="flex flex-col gap-1.5">
-              <label className="label">Tipo de OS *</label>
-              <div className="grid grid-cols-2 gap-2">
-                {typeOptions.map(type => (
-                  <button
-                    key={type}
-                    type="button"
-                    disabled={isView || (mode === 'edit' && os?.type === 'Retorno')}
-                    onClick={() => setFormData({ ...formData, type })}
-                    className={cn(
-                      "py-2 px-3 rounded-xl text-xs font-bold border transition-all",
-                      formData.type === type 
-                        ? "bg-primary text-white border-primary shadow-sm" 
-                        : "bg-white text-text-muted border-border hover:bg-slate-50"
-                    )}
-                  >
-                    {type === 'Nova' ? 'Nova Abertura' : 'Retorno / Garantia'}
-                  </button>
-                ))}
+          {/* Estrutura de 3 Colunas no Sistema */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            {/* Bloco 1: Dados do Cliente & Tipo/Prioridade */}
+            <div className="flex flex-col gap-4 bg-slate-50/50 p-5 rounded-2xl border border-border h-full">
+              <div>
+                <h4 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-1">Dados do Cliente & Tipo</h4>
+                <p className="text-[10px] text-text-muted mb-3">Identificação do cliente e prioridade da OS.</p>
               </div>
-            </div>
 
-            {/* Prioridade */}
-            <div className="flex flex-col gap-1.5">
-              <label className="label">Prioridade *</label>
-              <div className="grid grid-cols-3 gap-2">
-                {priorityOptions.map(prio => (
-                  <button
-                    key={prio}
-                    type="button"
-                    disabled={isView}
-                    onClick={() => setFormData({ ...formData, priority: prio })}
-                    className={cn(
-                      "py-2 px-1 rounded-xl text-[10px] font-bold border transition-all",
-                      formData.priority === prio 
-                        ? prio === 'Normal' ? "bg-blue-600 text-white border-blue-600" :
-                          prio === 'Urgente' ? "bg-orange-500 text-white border-orange-500" :
-                          "bg-red-600 text-white border-red-600 shadow-sm"
-                        : "bg-white text-text-muted border-border hover:bg-slate-50"
-                    )}
-                  >
-                    {prio}
-                  </button>
-                ))}
+              {/* Tipo de OS */}
+              <div className="flex flex-col gap-1.5">
+                <label className="label text-xs font-bold text-text">Tipo de OS *</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {typeOptions.map(type => (
+                    <button
+                      key={type}
+                      type="button"
+                      disabled={isView || (mode === 'edit' && os?.type === 'Retorno')}
+                      onClick={() => setFormData({ ...formData, type })}
+                      className={cn(
+                        "py-2 px-3 rounded-xl text-xs font-bold border transition-all",
+                        formData.type === type 
+                          ? "bg-primary text-white border-primary shadow-sm" 
+                          : "bg-white text-text-muted border-border hover:bg-slate-50"
+                      )}
+                    >
+                      {type === 'Nova' ? 'Nova Abertura' : 'Retorno / Garantia'}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
 
-            {/* Campos de Retorno */}
-            {formData.type === 'Retorno' && (
-              <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in slide-in-from-left-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="label text-primary font-bold">OS Original *</label>
+              {/* Prioridade */}
+              <div className="flex flex-col gap-1.5">
+                <label className="label text-xs font-bold text-text">Prioridade *</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {priorityOptions.map(prio => (
+                    <button
+                      key={prio}
+                      type="button"
+                      disabled={isView}
+                      onClick={() => setFormData({ ...formData, priority: prio })}
+                      className={cn(
+                        "py-2 px-1 rounded-xl text-[10px] font-bold border transition-all",
+                        formData.priority === prio 
+                          ? prio === 'Normal' ? "bg-blue-600 text-white border-blue-600" :
+                            prio === 'Urgente' ? "bg-orange-500 text-white border-orange-500" :
+                            "bg-red-600 text-white border-red-600 shadow-sm"
+                          : "bg-white text-text-muted border-border hover:bg-slate-50"
+                      )}
+                    >
+                      {prio}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Cliente */}
+              <div className="flex flex-col gap-1.5">
+                <label className="label text-xs font-bold text-text">Cliente *</label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
                   <select 
-                    className="input border-primary/30"
+                    className="input pl-10 text-xs h-10"
                     required
                     disabled={isView}
-                    value={formData.originalOsId}
-                    onChange={(e) => setFormData({ ...formData, originalOsId: e.target.value })}
+                    value={formData.customerId}
+                    onChange={(e) => handleCustomerChange(e.target.value)}
                   >
-                    <option value="">Selecione a OS anterior...</option>
-                    {serviceOrders
-                      .filter(s => s.customerId === formData.customerId && s.id !== os?.id)
-                      .map(s => (
-                        <option key={s.id} value={s.id}>#{s.id} - {s.device} ({formatDate(s.createdAt)})</option>
-                      ))
-                    }
+                    <option value="">Selecione o cliente...</option>
+                    {customers.map(c => (
+                      <option key={c.id} value={c.id}>{c.name} ({c.phone})</option>
+                    ))}
                   </select>
                 </div>
-                {warranty && (
-                  <div className={cn(
-                    "flex flex-col justify-center p-4 rounded-xl border",
-                    warranty.isExpired ? "bg-red-50 border-red-200" : "bg-emerald-50 border-emerald-200"
-                  )}>
-                    <p className="text-[10px] uppercase font-black text-text-muted">Status da Garantia (90 dias)</p>
-                    <p className={cn("text-lg font-black", warranty.isExpired ? "text-red-600" : "text-emerald-600")}>
-                      {warranty.isExpired ? 'EXPIRADA' : 'VÁLIDA'}
-                    </p>
-                    <p className="text-xs font-bold text-text-muted">Vencimento: {warranty.expiry}</p>
-                  </div>
-                )}
-                <div className="md:col-span-2 flex flex-col gap-1.5">
-                  <label className="label">Motivo do Retorno *</label>
-                  <textarea 
-                    className="input min-h-[60px] py-2 border-primary/20" 
-                    placeholder="Descreva o motivo do retorno ou falha na garantia..."
-                    required
-                    disabled={isView}
-                    value={formData.returnReason}
-                    onChange={(e) => setFormData({ ...formData, returnReason: e.target.value })}
-                  />
-                </div>
               </div>
-            )}
 
-            {/* Cliente */}
-            <div className="flex flex-col gap-1.5 md:col-span-2">
-              <label className="label">Cliente *</label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
-                <select 
-                  className="input pl-10"
-                  required
-                  disabled={isView}
-                  value={formData.customerId}
-                  onChange={(e) => handleCustomerChange(e.target.value)}
-                >
-                  <option value="">Selecione o cliente...</option>
-                  {customers.map(c => (
-                    <option key={c.id} value={c.id}>{c.name} ({c.phone})</option>
-                  ))}
-                </select>
-              </div>
+              {/* Campos de Retorno */}
+              {formData.type === 'Retorno' && (
+                <div className="flex flex-col gap-3 mt-2 pt-2 border-t border-border animate-in slide-in-from-left-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="label text-primary font-bold">OS Original *</label>
+                    <select 
+                      className="input border-primary/30 text-xs h-10"
+                      required
+                      disabled={isView}
+                      value={formData.originalOsId}
+                      onChange={(e) => setFormData({ ...formData, originalOsId: e.target.value })}
+                    >
+                      <option value="">Selecione a OS anterior...</option>
+                      {serviceOrders
+                        .filter(s => s.customerId === formData.customerId && s.id !== os?.id)
+                        .map(s => (
+                          <option key={s.id} value={s.id}>#{s.id} - {s.device} ({formatDate(s.createdAt)})</option>
+                        ))
+                      }
+                    </select>
+                  </div>
+                  {warranty && (
+                    <div className={cn(
+                      "flex flex-col justify-center p-3 rounded-xl border",
+                      warranty.isExpired ? "bg-red-50 border-red-200" : "bg-emerald-50 border-emerald-200"
+                    )}>
+                      <p className="text-[9px] uppercase font-black text-text-muted">Status da Garantia (90 dias)</p>
+                      <p className={cn("text-base font-black", warranty.isExpired ? "text-red-600" : "text-emerald-600")}>
+                        {warranty.isExpired ? 'EXPIRADA' : 'VÁLIDA'}
+                      </p>
+                      <p className="text-[10px] font-bold text-text-muted">Vencimento: {warranty.expiry}</p>
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="label">Motivo do Retorno *</label>
+                    <textarea 
+                      className="input min-h-[60px] py-1.5 text-xs border-primary/20" 
+                      placeholder="Descreva o motivo do retorno..."
+                      required
+                      disabled={isView}
+                      value={formData.returnReason}
+                      onChange={(e) => setFormData({ ...formData, returnReason: e.target.value })}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Equipamento e Detalhes */}
-            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-border">
-              <div className="md:col-span-3">
-                <h4 className="text-[10px] font-black uppercase text-text-muted tracking-widest mb-1.5">Equipamento</h4>
+            {/* Bloco 2: Dados do Equipamento */}
+            <div className="flex flex-col gap-4 bg-slate-50/50 p-5 rounded-2xl border border-border h-full">
+              <div>
+                <h4 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-1">Dados do Equipamento</h4>
+                <p className="text-[10px] text-text-muted mb-3">Informações detalhadas do dispositivo.</p>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="label text-[10px] font-bold">Aparelho *</label>
                 <div className="relative">
                   <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
                   <input 
                     type="text" 
-                    className="input pl-10" 
+                    className="input pl-10 h-10 text-xs" 
                     placeholder="Nome do Aparelho"
                     required
                     disabled={isView}
@@ -379,33 +394,37 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
                   />
                 </div>
               </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="label text-[10px]">Modelo</label>
-                <input 
-                  type="text" 
-                  className="input h-9 text-xs" 
-                  disabled={isView}
-                  value={formData.model}
-                  onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-                />
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1.5">
+                  <label className="label text-[10px] font-bold">Modelo</label>
+                  <input 
+                    type="text" 
+                    className="input h-10 text-xs" 
+                    disabled={isView}
+                    value={formData.model}
+                    onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="label text-[10px] font-bold">Cor</label>
+                  <input 
+                    type="text" 
+                    className="input h-10 text-xs" 
+                    disabled={isView}
+                    value={formData.color}
+                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                  />
+                </div>
               </div>
+
               <div className="flex flex-col gap-1.5">
-                <label className="label text-[10px]">Cor</label>
-                <input 
-                  type="text" 
-                  className="input h-9 text-xs" 
-                  disabled={isView}
-                  value={formData.color}
-                  onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="label text-[10px]">Capacidade / RAM</label>
+                <label className="label text-[10px] font-bold">Capacidade / RAM</label>
                 <div className="grid grid-cols-2 gap-2">
                   <input 
                     type="text" 
                     placeholder="GB"
-                    className="input h-9 text-xs" 
+                    className="input h-10 text-xs" 
                     disabled={isView}
                     value={formData.storage}
                     onChange={(e) => setFormData({ ...formData, storage: e.target.value })}
@@ -413,38 +432,42 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
                   <input 
                     type="text" 
                     placeholder="RAM"
-                    className="input h-9 text-xs" 
+                    className="input h-10 text-xs" 
                     disabled={isView}
                     value={formData.ram}
                     onChange={(e) => setFormData({ ...formData, ram: e.target.value })}
                   />
                 </div>
               </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="label text-[10px]">IMEI 1</label>
-                <input 
-                  type="text" 
-                  className="input h-9 text-xs" 
-                  disabled={isView}
-                  value={formData.imei}
-                  onChange={(e) => setFormData({ ...formData, imei: e.target.value })}
-                />
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1.5">
+                  <label className="label text-[10px] font-bold">IMEI 1</label>
+                  <input 
+                    type="text" 
+                    className="input h-10 text-xs" 
+                    disabled={isView}
+                    value={formData.imei}
+                    onChange={(e) => setFormData({ ...formData, imei: e.target.value })}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="label text-[10px] font-bold">IMEI 2</label>
+                  <input 
+                    type="text" 
+                    className="input h-10 text-xs" 
+                    disabled={isView}
+                    value={formData.imei2}
+                    onChange={(e) => setFormData({ ...formData, imei2: e.target.value })}
+                  />
+                </div>
               </div>
+
               <div className="flex flex-col gap-1.5">
-                <label className="label text-[10px]">IMEI 2</label>
+                <label className="label text-[10px] font-bold">Número de Série (SN)</label>
                 <input 
                   type="text" 
-                  className="input h-9 text-xs" 
-                  disabled={isView}
-                  value={formData.imei2}
-                  onChange={(e) => setFormData({ ...formData, imei2: e.target.value })}
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="label text-[10px]">Número de Série (SN)</label>
-                <input 
-                  type="text" 
-                  className="input h-9 text-xs" 
+                  className="input h-10 text-xs" 
                   disabled={isView}
                   value={formData.sn}
                   onChange={(e) => setFormData({ ...formData, sn: e.target.value })}
@@ -452,185 +475,213 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
               </div>
             </div>
 
-            {/* Defeito Relatado */}
-            <div className="flex flex-col gap-1.5 md:col-span-2">
-              <label className="label">Defeito Relatado *</label>
+            {/* Bloco 3: Detalhes e Financeiro */}
+            <div className="flex flex-col gap-4 bg-slate-50/50 p-5 rounded-2xl border border-border h-full">
+              <div>
+                <h4 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-1">Status & Financeiro</h4>
+                <p className="text-[10px] text-text-muted mb-3">Prazos de entrega, status atual e valores.</p>
+              </div>
+
+              {/* Status */}
+              <div className="flex flex-col gap-1.5">
+                <label className="label text-xs font-bold text-text">Status *</label>
+                <select 
+                  className="input text-xs h-10"
+                  required
+                  disabled={isView}
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value as OSStatus })}
+                >
+                  {statusOptions.map(opt => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Data de Entrada */}
+              <div className="flex flex-col gap-1.5">
+                <label className="label text-xs font-bold text-text">Data de Entrada</label>
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+                  <input 
+                    type="date" 
+                    className="input pl-10 text-xs h-10" 
+                    disabled={isView}
+                    value={formData.entryDate}
+                    onChange={(e) => setFormData({ ...formData, entryDate: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              {/* Previsão de Entrega */}
+              <div className="flex flex-col gap-1.5">
+                <label className="label text-xs font-bold text-text">Previsão de Entrega</label>
+                <div className="relative">
+                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+                  <input 
+                    type="date" 
+                    className="input pl-10 text-xs h-10" 
+                    disabled={isView}
+                    value={formData.deliveryForecast}
+                    onChange={(e) => setFormData({ ...formData, deliveryForecast: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              {/* Valor Total */}
+              <div className="flex flex-col gap-1.5">
+                <label className="label text-xs font-bold text-text">Valor Total</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted font-black text-xs">R$</span>
+                  <input 
+                    type="text" 
+                    className="input pl-10 font-bold text-xs h-10" 
+                    placeholder="0,00"
+                    disabled={isView}
+                    value={formatBRLInput(formData.totalValue)}
+                    onChange={(e) => setFormData({ ...formData, totalValue: parseCentsBRLInput(e.target.value) })}
+                  />
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Defeito Relatado - Caixa de texto horizontal larga */}
+          <div className="flex flex-col gap-1.5">
+            <label className="label font-bold text-xs text-text">Defeito Relatado *</label>
+            <textarea 
+              className="input min-h-[80px] py-2.5 text-xs" 
+              placeholder="Descreva o defeito relatado pelo cliente..."
+              required
+              disabled={isView}
+              value={formData.problem}
+              onChange={(e) => setFormData({ ...formData, problem: e.target.value })}
+            />
+          </div>
+
+          {/* Descrição dos Serviços / Peças - Caixa de texto horizontal larga */}
+          <div className="flex flex-col gap-1.5">
+            <label className="label font-bold text-xs text-text">Descrição dos Serviços / Peças (Observações Técnicas)</label>
+            <div className="relative">
+              <FileText className="absolute left-3 top-3.5 text-text-muted" size={16} />
               <textarea 
-                className="input min-h-[80px] py-2" 
-                placeholder="Descreva o defeito relatado pelo cliente..."
-                required
+                className="input min-h-[100px] pl-10 py-2.5 text-xs" 
+                placeholder="Notas internas, peças substituídas, descrição detalhada dos serviços..."
                 disabled={isView}
-                value={formData.problem}
-                onChange={(e) => setFormData({ ...formData, problem: e.target.value })}
+                value={formData.technicalNotes}
+                onChange={(e) => setFormData({ ...formData, technicalNotes: e.target.value })}
               />
             </div>
+          </div>
 
-            {/* Status */}
-            <div className="flex flex-col gap-1.5">
-              <label className="label">Status *</label>
-              <select 
-                className="input"
-                required
-                disabled={isView}
-                value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value as OSStatus })}
-              >
-                {statusOptions.map(opt => (
-                  <option key={opt} value={opt}>{opt}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Data de Entrada */}
-            <div className="flex flex-col gap-1.5">
-              <label className="label">Data de Entrada</label>
-              <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
-                <input 
-                  type="date" 
-                  className="input pl-10" 
-                  disabled={isView}
-                  value={formData.entryDate}
-                  onChange={(e) => setFormData({ ...formData, entryDate: e.target.value })}
-                />
+          {/* Modal de Pagamento (Condicional) */}
+          {showPaymentSelector && (
+            <div className="bg-primary/5 p-6 rounded-2xl border-2 border-primary/20 space-y-4 animate-in slide-in-from-top-2">
+              <div className="flex items-center gap-2 text-primary">
+                <DollarSign size={20} />
+                <h4 className="font-bold">Finalizar Pagamento da OS</h4>
               </div>
-            </div>
-
-            {/* Previsão de Entrega */}
-            <div className="flex flex-col gap-1.5">
-              <label className="label">Previsão de Entrega</label>
-              <div className="relative">
-                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
-                <input 
-                  type="date" 
-                  className="input pl-10" 
-                  disabled={isView}
-                  value={formData.deliveryForecast}
-                  onChange={(e) => setFormData({ ...formData, deliveryForecast: e.target.value })}
-                />
-              </div>
-            </div>
-
-            {/* Valor Total */}
-            <div className="flex flex-col gap-1.5">
-              <label className="label">Valor Total</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted font-black text-xs">R$</span>
-                <input 
-                  type="text" 
-                  className="input pl-10 font-bold" 
-                  placeholder="0,00"
-                  disabled={isView}
-                  value={formatBRLInput(formData.totalValue)}
-                  onChange={(e) => setFormData({ ...formData, totalValue: parseCentsBRLInput(e.target.value) })}
-                />
-              </div>
-            </div>
-
-            {/* Observações Técnicas */}
-            <div className="flex flex-col gap-1.5 md:col-span-2">
-              <label className="label">Observações Técnicas</label>
-              <div className="relative">
-                <FileText className="absolute left-3 top-3 text-text-muted" size={16} />
-                <textarea 
-                  className="input min-h-[100px] pl-10 py-2" 
-                  placeholder="Notas internas, peças utilizadas, detalhes técnicos..."
-                  disabled={isView}
-                  value={formData.technicalNotes}
-                  onChange={(e) => setFormData({ ...formData, technicalNotes: e.target.value })}
-                />
-              </div>
-            </div>
-
-            {/* Modal de Pagamento (Condicional) */}
-            {showPaymentSelector && (
-              <div className="md:col-span-2 bg-primary/5 p-6 rounded-2xl border-2 border-primary/20 space-y-4 animate-in slide-in-from-top-2">
-                <div className="flex items-center gap-2 text-primary">
-                  <DollarSign size={20} />
-                  <h4 className="font-bold">Finalizar Pagamento da OS</h4>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="flex flex-col gap-2">
-                    <p className="label text-[10px] uppercase font-black text-slate-400">Forma de Pagamento</p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {['PIX', 'Dinheiro', 'Débito', 'Crédito', 'Misto'].map(method => (
-                        <button
-                          key={method}
-                          type="button"
-                          onClick={() => {
-                            setPaymentMethod(method);
-                            if (method !== 'Crédito' && method !== 'Misto') setInstallments(1);
-                            if (method === 'Misto') {
-                              setCashAmount(0);
-                              setCardAmount(formData.totalValue || 0);
-                            }
-                          }}
-                          className={cn(
-                            "py-2 px-3 rounded-xl text-[11px] font-bold border transition-all",
-                            paymentMethod === method 
-                              ? "bg-primary text-white border-primary shadow-sm" 
-                              : "bg-white text-text-muted border-border hover:bg-slate-50"
-                          )}
-                        >
-                          {method}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    {/* Detalhes de Dinheiro */}
-                    {paymentMethod === 'Dinheiro' && (
-                      <div className="animate-in fade-in">
-                        <label className="text-[10px] font-black text-text-muted uppercase mb-1.5 block">Valor Recebido</label>
-                        <input 
-                          type="text" 
-                          placeholder="0,00"
-                          className="input h-10 font-bold"
-                          value={formatBRLInput(receivedCash)}
-                          onChange={(e) => setReceivedCash(parseCentsBRLInput(e.target.value))}
-                        />
-                        {receivedCash > (formData.totalValue || 0) && (
-                          <div className="mt-2 p-2 bg-emerald-50 rounded-lg text-emerald-600 text-xs font-bold flex justify-between">
-                            <span>Troco:</span>
-                            <span>{formatCurrency(receivedCash - (formData.totalValue || 0))}</span>
-                          </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex flex-col gap-2">
+                  <p className="label text-[10px] uppercase font-black text-slate-400">Forma de Pagamento</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {['PIX', 'Dinheiro', 'Débito', 'Crédito', 'Misto'].map(method => (
+                      <button
+                        key={method}
+                        type="button"
+                        onClick={() => {
+                          setPaymentMethod(method);
+                          if (method !== 'Crédito' && method !== 'Misto') setInstallments(1);
+                          if (method === 'Misto') {
+                            setCashAmount(0);
+                            setCardAmount(formData.totalValue || 0);
+                          }
+                        }}
+                        className={cn(
+                          "py-2 px-3 rounded-xl text-[11px] font-bold border transition-all",
+                          paymentMethod === method 
+                            ? "bg-primary text-white border-primary shadow-sm" 
+                            : "bg-white text-text-muted border-border hover:bg-slate-50"
                         )}
-                      </div>
-                    )}
+                      >
+                        {method}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-                    {/* Detalhes Misto */}
-                    {paymentMethod === 'Misto' && (
-                      <div className="space-y-2 animate-in fade-in">
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="space-y-1">
-                            <label className="text-[9px] font-bold text-slate-400 uppercase">Dinheiro</label>
-                            <input 
-                              type="text" 
-                              className="input h-9 px-2 text-xs font-bold"
-                              value={formatBRLInput(cashAmount)}
-                              onChange={(e) => {
-                                const val = parseCentsBRLInput(e.target.value);
-                                setCashAmount(val);
-                                setCardAmount(Math.max(0, (formData.totalValue || 0) - val));
-                              }}
-                            />
-                          </div>
-                          <div className="space-y-1">
-                            <label className="text-[9px] font-bold text-slate-400 uppercase">Cartão</label>
-                            <input 
-                              type="text" 
-                              className="input h-9 px-2 text-xs font-bold"
-                              value={formatBRLInput(cardAmount)}
-                              onChange={(e) => setCardAmount(parseCentsBRLInput(e.target.value))}
-                            />
-                          </div>
+                <div className="space-y-4">
+                  {/* Detalhes de Dinheiro */}
+                  {paymentMethod === 'Dinheiro' && (
+                    <div className="animate-in fade-in">
+                      <label className="text-[10px] font-black text-text-muted uppercase mb-1.5 block">Valor Recebido</label>
+                      <input 
+                        type="text" 
+                        placeholder="0,00"
+                        className="input h-10 font-bold text-xs"
+                        value={formatBRLInput(receivedCash)}
+                        onChange={(e) => setReceivedCash(parseCentsBRLInput(e.target.value))}
+                      />
+                      {receivedCash > (formData.totalValue || 0) && (
+                        <div className="mt-2 p-2 bg-emerald-50 rounded-lg text-emerald-600 text-xs font-bold flex justify-between">
+                          <span>Troco:</span>
+                          <span>{formatCurrency(receivedCash - (formData.totalValue || 0))}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Detalhes Misto */}
+                  {paymentMethod === 'Misto' && (
+                    <div className="space-y-2 animate-in fade-in">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="space-y-1">
+                          <label className="text-[9px] font-bold text-slate-400 uppercase">Dinheiro</label>
+                          <input 
+                            type="text" 
+                            className="input h-9 px-2 text-xs font-bold"
+                            value={formatBRLInput(cashAmount)}
+                            onChange={(e) => {
+                              const val = parseCentsBRLInput(e.target.value);
+                              setCashAmount(val);
+                              setCardAmount(Math.max(0, (formData.totalValue || 0) - val));
+                            }}
+                          />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[9px] font-bold text-slate-400 uppercase">Dispositivo</label>
-                           <select 
-                            className="input h-9 text-xs py-0"
+                          <label className="text-[9px] font-bold text-slate-400 uppercase">Cartão</label>
+                          <input 
+                            type="text" 
+                            className="input h-9 px-2 text-xs font-bold"
+                            value={formatBRLInput(cardAmount)}
+                            onChange={(e) => setCardAmount(parseCentsBRLInput(e.target.value))}
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-slate-400 uppercase">Dispositivo</label>
+                         <select 
+                          className="input h-9 text-xs py-0"
+                          value={selectedMachineId}
+                          onChange={(e) => setSelectedMachineId(e.target.value)}
+                        >
+                          {machines.map(m => (
+                            <option key={m.id} value={m.id}>{m.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  {(['PIX', 'Débito', 'Crédito'].includes(paymentMethod)) && (
+                    <div className="flex flex-col gap-3">
+                      <div className="flex flex-col gap-1.5">
+                        <label className="label text-[10px]">Maquininha</label>
+                        <div className="relative">
+                          <select 
+                            className="input text-xs py-1.5 pr-8 bg-white"
                             value={selectedMachineId}
                             onChange={(e) => setSelectedMachineId(e.target.value)}
                           >
@@ -638,57 +689,38 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
                               <option key={m.id} value={m.id}>{m.name}</option>
                             ))}
                           </select>
+                          <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
                         </div>
                       </div>
-                    )}
 
-                    {(['PIX', 'Débito', 'Crédito'].includes(paymentMethod)) && (
-                      <div className="flex flex-col gap-3">
+                      {paymentMethod === 'Crédito' && (
                         <div className="flex flex-col gap-1.5">
-                          <label className="label text-[10px]">Maquininha</label>
+                          <label className="label text-[10px]">Parcelamento</label>
                           <div className="relative">
                             <select 
-                              className="input text-xs py-1.5 pr-8 bg-white"
-                              value={selectedMachineId}
-                              onChange={(e) => setSelectedMachineId(e.target.value)}
+                              className="input text-xs py-1.5 pr-8 bg-white font-bold"
+                              value={installments}
+                              onChange={(e) => setInstallments(Number(e.target.value))}
                             >
-                              {machines.map(m => (
-                                <option key={m.id} value={m.id}>{m.name}</option>
+                              {Array.from({ length: 12 }, (_, i) => i + 1).map(i => (
+                                <option key={i} value={i}>{i}x de {formatCurrency((formData.totalValue || 0) / i)}</option>
                               ))}
                             </select>
                             <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
                           </div>
                         </div>
-
-                        {paymentMethod === 'Crédito' && (
-                          <div className="flex flex-col gap-1.5">
-                            <label className="label text-[10px]">Parcelamento</label>
-                            <div className="relative">
-                              <select 
-                                className="input text-xs py-1.5 pr-8 bg-white font-bold"
-                                value={installments}
-                                onChange={(e) => setInstallments(Number(e.target.value))}
-                              >
-                                {Array.from({ length: 12 }, (_, i) => i + 1).map(i => (
-                                  <option key={i} value={i}>{i}x de {formatCurrency((formData.totalValue || 0) / i)}</option>
-                                ))}
-                              </select>
-                              <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="bg-primary/10 p-4 rounded-xl flex justify-between items-center border border-primary/20">
-                  <span className="text-xs font-bold text-primary italic uppercase tracking-widest">Valor à Receber</span>
-                  <span className="text-2xl font-black text-primary">{formatCurrency(formData.totalValue || 0)}</span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
-            )}
-          </div>
+
+              <div className="bg-primary/10 p-4 rounded-xl flex justify-between items-center border border-primary/20">
+                <span className="text-xs font-bold text-primary italic uppercase tracking-widest">Valor à Receber</span>
+                <span className="text-2xl font-black text-primary">{formatCurrency(formData.totalValue || 0)}</span>
+              </div>
+            </div>
+          )}
         </form>
 
         {isView && (
