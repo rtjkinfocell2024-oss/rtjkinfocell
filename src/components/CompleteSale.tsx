@@ -8,7 +8,13 @@ import {
   ShieldCheck,
   FileCheck,
   Cpu,
-  Database
+  Database,
+  Smartphone,
+  DollarSign,
+  Shield,
+  Calendar,
+  CreditCard,
+  Tag
 } from 'lucide-react';
 import { cn, formatCurrency, formatDate } from '@/src/lib/utils';
 import { Product, Transaction, Customer, PaymentMachine, DetailedSale, StoreSettings } from '@/src/types';
@@ -46,6 +52,28 @@ export function CompleteSale({
   const [lastSaleId, setLastSaleId] = useState('');
   const [printMode, setPrintMode] = useState<boolean>(false);
   const [finalSale, setFinalSale] = useState<DetailedSale | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredSales = useMemo(() => {
+    if (!searchQuery) return detailedSales;
+    const query = searchQuery.toLowerCase();
+    return detailedSales.filter(sale => 
+      sale.id.toLowerCase().includes(query) ||
+      sale.customerName.toLowerCase().includes(query) ||
+      sale.model?.toLowerCase().includes(query) ||
+      sale.imei?.includes(query) ||
+      sale.imei2?.includes(query) ||
+      sale.paymentMethod?.toLowerCase().includes(query) ||
+      sale.items.some(item => item.name.toLowerCase().includes(query))
+    );
+  }, [detailedSales, searchQuery]);
+
+  const stats = useMemo(() => {
+    const totalRevenue = detailedSales.reduce((acc, s) => acc + s.total, 0);
+    const totalSalesCount = detailedSales.length;
+    const warrantyCount = detailedSales.filter(s => s.status === 'Finalizada').length;
+    return { totalRevenue, totalSalesCount, warrantyCount };
+  }, [detailedSales]);
 
   const handleEdit = (sale: DetailedSale) => {
     setEditingSale(sale);
@@ -85,100 +113,213 @@ export function CompleteSale({
 
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-500 pb-24 lg:pb-10">
-      <div className="flex items-center justify-between">
+      {/* Header com breadcrumb ou título */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-black tracking-tight">Vendas de Aparelhos</h2>
-          <p className="text-sm text-text-muted font-medium">Histórico de vendas completas realizadas</p>
+          <h2 className="text-2xl font-black tracking-tight text-text-main">Vendas de Aparelhos</h2>
+          <p className="text-sm text-text-muted font-medium">Histórico e gestão de vendas completas realizadas</p>
         </div>
         <button 
           onClick={() => {
             setEditingSale(null);
             setIsSaleModalOpen(true);
           }}
-          className="btn-primary flex items-center gap-2 h-12 px-6 rounded-2xl shadow-lg shadow-primary/20"
+          className="btn-primary flex items-center justify-center gap-2 h-12 px-6 rounded-2xl shadow-lg shadow-primary/20 transition-transform active:scale-95"
         >
           <Plus size={20} />
-          Nova Venda
+          Nova Venda de Aparelho
         </button>
       </div>
 
-      <div className="card h-[600px]">
-          <div className="card-header bg-slate-50/50 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
-            <h3 className="card-title">Vendas Recentes</h3>
-            <div className="relative w-full md:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={14} />
-              <input type="text" placeholder="Buscar por cliente ou IMEI..." className="input pl-9 text-xs" />
-            </div>
+      {/* Cards de Métricas Rápidas (Para revolucionar o espaço, deixar profissional) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="card p-5 bg-white border border-border rounded-2xl flex flex-row items-center justify-between shadow-sm">
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-bold text-text-muted uppercase tracking-wider">Aparelhos Vendidos</span>
+            <span className="text-3xl font-black text-text-main tracking-tight">{stats.totalSalesCount}</span>
+            <span className="text-[10px] text-emerald-500 font-bold">Unidades registradas</span>
           </div>
-          
-          <div className="flex-1 overflow-auto">
-            {detailedSales.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center p-10 opacity-40">
-                <FileText size={64} className="mb-4 text-text-muted" />
-                <p className="text-lg font-bold">Nenhuma venda registrada</p>
-                <p className="text-sm">Clique em "Nova Venda" para começar.</p>
-              </div>
-            ) : (
-              <table className="w-full text-left border-collapse">
-                <thead className="sticky top-0 bg-white border-b border-border z-10">
-                  <tr className="bg-slate-50/50">
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-text-muted">Aparelho / Cliente</th>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-text-muted">Data</th>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-text-muted">Valor</th>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-text-muted">Status</th>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-text-muted text-right">Ações</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {detailedSales.map((sale) => (
-                    <tr key={sale.id} className="hover:bg-slate-50 transition-colors group">
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col">
-                          <span className="font-bold text-sm">{sale.items[0]?.name} {sale.model}</span>
-                          <span className="text-xs text-text-muted uppercase font-bold tracking-tight">
-                            {sale.customerName} • IMEI: {sale.imei || 'N/A'} {sale.imei2 ? `/ ${sale.imei2}` : ''}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="text-xs font-medium text-text-muted">{formatDate(sale.createdAt)}</span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="font-black text-sm">{formatCurrency(sale.total)}</span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={cn(
-                          "badge",
-                          sale.status === 'Finalizada' ? "badge-success" : "badge-danger"
-                        )}>
-                          {sale.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button 
-                            onClick={() => handleView(sale)}
-                            className="p-2 hover:bg-white rounded-lg text-text-muted hover:text-primary transition-all shadow-sm border border-transparent hover:border-border"
-                            title="Visualizar Recibo"
-                          >
-                            <Printer size={16} />
-                          </button>
-                          <button 
-                            onClick={() => handleEdit(sale)}
-                            className="p-2 hover:bg-white rounded-lg text-text-muted hover:text-primary transition-all shadow-sm border border-transparent hover:border-border"
-                            title="Editar Venda"
-                          >
-                            <FileCheck size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+          <div className="p-3.5 bg-primary/10 text-primary rounded-2xl">
+            <Smartphone size={24} />
           </div>
         </div>
+
+        <div className="card p-5 bg-white border border-border rounded-2xl flex flex-row items-center justify-between shadow-sm">
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-bold text-text-muted uppercase tracking-wider">Faturamento de Vendas</span>
+            <span className="text-3xl font-black text-text-main tracking-tight">{formatCurrency(stats.totalRevenue)}</span>
+            <span className="text-[10px] text-emerald-500 font-bold">Faturamento total líquido</span>
+          </div>
+          <div className="p-3.5 bg-emerald-50 text-emerald-600 rounded-2xl">
+            <DollarSign size={24} />
+          </div>
+        </div>
+
+        <div className="card p-5 bg-white border border-border rounded-2xl flex flex-row items-center justify-between shadow-sm">
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-bold text-text-muted uppercase tracking-wider">Dispositivos em Garantia</span>
+            <span className="text-3xl font-black text-text-main tracking-tight">{stats.warrantyCount}</span>
+            <span className="text-[10px] text-primary font-bold">Cobertura ativa na loja</span>
+          </div>
+          <div className="p-3.5 bg-blue-50 text-blue-600 rounded-2xl">
+            <ShieldCheck size={24} />
+          </div>
+        </div>
+      </div>
+
+      {/* Card da Tabela Principal */}
+      <div className="card border border-border rounded-2xl overflow-hidden shadow-sm flex flex-col bg-white">
+        <div className="p-6 border-b border-border bg-slate-50/50 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+          <div>
+            <h3 className="text-base font-black text-text-main">Vendas Recentes</h3>
+            <p className="text-xs text-text-muted">Lista de dispositivos comercializados e termos emitidos</p>
+          </div>
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+            <input 
+              type="text" 
+              placeholder="Buscar por cliente, aparelho, IMEI ou pagamento..." 
+              className="input pl-10 text-xs h-10 w-full rounded-xl bg-white border-border"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </div>
+        
+        <div className="flex-1 overflow-x-auto">
+          {filteredSales.length === 0 ? (
+            <div className="h-96 flex flex-col items-center justify-center text-center p-10">
+              <FileText size={48} className="mb-3 text-text-muted/40 animate-pulse" />
+              <p className="text-base font-bold text-text-main">Nenhuma venda encontrada</p>
+              <p className="text-xs text-text-muted max-w-xs mt-1">Nenhum registro corresponde aos filtros ou não há vendas registradas no sistema.</p>
+            </div>
+          ) : (
+            <table className="w-full text-left border-collapse min-w-[1000px]">
+              <thead>
+                <tr className="bg-slate-50 border-b border-border">
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-text-muted">ID / Aparelho</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-text-muted">Cliente</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-text-muted">IMEI & Detalhes</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-text-muted">Pagamento</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-text-muted">Garantia</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-text-muted">Data</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-text-muted">Total</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-text-muted">Status</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-text-muted text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {filteredSales.map((sale) => (
+                  <tr key={sale.id} className="hover:bg-slate-50/50 transition-colors">
+                    {/* ID / Aparelho */}
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-black text-primary uppercase tracking-wider font-sans">#{sale.id}</span>
+                        <span className="font-bold text-sm text-text-main leading-tight mt-0.5">
+                          {sale.items[0]?.name}
+                        </span>
+                        {sale.model && (
+                          <span className="text-xs text-text-muted font-medium mt-0.5">{sale.model}</span>
+                        )}
+                      </div>
+                    </td>
+
+                    {/* Cliente */}
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col">
+                        <span className="font-bold text-sm text-text-main leading-tight">{sale.customerName}</span>
+                        <span className="text-xs text-text-muted font-medium mt-0.5">
+                          {customers.find(c => c.id === sale.customerId)?.phone || 'Sem Telefone'}
+                        </span>
+                      </div>
+                    </td>
+
+                    {/* IMEI & Detalhes */}
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col">
+                        <span className="text-xs font-bold text-text-main font-sans">
+                          IMEI: {sale.imei || 'N/A'}
+                        </span>
+                        {sale.imei2 && (
+                          <span className="text-[10px] text-text-muted font-medium mt-0.5 font-sans">IMEI 2: {sale.imei2}</span>
+                        )}
+                        {(sale.color || sale.storage) && (
+                          <span className="text-[10px] text-text-muted font-medium mt-0.5">
+                            {sale.color || '--'} • {sale.storage || '--'}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+
+                    {/* Pagamento */}
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col">
+                        <span className="inline-flex items-center gap-1 text-xs font-bold text-text-main">
+                          <CreditCard size={12} className="text-text-muted" />
+                          {sale.paymentMethod}
+                        </span>
+                        {sale.installments && sale.installments > 1 ? (
+                          <span className="text-[10px] text-primary font-bold mt-0.5 font-sans">
+                            Parcelado {sale.installments}x
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-text-muted font-medium mt-0.5 font-sans">À Vista</span>
+                        )}
+                      </div>
+                    </td>
+
+                    {/* Garantia */}
+                    <td className="px-6 py-4">
+                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-bold rounded-lg bg-blue-50 text-blue-700 border border-blue-100">
+                        <Shield size={12} />
+                        {sale.warranty || 'Sem garantia'}
+                      </span>
+                    </td>
+
+                    {/* Data */}
+                    <td className="px-6 py-4">
+                      <span className="text-xs font-medium text-text-muted font-sans">{formatDate(sale.createdAt)}</span>
+                    </td>
+
+                    {/* Total */}
+                    <td className="px-6 py-4">
+                      <span className="font-black text-sm text-text-main font-sans">{formatCurrency(sale.total)}</span>
+                    </td>
+
+                    {/* Status */}
+                    <td className="px-6 py-4">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-250">
+                        <ShieldCheck size={12} className="text-emerald-500" />
+                        {sale.status.toUpperCase()}
+                      </span>
+                    </td>
+
+                    {/* Ações */}
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button 
+                          onClick={() => handleView(sale)}
+                          className="p-2 bg-slate-50 hover:bg-primary/10 text-text-muted hover:text-primary rounded-xl transition-all shadow-sm border border-border flex items-center justify-center"
+                          title="Imprimir Comprovante / Recibo"
+                        >
+                          <Printer size={16} />
+                        </button>
+                        <button 
+                          onClick={() => handleEdit(sale)}
+                          className="p-2 bg-slate-50 hover:bg-primary/10 text-text-muted hover:text-primary rounded-xl transition-all shadow-sm border border-border flex items-center justify-center"
+                          title="Editar Venda"
+                        >
+                          <FileCheck size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
 
         {/* RENDERIZAÇÃO PROFISSIONAL PARA IMPRESSÃO A4 */}
         {printMode && finalSale && (
