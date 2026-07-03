@@ -392,10 +392,10 @@ export function CompleteSale({
                          </div>
                       </header>
 
-                      <div className="space-y-4 flex-1">
+                      <div className="space-y-3 flex-1">
                          {/* 1. SEÇÃO COMPRADOR E EQUIPAMENTO */}
                          <div className="grid grid-cols-2 gap-3">
-                            <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+                            <div className="info-card border border-slate-200 rounded-lg p-2.5 bg-slate-50/50">
                                <h3 className="text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1.5">Dados do Comprador</h3>
                                <p className="text-base font-black text-slate-900 uppercase leading-none mb-2">{finalSale.customerName}</p>
                                <div className="grid grid-cols-2 gap-y-1 text-[10px] font-bold text-slate-700">
@@ -413,7 +413,7 @@ export function CompleteSale({
                                   </div>
                                </div>
                             </div>
-                            <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+                            <div className="info-card border border-slate-200 rounded-lg p-2.5 bg-slate-50/50">
                                <h3 className="text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1.5">Especificações do Aparelho</h3>
                                <p className="text-base font-black text-slate-900 uppercase leading-none mb-2">{finalSale.items[0]?.name} {finalSale.model}</p>
                                <div className="grid grid-cols-2 gap-y-1 text-[10px] font-bold text-slate-700">
@@ -447,10 +447,10 @@ export function CompleteSale({
                                <tbody className="divide-y divide-slate-100 text-[10px] font-bold">
                                   {finalSale.items.map(item => (
                                     <tr key={item.id}>
-                                      <td className="px-3 py-3 text-slate-800">{item.name}</td>
-                                      <td className="px-3 py-3 text-center text-slate-600">1</td>
-                                      <td className="px-3 py-3 text-right text-slate-600">{(item.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
-                                      <td className="px-3 py-3 text-right text-slate-900">{(item.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                                      <td className="px-3 py-1.5 text-slate-800">{item.name}</td>
+                                      <td className="px-3 py-1.5 text-center text-slate-600">1</td>
+                                      <td className="px-3 py-1.5 text-right text-slate-600">{(item.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                                      <td className="px-3 py-1.5 text-right text-slate-900">{(item.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                                     </tr>
                                   ))}
                                </tbody>
@@ -460,9 +460,9 @@ export function CompleteSale({
                          {/* 4. BLOCO FINANCEIRO E TERMOS EM DUAS COLUNAS LADO A LADO */}
                          <div className="grid grid-cols-5 gap-4">
                             {/* Coluna da Esquerda (Termos, Garantia, Observações) - col-span-3 */}
-                            <div className="col-span-3 space-y-3">
+                            <div className="col-span-3 space-y-2.5">
                                {/* Termos de Venda */}
-                               <div className="border border-slate-200 p-3 rounded-lg">
+                               <div className="info-card border border-slate-200 p-2.5 rounded-lg">
                                   <h4 className="text-[8px] font-black uppercase text-slate-400 mb-1 tracking-widest">Termo de garantia</h4>
                                   <div className="text-[9px] font-bold text-slate-600 leading-tight space-y-1">
                                      <p>• O cliente declara ter testado e aprovado o aparelho no ato da compra.</p>
@@ -491,7 +491,7 @@ export function CompleteSale({
                                </div>
 
                                {/* Observações */}
-                               <div className="border border-slate-200 p-3 rounded-lg">
+                               <div className="info-card border border-slate-200 p-2.5 rounded-lg">
                                   <h4 className="text-[8px] font-black uppercase text-slate-400 mb-1 tracking-widest">Observações Gerais</h4>
                                   <p className="text-[9px] font-bold text-slate-600 leading-tight italic line-clamp-3">
                                      {finalSale.observations || "Nenhuma observação adicional registrada para esta venda."}
@@ -501,7 +501,7 @@ export function CompleteSale({
 
                             {/* Coluna da Direita (Bloco Financeiro Modelado em Card Profissional) - col-span-2 */}
                             <div className="col-span-2 flex flex-col justify-start">
-                               <div className="border-2 border-slate-900 bg-slate-50 rounded-xl p-4 flex flex-col shadow-sm">
+                               <div className="financial-card border-2 border-slate-900 bg-slate-50 rounded-xl p-3 flex flex-col shadow-sm">
                                   <h4 className="text-[8px] font-black uppercase tracking-wider text-slate-500 border-b border-slate-200 pb-1.5 mb-2">Resumo Financeiro</h4>
                                   <div className="space-y-1.5">
                                      <div className="flex justify-between items-center text-[10px] font-bold text-slate-600">
@@ -527,7 +527,7 @@ export function CompleteSale({
                          </div>
 
                          {/* 5. ASSINATURAS E RODAPÉ */}
-                         <div className="mt-6 pt-4 border-t border-dashed border-slate-300">
+                         <div className="mt-4 pt-3 border-t border-dashed border-slate-300">
                             <div className="grid grid-cols-2 gap-10">
                                <div className="flex flex-col items-center">
                                   <div className="w-full h-px bg-slate-400"></div>
@@ -540,7 +540,7 @@ export function CompleteSale({
                                   <p className="text-[8px] text-slate-400 font-bold uppercase mt-0.5">{storeSettings.corporateName || storeSettings.name}</p>
                                </div>
                             </div>
-                            <footer className="text-[7px] font-bold text-slate-400 uppercase tracking-widest mt-6 text-center">
+                            <footer className="text-[7px] font-bold text-slate-400 uppercase tracking-widest mt-4 text-center">
                                RECIBO EMITIDO EM {new Date().toLocaleDateString('pt-BR')} às {new Date().toLocaleTimeString('pt-BR')}
                             </footer>
                          </div>

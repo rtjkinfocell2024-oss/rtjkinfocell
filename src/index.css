@@ -64,9 +64,15 @@
     background-color: inherit !important; 
   }
 
+  /* Borda do card financeiro bem visível e destacada na impressão */
+  .financial-card {
+    border: 1.5px solid #2d3748 !important;
+    background-color: #f8fafc !important; /* Mantém fundo cinza claro sutil */
+  }
+
   @page {
     size: A4 portrait;
-    margin: 10mm;
+    margin: 8mm 10mm !important;
   }
 
   /* Esconder inputs vazios ou selects sem valor */
@@ -96,16 +102,14 @@
   /* Ajustes específicos para A4 */
   .a4-container {
     width: 190mm !important; /* Standard printable width on A4 with 10mm margin on each side */
-    height: 277mm !important; /* Standard printable height */
+    height: auto !important; /* Let it size naturally to fit one page! */
+    max-height: 275mm !important; /* Limit to guarantee one page */
     padding: 0 !important;
     margin: 0 auto !important;
     flex-direction: column !important;
     box-sizing: border-box !important;
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    z-index: 999999 !important;
+    position: static !important; /* Flow naturally and don't absolute-position */
+    display: flex !important;
   }
 
   /* Ajustes específicos para Cupom Térmico (80mm) */
@@ -166,6 +170,7 @@
   }
 
   /* Evitar quebras de página */
+  .recibo-container, form, main, .a4-container, .print-area, .a4-content,
   .a4-container header,
   .a4-container section,
   .a4-container .grid,
@@ -173,6 +178,7 @@
   .coupon-container div,
   .coupon-container header {
     page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
   /* Cores pretas sólidas para impressão */
