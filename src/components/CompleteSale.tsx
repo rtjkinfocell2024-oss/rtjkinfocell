@@ -119,7 +119,7 @@ export function CompleteSale({
   };
 
   return (
-    <div className="flex flex-col gap-6 animate-in fade-in duration-500 pb-24 lg:pb-10">
+    <div className={`flex flex-col gap-6 animate-in fade-in duration-500 pb-24 lg:pb-10 ${isPreviewModalOpen ? 'print-modal-active' : ''}`}>
       {/* Header com breadcrumb ou título */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -330,7 +330,7 @@ export function CompleteSale({
 
         {/* MODAL DE PRÉ-VISUALIZAÇÃO DE RECIBO DE VENDA */}
         {isPreviewModalOpen && finalSale && (
-          <div className="fixed inset-0 z-50 flex flex-col bg-slate-950/85 backdrop-blur-md overflow-y-auto p-4 lg:p-10 print:bg-white print:p-0 print:overflow-visible print:static print:block animate-in fade-in duration-300">
+          <div className="modal-recibo-print fixed inset-0 z-50 flex flex-col bg-slate-950/85 backdrop-blur-md overflow-y-auto p-4 lg:p-10 print:bg-white print:p-0 print:overflow-visible print:static print:block animate-in fade-in duration-300">
              {/* Barra de Controle superior */}
              <div className="w-full max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 bg-slate-900 text-white p-5 rounded-2xl shadow-2xl border border-slate-800 print:hidden">
                 <div className="flex items-center gap-3.5">

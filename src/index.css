@@ -37,13 +37,25 @@
   }
 
   /* Garante que nenhum elemento ancestral ou container tenha 'min-height: 100vh' ou 'height: 100%' ativo no print */
-  html, body, #root, .flex, main, .main-content-container, .recibo-container, .a4-container, .print-area {
+  html, body, #root, .flex, main, .main-content-container, .recibo-container, .a4-container, .print-area, .modal-recibo-print {
     height: auto !important;
     min-height: 0 !important;
+    max-height: none !important;
   }
 
-  /* Remove quebras após o container principal */
-  .recibo-container, form, main {
+  /* Garante que todos os contêineres pais e o próprio recibo comecem colados no topo da primeira folha */
+  body, #root, main, .recibo-container, .modal-recibo-print {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    top: 0 !important;
+    position: static !important;
+    transform: none !important;
+  }
+
+  /* Força o navegador a NÃO criar uma quebra de página antes de renderizar o recibo */
+  .recibo-container, .modal-recibo-print, form, main {
+    page-break-before: avoid !important;
+    break-before: avoid !important;
     page-break-after: avoid !important;
     break-after: avoid !important;
     page-break-inside: avoid !important;
@@ -56,13 +68,18 @@
     padding-bottom: 0 !important;
   }
 
-  /* 2. Oculte absolutamente tudo o que for da barra lateral, menu, cabeçalhos do sistema e botões */
-  nav, sidebar, aside, footer:not(.signatures-table footer), .no-print, button, .sidebar-class, .navbar-class {
+  /* 2. Oculte absolutamente tudo o que for da barra lateral, menu, cabeçalhos do sistema e botões de fundo */
+  nav, sidebar, aside, footer:not(.signatures-table footer), .no-print, button, .sidebar-class, .navbar-class, .bottom-nav-class {
+    display: none !important;
+  }
+
+  /* Oculte com display:none todo o conteúdo de trás da tela de vendas para zerar espaço reservado na impressão */
+  .print-modal-active > :not(.modal-recibo-print) {
     display: none !important;
   }
 
   /* 3. Resete o container principal do Recibo para que ele ocupe o topo da página */
-  .main-content-container, main, #root, .recibo-container {
+  .main-content-container, main, #root, .recibo-container, .modal-recibo-print {
     position: static !important;
     top: 0 !important;
     left: 0 !important;
@@ -108,7 +125,7 @@
   }
 
   /* SHOW ONLY PRINT AREA AND DESCENDANTS */
-  .print-area, .print-area * {
+  .modal-recibo-print, .modal-recibo-print *, .recibo-container, .recibo-container *, .print-area, .print-area * {
     visibility: visible !important;
   }
 
