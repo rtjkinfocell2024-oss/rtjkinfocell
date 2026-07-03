@@ -29,6 +29,7 @@
   html, body {
     height: auto !important;
     min-height: auto !important;
+    max-height: 100% !important;
     overflow: hidden !important;
     position: static !important;
     margin: 0 !important;
@@ -45,6 +46,8 @@
   .recibo-container, form, main {
     page-break-after: avoid !important;
     break-after: avoid !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
   /* Zera margens de elementos finais para não empurrarem a folha */
@@ -90,8 +93,8 @@
   }
 
   @page {
-    size: A4 portrait;
-    margin: 8mm 10mm !important;
+    size: A4;
+    margin: 5mm 8mm 5mm 8mm !important; /* Margens superior/lateral/inferior reduzidas */
   }
 
   /* Esconder inputs vazios ou selects sem valor */
@@ -120,7 +123,8 @@
 
   /* Ajustes específicos para A4 */
   .a4-container {
-    width: 190mm !important; /* Standard printable width on A4 with 10mm margin on each side */
+    width: 100% !important; /* Standard printable width on A4 with margins handled by @page */
+    max-width: 100% !important;
     height: auto !important; /* Let it size naturally to fit one page! */
     max-height: 275mm !important; /* Limit to guarantee one page */
     padding: 0 !important;
@@ -155,24 +159,111 @@
     margin: 0 !important;
   }
 
-  /* Garantir que tabelas de dados fiquem visíveis e centralizadas */
+  /* Redução drástica de margens, paddings e fontes na impressão do recibo */
+  .print-area header {
+    padding-bottom: 6px !important;
+    margin-bottom: 6px !important;
+    border-bottom-width: 1.5px !important;
+  }
+  .print-area header h1 {
+    font-size: 14pt !important;
+  }
+  .print-area header h2 {
+    font-size: 14pt !important;
+  }
+  .print-area header p, .print-area header div {
+    font-size: 7.5pt !important;
+  }
+  .print-area .grid {
+    gap: 6px !important;
+  }
+  .print-area .space-y-3 > * + * {
+    margin-top: 6px !important;
+  }
+  .info-card {
+    padding: 5px 8px !important;
+    border-radius: 6px !important;
+  }
+  .info-card h3 {
+    margin-bottom: 2px !important;
+    font-size: 6.5pt !important;
+  }
+  .info-card p {
+    font-size: 9.5pt !important;
+    margin-bottom: 2px !important;
+  }
+  .info-card div {
+    font-size: 8pt !important;
+  }
+
+  /* Termos de garantia e Observações compactados */
+  .info-card, .observacoes-container {
+    font-size: 7.8pt !important;
+    line-height: 1.15 !important;
+  }
+  .observacoes-container p {
+    font-size: 7.8pt !important;
+    line-height: 1.15 !important;
+  }
+  .info-card h4, .observacoes-container h4 {
+    font-size: 7pt !important;
+    margin-bottom: 2px !important;
+  }
+  .info-card p {
+    font-size: 7.8pt !important;
+    margin-bottom: 1px !important;
+  }
+
+  /* Tabela de itens ultra compacta e ocupando exatamente 100% da largura útil */
   .print-area table {
     width: 100% !important;
     border-collapse: collapse !important;
-    margin: 12px 0 !important;
+    margin: 4px 0 !important;
     text-align: left !important;
   }
-
   .print-area th, .print-area td {
     border: 1px solid #000000 !important;
-    padding: 8px 10px !important;
+    padding: 3px 5px !important; /* Padding vertical e horizontal super reduzido */
+    font-size: 8pt !important;
+    line-height: 1.1 !important;
     color: #000000 !important;
   }
-
   .print-area th {
     background-color: #f1f5f9 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+  }
+
+  /* Resumo financeiro compactado */
+  .financial-card {
+    padding: 6px 8px !important;
+    border-radius: 6px !important;
+  }
+  .financial-card h4 {
+    margin-bottom: 3px !important;
+    padding-bottom: 1.5px !important;
+  }
+  .financial-card div {
+    font-size: 8pt !important;
+  }
+  .financial-card .text-lg {
+    font-size: 11pt !important;
+  }
+
+  /* Assinaturas compactadas */
+  .signatures-table {
+    margin-top: 8px !important;
+    padding-top: 4px !important;
+  }
+  .signatures-table .grid {
+    gap: 12px !important;
+  }
+  .signatures-table p {
+    font-size: 7pt !important;
+  }
+  .signatures-table footer {
+    margin-top: 6px !important;
+    font-size: 6.5pt !important;
   }
 
   /* Remover bordas e backgrounds desnecessários de inputs ou caixas de seleção na hora de imprimir */
@@ -188,7 +279,7 @@
     color: #000000 !important;
   }
 
-  /* Evitar quebras de página */
+  /* Evitar quebras de página em elementos do recibo */
   .recibo-container, form, main, .a4-container, .print-area, .a4-content,
   .a4-container header,
   .a4-container section,
