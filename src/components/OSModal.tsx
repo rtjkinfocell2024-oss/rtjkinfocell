@@ -231,8 +231,8 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] animate-in zoom-in-95 duration-300">
+    <div className="modal-os-container fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300 print:bg-white print:p-0 print:overflow-visible print:static print:block">
+      <div className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] animate-in zoom-in-95 duration-300 print:hidden">
         <header className="px-6 py-4 border-b border-border flex justify-between items-center bg-slate-50">
           <div>
             <h3 className="text-lg font-bold">
@@ -750,7 +750,7 @@ export function OSModal({ isOpen, onClose, onSave, os, mode, customers, machines
 
       {/* RENDERIZAÇÃO PROFISSIONAL PARA IMPRESSÃO A4 */}
       {os && (
-        <div className="hidden print:flex print-area a4-container bg-white text-black font-sans overflow-hidden">
+        <div className="hidden print:flex print-area a4-container os-container bg-white text-black font-sans overflow-hidden">
            <div className="a4-content">
               {/* Cabeçalho Profissional - PADRÃO ÚNICO */}
               <header className="flex justify-between items-start border-b-2 border-slate-900 pb-4 mb-4">

@@ -92,7 +92,7 @@ export function ServiceOrders({ serviceOrders, onSaveOS, customers, machines, on
   });
 
   return (
-    <div className="flex flex-col gap-6 animate-in fade-in duration-500">
+    <div className={`flex flex-col gap-6 animate-in fade-in duration-500 ${isModalOpen ? 'print-modal-active' : ''}`}>
       <header className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Ordens de Serviço</h2>

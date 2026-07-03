@@ -37,14 +37,14 @@
   }
 
   /* Garante que nenhum elemento ancestral ou container tenha 'min-height: 100vh' ou 'height: 100%' ativo no print */
-  html, body, #root, .flex, main, .main-content-container, .recibo-container, .a4-container, .print-area, .modal-recibo-print {
+  html, body, #root, .flex, main, .main-content-container, .recibo-container, .os-container, .a4-container, .print-area, .modal-recibo-print, .modal-os-container {
     height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
   }
 
-  /* Garante que todos os contêineres pais e o próprio recibo comecem colados no topo da primeira folha */
-  body, #root, main, .recibo-container, .modal-recibo-print {
+  /* Garante que todos os contêineres pais e o próprio recibo ou O.S. comecem colados no topo da primeira folha */
+  body, #root, main, .recibo-container, .os-container, .modal-recibo-print, .modal-os-container {
     margin-top: 0 !important;
     padding-top: 0 !important;
     top: 0 !important;
@@ -52,8 +52,8 @@
     transform: none !important;
   }
 
-  /* Força o navegador a NÃO criar uma quebra de página antes de renderizar o recibo */
-  .recibo-container, .modal-recibo-print, form, main {
+  /* Força o navegador a NÃO criar uma quebra de página antes de renderizar o recibo ou O.S. */
+  .recibo-container, .os-container, .modal-recibo-print, .modal-os-container, form, main {
     page-break-before: avoid !important;
     break-before: avoid !important;
     page-break-after: avoid !important;
@@ -73,13 +73,13 @@
     display: none !important;
   }
 
-  /* Oculte com display:none todo o conteúdo de trás da tela de vendas para zerar espaço reservado na impressão */
-  .print-modal-active > :not(.modal-recibo-print) {
+  /* Oculte com display:none todo o conteúdo de trás da tela de vendas ou O.S. para zerar espaço reservado na impressão */
+  .print-modal-active > :not(.modal-recibo-print):not(.modal-os-container) {
     display: none !important;
   }
 
-  /* 3. Resete o container principal do Recibo para que ele ocupe o topo da página */
-  .main-content-container, main, #root, .recibo-container, .modal-recibo-print {
+  /* 3. Resete o container principal do Recibo ou O.S. para que ele ocupe o topo da página */
+  .main-content-container, main, #root, .recibo-container, .os-container, .modal-recibo-print, .modal-os-container {
     position: static !important;
     top: 0 !important;
     left: 0 !important;
@@ -125,7 +125,7 @@
   }
 
   /* SHOW ONLY PRINT AREA AND DESCENDANTS */
-  .modal-recibo-print, .modal-recibo-print *, .recibo-container, .recibo-container *, .print-area, .print-area * {
+  .modal-recibo-print, .modal-recibo-print *, .recibo-container, .recibo-container *, .modal-os-container, .modal-os-container *, .os-container, .os-container *, .print-area, .print-area * {
     visibility: visible !important;
   }
 
