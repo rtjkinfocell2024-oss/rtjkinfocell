@@ -25,13 +25,38 @@
 }
 
 @media print {
-  /* Força a renderização completa de cores e fundos */
+  /* 1. Força o HTML e o Body a aceitarem a rolagem natural da folha A4 */
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+    position: static !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* 2. Oculte absolutamente tudo o que for da barra lateral, menu, cabeçalhos do sistema e botões */
+  nav, sidebar, aside, footer, .no-print, button, .sidebar-class, .navbar-class {
+    display: none !important;
+  }
+
+  /* 3. Resete o container principal do Recibo para que ele ocupe o topo da página */
+  .main-content-container, main, #root, .recibo-container {
+    position: static !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  /* 4. Garanta a renderização de cores básicas */
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     color-scheme: light !important;
   }
-  
+
   /* Garante que os cards e tabelas mantenham a cor cinza claro ou escura de fundo */
   .financial-card, .info-card, card, div, th, td {
     -webkit-print-color-adjust: exact !important;
@@ -42,34 +67,6 @@
   @page {
     size: A4 portrait;
     margin: 10mm;
-  }
-  
-  /* Reset general page layout and eliminate default backgrounds, paddings, scrollbars */
-  html, body, #root, .flex.min-h-screen, main, main > div {
-    display: block !important;
-    position: static !important;
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    background: #ffffff !important;
-    color: #000000 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    box-shadow: none !important;
-    overflow: visible !important;
-  }
-
-  /* Ocultar todos os elementos da interface padrão */
-  aside, 
-  nav, 
-  footer, 
-  button, 
-  .no-print,
-  .btn-primary,
-  .btn-secondary,
-  .lg\:flex.w-\[240px\],
-  nav.lg\:hidden {
-    display: none !important;
   }
 
   /* Esconder inputs vazios ou selects sem valor */

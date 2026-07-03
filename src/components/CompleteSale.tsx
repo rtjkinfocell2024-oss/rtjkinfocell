@@ -330,9 +330,9 @@ export function CompleteSale({
 
         {/* MODAL DE PRÉ-VISUALIZAÇÃO DE RECIBO DE VENDA */}
         {isPreviewModalOpen && finalSale && (
-          <div className="fixed inset-0 z-50 flex flex-col bg-slate-950/85 backdrop-blur-md overflow-y-auto p-4 lg:p-10 print:hidden animate-in fade-in duration-300">
+          <div className="fixed inset-0 z-50 flex flex-col bg-slate-950/85 backdrop-blur-md overflow-y-auto p-4 lg:p-10 print:bg-white print:p-0 print:overflow-visible print:static print:block animate-in fade-in duration-300">
              {/* Barra de Controle superior */}
-             <div className="w-full max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 bg-slate-900 text-white p-5 rounded-2xl shadow-2xl border border-slate-800">
+             <div className="w-full max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 bg-slate-900 text-white p-5 rounded-2xl shadow-2xl border border-slate-800 print:hidden">
                 <div className="flex items-center gap-3.5">
                    <div className="p-3 bg-primary/20 text-primary rounded-xl">
                       <FileText size={22} className="animate-pulse" />
@@ -360,7 +360,7 @@ export function CompleteSale({
              </div>
 
              {/* Folha A4 interativa renderizada na tela */}
-             <div className="w-full max-w-4xl mx-auto bg-white text-black p-8 sm:p-12 rounded-2xl shadow-2xl border border-slate-200 flex flex-col min-h-[297mm]">
+             <div className="w-full max-w-4xl mx-auto bg-white text-black p-8 sm:p-12 rounded-2xl shadow-2xl border border-slate-200 flex flex-col min-h-[297mm] print:p-0 print:m-0 print:border-none print:shadow-none print:rounded-none">
                 <div className="print-area a4-container flex flex-col flex-1 bg-white text-black font-sans">
                    <div className="a4-content flex flex-col flex-1">
                       {/* Cabeçalho */}
